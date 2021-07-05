@@ -47,12 +47,12 @@ namespace AzStorage.Test.Helpers
         public static AzTableRepository GetOrCreateAzTableRepository(OptionCreateResource optionCreateIfNotExist)
         {
             if (_AzTableRepository == null)
-                _AzTableRepository = GetAzTableRepository(optionCreateIfNotExist);
+                _AzTableRepository = CreateAzTableRepository(optionCreateIfNotExist);
 
             return _AzTableRepository;
         }
 
-        public static AzTableRepository GetAzTableRepository(OptionCreateResource optionCreateIfNotExist)
+        private static AzTableRepository CreateAzTableRepository(OptionCreateResource optionCreateIfNotExist)
         {
             var _azTableRetryOptions = new AzTableRetryOptions
             {
@@ -879,6 +879,17 @@ namespace AzStorage.Test.Helpers
             where T : class, ITableEntity, new()
         {
             return await GetOrCreateAzTableRepository(OptionCreateResource.OnlyFirstTime).DeleteEntityAsync(entity, tableName: default);
+        }
+
+        public static async Task<AzStorageResponse> DeleteEntityAsync<T>(string partitionKey, string rowKey)
+            where T : class, ITableEntity, new()
+        {
+            return await GetOrCreateAzTableRepository(OptionCreateResource.OnlyFirstTime).DeleteEntityAsync<T>(partitionKey, rowKey);
+        }
+        
+        public static async Task<AzStorageResponse> DeleteEntityAsync(string partitionKey, string rowKey)
+        {
+            return await GetOrCreateAzTableRepository(OptionCreateResource.OnlyFirstTime).DeleteEntityAsync(partitionKey, rowKey, GetTableEntityName());
         }
 
         public static Task<List<AzStorageResponse<IReadOnlyList<Response>>>> DeleteEntitiesTransactionallyAsync<TIn>(

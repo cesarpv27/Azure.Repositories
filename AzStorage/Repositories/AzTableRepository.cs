@@ -74,16 +74,21 @@ namespace AzStorage.Repositories
             return _TableClient;
         }
 
-        private AzTableTransactionStore _AzTableTransactionStore;
-        private AzTableTransactionStore AzTableTransactionStore
-        {
-            get
-            {
-                if (_AzTableTransactionStore == null)
-                    _AzTableTransactionStore = new AzTableTransactionStore();
+        //private AzTableTransactionStore _AzTableTransactionStore;
+        //private AzTableTransactionStore AzTableTransactionStore
+        //{
+        //    get
+        //    {
+        //        if (_AzTableTransactionStore == null)
+        //            _AzTableTransactionStore = new AzTableTransactionStore();
 
-                return _AzTableTransactionStore;
-            }
+        //        return _AzTableTransactionStore;
+        //    }
+        //}
+
+        protected AzTableTransactionStore CreateAzTableTransactionStore()
+        {
+            return new AzTableTransactionStore(); ;
         }
 
         #endregion
@@ -210,10 +215,11 @@ namespace AzStorage.Repositories
         {
             ExThrower.ST_ThrowIfArgumentIsNull(entities, nameof(entities));
 
-            AzTableTransactionStore.ClearNAdd(entities);
+            var azTableTransactionStore = CreateAzTableTransactionStore();
+            azTableTransactionStore.ClearNAdd(entities);
 
             return GetTableClient<TIn>(tableName).SubmitTransaction<AzTableTransactionStore>(
-                AzTableTransactionStore, cancellationToken);
+                azTableTransactionStore, cancellationToken);
         }
 
         #endregion
@@ -481,9 +487,11 @@ namespace AzStorage.Repositories
         {
             ExThrower.ST_ThrowIfArgumentIsNull(entities, nameof(entities));
 
-            AzTableTransactionStore.ClearNUpdate(entities, mode);
+            var azTableTransactionStore = CreateAzTableTransactionStore();
+            azTableTransactionStore.ClearNUpdate(entities, mode);
 
-            return GetTableClient<TIn>(tableName).SubmitTransaction<AzTableTransactionStore>(AzTableTransactionStore, cancellationToken);
+            return GetTableClient<TIn>(tableName).SubmitTransaction<AzTableTransactionStore>(
+                azTableTransactionStore, cancellationToken);
         }
 
         #endregion
@@ -556,9 +564,11 @@ namespace AzStorage.Repositories
         {
             ExThrower.ST_ThrowIfArgumentIsNull(entities, nameof(entities));
 
-            AzTableTransactionStore.ClearNUpsert(entities, mode);
+            var azTableTransactionStore = CreateAzTableTransactionStore();
+            azTableTransactionStore.ClearNUpsert(entities, mode);
 
-            return GetTableClient<TIn>(tableName).SubmitTransaction<AzTableTransactionStore>(AzTableTransactionStore, cancellationToken);
+            return GetTableClient<TIn>(tableName).SubmitTransaction<AzTableTransactionStore>(
+                azTableTransactionStore, cancellationToken);
         }
 
         #endregion
@@ -859,9 +869,11 @@ namespace AzStorage.Repositories
         {
             ExThrower.ST_ThrowIfArgumentIsNull(entities, nameof(entities));
 
-            AzTableTransactionStore.ClearNDelete(entities);
+            var azTableTransactionStore = CreateAzTableTransactionStore();
+            azTableTransactionStore.ClearNDelete(entities);
 
-            return GetTableClient<T>(tableName).SubmitTransaction<AzTableTransactionStore>(AzTableTransactionStore, cancellationToken);
+            return GetTableClient<T>(tableName).SubmitTransaction<AzTableTransactionStore>(
+                azTableTransactionStore, cancellationToken);
         }
 
         /// <summary>
@@ -992,13 +1004,13 @@ namespace AzStorage.Repositories
             var entityToDelete = new TableEntity { PartitionKey = partitionKey, RowKey = rowKey };
             if (partitionKey.Equals(newPartitionKey))
             {
-                AzTableTransactionStore.Clear();
-                AzTableTransactionStore.Delete(entityToDelete);
-                AzTableTransactionStore.Add(entity);
+                var azTableTransactionStore = CreateAzTableTransactionStore();
+                azTableTransactionStore.Delete(entityToDelete);
+                azTableTransactionStore.Add(entity);
 
                 var submitTransactionResponse = FuncHelper.Execute<IEnumerable<TableTransactionAction>, CancellationToken, Response<IReadOnlyList<Response>>,
                     AzStorageResponse<IReadOnlyList<Response>>, IReadOnlyList<Response>>(
-                    GetTableClient<T>(tableName).SubmitTransaction, AzTableTransactionStore, cancellationToken);
+                    GetTableClient<T>(tableName).SubmitTransaction, azTableTransactionStore, cancellationToken);
 
                 return submitTransactionResponse.InduceGenericLessResponse();
             }

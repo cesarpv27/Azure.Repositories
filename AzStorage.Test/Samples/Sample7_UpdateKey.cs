@@ -10,9 +10,10 @@ using CoreTools.Extensions;
 
 namespace AzStorage.Test.Samples
 {
+    [TestCaseOrderer("AzStorage.Test.Utilities.PriorityOrderer", "AzStorage.Test")]
     public class Sample7_UpdateKey
     {
-        [Fact]
+        [Fact, TestPriority(100)]
         public void UpdateKeysTest1()
         {
             // Arrange
@@ -37,7 +38,7 @@ namespace AzStorage.Test.Samples
             UnitTestHelper.AssertExpectedFailedGenResponse(_getEntityResponse, ConstProvider.The_specified_resource_does_not_exist);
         }
 
-        [Fact]
+        [Fact, TestPriority(100)]
         public void UpdateKeysTest2()
         {
             // Arrange
@@ -62,7 +63,7 @@ namespace AzStorage.Test.Samples
             UnitTestHelper.AssertExpectedFailedGenResponse(_getEntityResponse, ConstProvider.The_specified_resource_does_not_exist);
         }
 
-        [Fact]
+        [Fact, TestPriority(100)]
         public void UpdateKeysTest3()
         {
             string nonEmptyKey = "SomeKey";
@@ -75,7 +76,7 @@ namespace AzStorage.Test.Samples
             Assert.Equal(Core.Texting.ErrorTextProvider.Current_keys_same_as_new_keys, argException.GetDepthMessages());
         }
 
-        [Fact]
+        [Fact, TestPriority(100)]
         public void UpdatePartitionKeyTest()
         {
             // Arrange
@@ -100,7 +101,7 @@ namespace AzStorage.Test.Samples
             UnitTestHelper.AssertExpectedFailedGenResponse(_getEntityResponse, ConstProvider.The_specified_resource_does_not_exist);
         }
 
-        [Fact]
+        [Fact, TestPriority(100)]
         public void UpdateRowKeyTest()
         {
             // Arrange

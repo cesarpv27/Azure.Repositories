@@ -259,8 +259,7 @@ namespace AzStorage.Core.Tables
 
         public IEnumerable<List<TableTransactionAction>> GetRangeEnumerable()
         {
-            foreach (var _value in TransactionActions.Values)
-                yield return _value;
+            return TransactionActions.Values;
         }
 
         #endregion

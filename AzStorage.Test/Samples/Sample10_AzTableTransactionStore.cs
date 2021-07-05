@@ -11,9 +11,10 @@ using AzStorage.Core.Extensions;
 
 namespace AzStorage.Test.Samples
 {
+    [TestCaseOrderer("AzStorage.Test.Utilities.PriorityOrderer", "AzStorage.Test")]
     public class Sample10_AzTableTransactionStore
     {
-        [Fact]
+        [Fact, TestPriority(700)]
         public void AzTableTransactionStoreTest()
         {
             // Arrange

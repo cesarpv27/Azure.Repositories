@@ -10,9 +10,10 @@ using System.Threading;
 
 namespace AzStorage.Test.Samples
 {
+    [TestCaseOrderer("AzStorage.Test.Utilities.PriorityOrderer", "AzStorage.Test")]
     public class Sample5_QueryEntities
     {
-        [Fact]
+        [Fact, TestPriority(200)]
         public void QueryAllTest()
         {
             // Arrange
@@ -29,7 +30,7 @@ namespace AzStorage.Test.Samples
                 (responseValues, originalEntities) => responseValues.Count >= originalEntities.Count());
         }
 
-        [Fact]
+        [Fact, TestPriority(210)]
         public void QueryByPartitionKeyTest()
         {
             // Arrange
@@ -45,7 +46,7 @@ namespace AzStorage.Test.Samples
                 (responseValues, originalEntities) => responseValues.Count == originalEntities.Count());
         }
 
-        [Fact]
+        [Fact, TestPriority(210)]
         public void QueryByPartitionKeyStartPatternTest()
         {
             // Arrange
@@ -62,7 +63,7 @@ namespace AzStorage.Test.Samples
                 (responseValues, originalEntities) => responseValues.Count == originalEntities.Count());
         }
 
-        [Fact]
+        [Fact, TestPriority(210)]
         public void QueryByPartitionKeyRowKeyTest()
         {
             // Arrange
@@ -78,7 +79,7 @@ namespace AzStorage.Test.Samples
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(selectedEntity, _queryByPartitionKeyRowKeyResponseAct);
         }
 
-        [Fact]
+        [Fact, TestPriority(210)]
         public void QueryByPartitionKeyRowKeyStartPatternTest()
         {
             // Arrange
@@ -96,7 +97,7 @@ namespace AzStorage.Test.Samples
                 (responseValues, originalEntities) => responseValues.Count >= originalEntities.Count());
         }
 
-        [Fact]
+        [Fact, TestPriority(210)]
         public void QueryByPartitionKeyStartPatternRowKeyStartPatternTest()
         {
             // Arrange
@@ -115,7 +116,7 @@ namespace AzStorage.Test.Samples
                 (responseValues, originalEntities) => responseValues.Count >= originalEntities.Count());
         }
 
-        [Fact]
+        [Fact, TestPriority(210)]
         public void QueryByTimestampTest()
         {
             // Arrange
@@ -139,7 +140,7 @@ namespace AzStorage.Test.Samples
                 (responseValues, originalEntities) => responseValues.Count >= originalEntities.Count());
         }
 
-        [Fact]
+        [Fact, TestPriority(210)]
         public void QueryByPartitionKeyTimestampTest()
         {
             // Arrange
@@ -162,6 +163,5 @@ namespace AzStorage.Test.Samples
                 entities,
                 (responseValues, originalEntities) => responseValues.Count >= originalEntities.Count());
         }
-
     }
 }

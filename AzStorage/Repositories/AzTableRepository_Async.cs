@@ -21,6 +21,7 @@ using AzStorage.Core.Tables;
 using AzCoreTools.Utilities;
 using AzCoreTools.Helpers;
 using AzStorage.Core.Extensions;
+using AzCoreTools.Extensions;
 
 namespace AzStorage.Repositories
 {
@@ -126,6 +127,178 @@ namespace AzStorage.Repositories
             return await FuncHelper.ExecuteAsync<string, string, IEnumerable<string>, CancellationToken, Response<T>, AzStorageResponse<T>, T>(
                 GetTableClient<T>(tableName).GetEntityAsync<T>,
                 partitionKey, rowKey, default, cancellationToken);
+        }
+
+        #endregion
+
+        #region Query
+
+        /// <summary>
+        /// Queries all entities in the table.
+        /// </summary>
+        /// <typeparam name="T">A custom model type that implements <see cref="ITableEntity" /> or an instance of <see cref="TableEntity"/>.</typeparam>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="take">Amount of entities to take in response. This value must be greater than zero.</param>
+        /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
+        /// <returns>A <see cref="AzStorageResponse"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
+        public virtual async Task<AzStorageResponse<List<T>>> QueryAllAsync<T>(
+            CancellationToken cancellationToken = default,
+            int take = int.MaxValue,
+            string tableName = default) where T : class, ITableEntity, new()
+        {
+            return await FuncHelper.ExecuteAsync<CancellationToken, int, AzStorageResponse<List<T>>, AzStorageResponse<List<T>>, List<T>>(
+                GetTableClient<T>(tableName).QueryAllAsync<T>,
+                cancellationToken, take);
+        }
+
+        /// <summary>
+        /// Queries entities in the table with the specified partition key.
+        /// </summary>
+        /// <typeparam name="T">A custom model type that implements <see cref="ITableEntity" /> or an instance of <see cref="TableEntity"/>.</typeparam>
+        /// <param name="partitionKey">The partition key that identifies the entities.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="take">Amount of entities to take in response. This value must be greater than zero.</param>
+        /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
+        /// <returns>A <see cref="AzStorageResponse"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
+        public virtual async Task<AzStorageResponse<List<T>>> QueryByPartitionKeyAsync<T>(
+            string partitionKey,
+            CancellationToken cancellationToken = default,
+            int take = int.MaxValue,
+            string tableName = default) where T : class, ITableEntity, new()
+        {
+            return await FuncHelper.ExecuteAsync<string, CancellationToken, int, AzStorageResponse<List<T>>, AzStorageResponse<List<T>>, List<T>>(
+                GetTableClient<T>(tableName).QueryByPartitionKeyAsync<T>,
+                partitionKey, cancellationToken, take);
+        }
+
+        /// <summary>
+        /// Queries entities in the table with the specified partition key start pattern.
+        /// </summary>
+        /// <typeparam name="T">A custom model type that implements <see cref="ITableEntity" /> or an instance of <see cref="TableEntity"/>.</typeparam>
+        /// <param name="startPattern">The partition key start pattern that identifies the entities.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="take">Amount of entities to take in response. This value must be greater than zero.</param>
+        /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
+        /// <returns>A <see cref="AzStorageResponse"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
+        public virtual async Task<AzStorageResponse<List<T>>> QueryByPartitionKeyStartPatternAsync<T>(
+            string startPattern,
+            CancellationToken cancellationToken = default,
+            int take = int.MaxValue,
+            string tableName = default) where T : class, ITableEntity, new()
+        {
+            return await FuncHelper.ExecuteAsync<string, CancellationToken, int, AzStorageResponse<List<T>>, AzStorageResponse<List<T>>, List<T>>(
+                GetTableClient<T>(tableName).QueryByPartitionKeyStartPatternAsync<T>,
+                startPattern, cancellationToken, take);
+        }
+
+        /// <summary>
+        /// Gets the specified table entity of type <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">A custom model type that implements <see cref="ITableEntity" /> or an instance of <see cref="TableEntity"/>.</typeparam>
+        /// <param name="partitionKey">The partition key that identifies the table entity.</param>
+        /// <param name="rowKey">The row key that identifies the table entity.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
+        /// <returns>A <see cref="AzStorageResponse"/> indicating the result of the operation.</returns>
+        public virtual async Task<AzStorageResponse<T>> QueryByPartitionKeyRowKeyAsync<T>(
+            string partitionKey,
+            string rowKey,
+            CancellationToken cancellationToken = default,
+            string tableName = default) where T : class, ITableEntity, new()
+        {
+            return await FuncHelper.ExecuteAsync<string, string, CancellationToken, AzStorageResponse<T>, AzStorageResponse<T>, T>(
+                GetTableClient<T>(tableName).QueryByPartitionKeyRowKeyAsync<T>,
+                partitionKey, rowKey, cancellationToken);
+        }
+
+        /// <summary>
+        /// Queries entities in the table with the specified partition key and row key start pattern.
+        /// </summary>
+        /// <typeparam name="T">A custom model type that implements <see cref="ITableEntity" /> or an instance of <see cref="TableEntity"/>.</typeparam>
+        /// <param name="partitionKey">The partition key that identifies the entities.</param>
+        /// <param name="rowKeyStartPattern">The row key start pattern that identifies the entities.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="take">Amount of entities to take in response. This value must be greater than zero.</param>
+        /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
+        /// <returns>A <see cref="AzStorageResponse"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
+        public virtual async Task<AzStorageResponse<List<T>>> QueryByPartitionKeyRowKeyStartPatternAsync<T>(
+            string partitionKey,
+            string rowKeyStartPattern,
+            CancellationToken cancellationToken = default,
+            int take = int.MaxValue,
+            string tableName = default) where T : class, ITableEntity, new()
+        {
+            return await FuncHelper.ExecuteAsync<string, string, CancellationToken, int, AzStorageResponse<List<T>>, AzStorageResponse<List<T>>, List<T>>(
+                GetTableClient<T>(tableName).QueryByPartitionKeyRowKeyStartPatternAsync<T>,
+                partitionKey, rowKeyStartPattern, cancellationToken, take);
+        }
+
+        /// <summary>
+        /// Queries entities in the table with the specified partition key start pattern and row key start pattern.
+        /// </summary>
+        /// <typeparam name="T">A custom model type that implements <see cref="ITableEntity" /> or an instance of <see cref="TableEntity"/>.</typeparam>
+        /// <param name="partitionKeyStartPattern">The partition key start pattern that identifies the entities.</param>
+        /// <param name="rowKeyStartPattern">The row key start pattern that identifies the entities.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="take">Amount of entities to take in response. This value must be greater than zero.</param>
+        /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
+        /// <returns>A <see cref="AzStorageResponse"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
+        public virtual async Task<AzStorageResponse<List<T>>> QueryByPartitionKeyStartPatternRowKeyStartPatternAsync<T>(
+            string partitionKeyStartPattern,
+            string rowKeyStartPattern,
+            CancellationToken cancellationToken = default,
+            int take = int.MaxValue,
+            string tableName = default) where T : class, ITableEntity, new()
+        {
+            return await FuncHelper.ExecuteAsync<string, string, CancellationToken, int, AzStorageResponse<List<T>>, AzStorageResponse<List<T>>, List<T>>(
+                GetTableClient<T>(tableName).QueryByPartitionKeyStartPatternRowKeyStartPatternAsync<T>,
+                partitionKeyStartPattern, rowKeyStartPattern, cancellationToken, take);
+        }
+
+        /// <summary>
+        /// Queries entities in the table between the specified start timestamp and end timestamp.
+        /// </summary>
+        /// <typeparam name="T">A custom model type that implements <see cref="ITableEntity" /> or an instance of <see cref="TableEntity"/>.</typeparam>
+        /// <param name="timeStampFrom">The start timestamp that identifies the entities.</param>
+        /// <param name="timeStampTo">The end timestamp that identifies the entities.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="take">Amount of entities to take in response. This value must be greater than zero.</param>
+        /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
+        /// <returns>A <see cref="AzStorageResponse"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
+        public virtual async Task<AzStorageResponse<List<T>>> QueryByTimestampAsync<T>(
+            DateTime timeStampFrom,
+            DateTime timeStampTo,
+            CancellationToken cancellationToken = default,
+            int take = int.MaxValue,
+            string tableName = default) where T : class, ITableEntity, new()
+        {
+            return await FuncHelper.ExecuteAsync<DateTime, DateTime, CancellationToken, int, AzStorageResponse<List<T>>, AzStorageResponse<List<T>>, List<T>>(
+                GetTableClient<T>(tableName).QueryByTimestampAsync<T>,
+                timeStampFrom, timeStampTo, cancellationToken, take);
+        }
+
+        /// <summary>
+        /// Queries entities in the table with the specified partition key and between start timestamp and end timestamp.
+        /// </summary>
+        /// <typeparam name="T">A custom model type that implements <see cref="ITableEntity" /> or an instance of <see cref="TableEntity"/>.</typeparam>
+        /// <param name="partitionKey">The partition key that identifies the entities.</param>
+        /// <param name="timeStampFrom">The start timestamp that identifies the entities.</param>
+        /// <param name="timeStampTo">The end timestamp that identifies the entities.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="take">Amount of entities to take in response. This value must be greater than zero.</param>
+        /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
+        /// <returns>A <see cref="AzStorageResponse"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
+        public virtual async Task<AzStorageResponse<List<T>>> QueryByPartitionKeyTimestampAsync<T>(
+            string partitionKey,
+            DateTime timeStampFrom,
+            DateTime timeStampTo,
+            CancellationToken cancellationToken = default,
+            int take = int.MaxValue,
+            string tableName = default) where T : class, ITableEntity, new()
+        {
+            return await FuncHelper.ExecuteAsync<string, DateTime, DateTime, CancellationToken, int, AzStorageResponse<List<T>>, AzStorageResponse<List<T>>, List<T>>(
+                GetTableClient<T>(tableName).QueryByPartitionKeyTimestampAsync<T>,
+                partitionKey, timeStampFrom, timeStampTo, cancellationToken, take);
         }
 
         #endregion

@@ -6,15 +6,16 @@ using AzStorage.Test.Helpers;
 
 namespace AzStorage.Test.Samples
 {
+    [TestCaseOrderer("AzStorage.Test.Utilities.PriorityOrderer", "AzStorage.Test")]
     public class Sample0_Miscellaneous
     {
-        [Fact]
+        [Fact, TestPriority(100)]
         public void CreateAzTableRepositoryTest1()
         {
             Assert.Throws<ArgumentNullException>(() => new Repositories.AzTableRepository(connectionString: string.Empty));
         }
 
-        [Fact]
+        [Fact, TestPriority(100)]
         public void GetTableNameTest1()
         {
             // Arrange
@@ -43,7 +44,7 @@ namespace AzStorage.Test.Samples
             Assert.Equal(sampleEntity.RowKey, recoveredEntity.RowKey);
         }
 
-        [Fact]
+        [Fact, TestPriority(100)]
         public void GetTableNameTest2()
         {
             // Arrange
@@ -71,7 +72,7 @@ namespace AzStorage.Test.Samples
             Assert.Equal(sampleEntity.RowKey, recoveredEntity.RowKey);
         }
 
-        [Fact]
+        [Fact, TestPriority(100)]
         public void GetTableNameTest3()
         {
             // Arrange
@@ -97,7 +98,7 @@ namespace AzStorage.Test.Samples
             UnitTestHelper.AssertExpectedFailedGenResponse(_getEntityResponse, ConstProvider.The_specified_resource_does_not_exist);
         }
 
-        [Fact]
+        [Fact, TestPriority(100)]
         public void CreateTableTest()
         {
             // Arrange

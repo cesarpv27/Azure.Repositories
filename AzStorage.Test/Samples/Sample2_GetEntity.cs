@@ -9,9 +9,10 @@ using AzCoreTools.Core;
 
 namespace AzStorage.Test.Samples
 {
+    [TestCaseOrderer("AzStorage.Test.Utilities.PriorityOrderer", "AzStorage.Test")]
     public class Sample2_GetEntity
     {
-        [Fact]
+        [Fact, TestPriority(100)]
         public void GetEntityTest()
         {
             // Arrange
@@ -26,7 +27,7 @@ namespace AzStorage.Test.Samples
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(entity, _getEntityResponseAct);
         }
 
-        [Fact]
+        [Fact, TestPriority(100)]
         public void GetNotExistingEntityTest()
         {
             // Arrange
@@ -40,7 +41,7 @@ namespace AzStorage.Test.Samples
 
         #region Async
 
-        [Fact]
+        [Fact, TestPriority(100)]
         public void GetEntityAsyncTest()
         {
             // Arrange

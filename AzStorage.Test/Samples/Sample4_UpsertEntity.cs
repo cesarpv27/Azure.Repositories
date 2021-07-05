@@ -5,14 +5,16 @@ using Xunit;
 using AzStorage.Test.Helpers;
 using Azure.Data.Tables;
 using AzCoreTools.Core;
+using AzStorage.Test.Utilities;
 
 namespace AzStorage.Test.Samples
 {
+    [TestCaseOrderer("AzStorage.Test.Utilities.PriorityOrderer", "AzStorage.Test")]
     public class Sample4_UpsertEntity
     {
         #region Existing entities
 
-        [Fact]
+        [Fact, TestPriority(100)]
         public void UpsertMergeExistingEntityTest()
         {
             UnitTestHelper.AssertUpdateOrUpsertExistingEntity(
@@ -23,7 +25,7 @@ namespace AzStorage.Test.Samples
                 });
         }
 
-        [Fact]
+        [Fact, TestPriority(100)]
         public void UpsertReplaceExistingEntityTest()
         {
             UnitTestHelper.AssertUpdateOrUpsertExistingEntity(
@@ -34,7 +36,7 @@ namespace AzStorage.Test.Samples
                 });
         }
 
-        [Fact]
+        [Fact, TestPriority(300)]
         public void UpsertMergeExistingEntitiesTransactionallyTest()
         {
             UnitTestHelper.AssertUpdateOrUpsertExistingEntitiesTransactionally(
@@ -45,7 +47,7 @@ namespace AzStorage.Test.Samples
                 });
         }
 
-        [Fact]
+        [Fact, TestPriority(300)]
         public void UpsertReplaceExistingEntitiesTransactionallyTest()
         {
             UnitTestHelper.AssertUpdateOrUpsertExistingEntitiesTransactionally(
@@ -60,7 +62,7 @@ namespace AzStorage.Test.Samples
 
         #region Existing entities async
 
-        [Fact]
+        [Fact, TestPriority(100)]
         public void UpsertMergeExistingEntityAsyncTest()
         {
             UnitTestHelper.AssertUpdateOrUpsertExistingEntity(
@@ -71,7 +73,7 @@ namespace AzStorage.Test.Samples
                 });
         }
 
-        [Fact]
+        [Fact, TestPriority(100)]
         public void UpsertReplaceExistingEntityAsyncTest()
         {
             UnitTestHelper.AssertUpdateOrUpsertExistingEntity(
@@ -82,7 +84,7 @@ namespace AzStorage.Test.Samples
                 });
         }
 
-        [Fact]
+        [Fact, TestPriority(300)]
         public void UpsertMergeExistingEntitiesTransactionallyAsyncTest()
         {
             UnitTestHelper.AssertUpdateOrUpsertExistingEntitiesTransactionally(
@@ -93,7 +95,7 @@ namespace AzStorage.Test.Samples
                 });
         }
 
-        [Fact]
+        [Fact, TestPriority(300)]
         public void UpsertReplaceExistingEntitiesTransactionallyAsyncTest()
         {
             UnitTestHelper.AssertUpdateOrUpsertExistingEntitiesTransactionally(
@@ -108,7 +110,7 @@ namespace AzStorage.Test.Samples
 
         #region New entities
 
-        [Fact]
+        [Fact, TestPriority(100)]
         public void UpsertNewEntityTest()
         {
             // Arrange
@@ -127,7 +129,7 @@ namespace AzStorage.Test.Samples
             UnitTestHelper.AssertByGetEntity(entityB);
         }
 
-        [Fact]
+        [Fact, TestPriority(300)]
         public void UpsertNewEntitiesTransactionallyTest()
         {
             // Arrange
@@ -150,7 +152,7 @@ namespace AzStorage.Test.Samples
 
         #region New entities async
 
-        [Fact]
+        [Fact, TestPriority(100)]
         public void UpsertNewEntityAsyncTest()
         {
             // Arrange
@@ -169,7 +171,7 @@ namespace AzStorage.Test.Samples
             UnitTestHelper.AssertByGetEntity(entityB);
         }
 
-        [Fact]
+        [Fact, TestPriority(300)]
         public void UpsertNewEntitiesTransactionallyAsyncTest()
         {
             // Arrange

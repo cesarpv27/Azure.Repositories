@@ -10,9 +10,10 @@ using System.Linq;
 
 namespace AzStorage.Test.Samples
 {
+    [TestCaseOrderer("AzStorage.Test.Utilities.PriorityOrderer", "AzStorage.Test")]
     public class Sample1_AddEntity
     {
-        [Fact]
+        [Fact, TestPriority(100)]
         public void AddEntityTest()
         {
             // Arrange
@@ -27,7 +28,7 @@ namespace AzStorage.Test.Samples
             UnitTestHelper.AssertByGetEntity(entity);
         }
 
-        [Fact]
+        [Fact, TestPriority(100)]
         public void AddEntityTest2()
         {
             // Arrange
@@ -45,7 +46,7 @@ namespace AzStorage.Test.Samples
             Assert.Equal(resultingEntity.GetString(UnitTestHelper.GenerateTestPropKey(1)), UnitTestHelper.GenerateTestPropValue(1));
         }
 
-        [Fact]
+        [Fact, TestPriority(100)]
         public void AddExistingEntityTest()
         {
             // Arrange
@@ -60,7 +61,7 @@ namespace AzStorage.Test.Samples
             UnitTestHelper.AssertExpectedFailedResponse(_addEntityResponseAct, ConstProvider.The_specified_entity_already_exists);
         }
 
-        [Fact]
+        [Fact, TestPriority(300)]
         public void AddEntitiesTransactionallyTest()
         {
             // Arrange
@@ -75,7 +76,7 @@ namespace AzStorage.Test.Samples
             UnitTestHelper.AssertByGetEntity(entities);
         }
 
-        [Fact]
+        [Fact, TestPriority(300)]
         public void AddExistingEntitiesTransactionallyTest()
         {
             // Arrange
@@ -91,7 +92,7 @@ namespace AzStorage.Test.Samples
 
         #region Async, parallel tests
 
-        [Fact]
+        [Fact, TestPriority(100)]
         public void AddEntityAsyncTest()
         {
             // Arrange
@@ -106,7 +107,7 @@ namespace AzStorage.Test.Samples
             UnitTestHelper.AssertByGetEntity(entity);
         }
 
-        [Fact]
+        [Fact, TestPriority(100)]
         public void AddEntitiesParallelForEachTest()
         {
             // Arrange
@@ -121,7 +122,7 @@ namespace AzStorage.Test.Samples
             UnitTestHelper.AssertByGetEntity(entities);
         }
 
-        [Fact]
+        [Fact, TestPriority(300)]
         public void AddEntitiesTransactionallyAsyncTest()
         {
             // Arrange
@@ -137,6 +138,5 @@ namespace AzStorage.Test.Samples
         }
 
         #endregion
-
     }
 }
