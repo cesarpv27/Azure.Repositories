@@ -13,7 +13,7 @@ using AzCoreTools.Core;
 
 namespace AzStorage.Repositories.Core
 {
-    public abstract class AzStorageRepository
+    public abstract class AzStorageRepository : AzRepository
     {
         #region Properties
 
@@ -22,7 +22,7 @@ namespace AzStorage.Repositories.Core
         /// <summary>
         /// Default value is 'OnlyFirstTime'
         /// </summary>
-        public virtual OptionCreateResource OptionCreateResource { get; protected set; } = OptionCreateResource.OnlyFirstTime;
+        public virtual CreateResourcePolicy CreateResourcePolicy { get; protected set; } = CreateResourcePolicy.OnlyFirstTime;
 
         protected virtual bool IsFirstTime { get; private set; } = true;
 
@@ -43,8 +43,8 @@ namespace AzStorage.Repositories.Core
         protected virtual async Task<KeyValuePair<bool, TOut>> TryCreateResourceAsync<TIn1, TIn2, TOut>(TIn1 param1, TIn2 param2,
             Func<TIn1, TIn2, Task<TOut>> funcCreateResourceAsync) where TOut : class
         {
-            if (OptionCreateResource == OptionCreateResource.Always
-                || (OptionCreateResource == OptionCreateResource.OnlyFirstTime && IsFirstTime))
+            if (CreateResourcePolicy == CreateResourcePolicy.Always
+                || (CreateResourcePolicy == CreateResourcePolicy.OnlyFirstTime && IsFirstTime))
             {
                 var result = await funcCreateResourceAsync(param1, param2);
                 SetFalseToIsFirstTime();
@@ -60,8 +60,8 @@ namespace AzStorage.Repositories.Core
         protected virtual bool TryCreateResource<TIn1, TIn2, TOut>(TIn1 param1, TIn2 param2, out TOut result,
             Func<TIn1, TIn2, TOut> funcCreateResource) where TOut : class
         {
-            if (OptionCreateResource == OptionCreateResource.Always
-                || (OptionCreateResource == OptionCreateResource.OnlyFirstTime && IsFirstTime))
+            if (CreateResourcePolicy == CreateResourcePolicy.Always
+                || (CreateResourcePolicy == CreateResourcePolicy.OnlyFirstTime && IsFirstTime))
             {
                 result = funcCreateResource(param1, param2);
                 SetFalseToIsFirstTime();
@@ -77,7 +77,7 @@ namespace AzStorage.Repositories.Core
 
         #endregion
 
-        #region Throw methods
+        #region Throws and validations
 
         protected virtual void ThrowIfConnectionStringIsInvalid()
         {

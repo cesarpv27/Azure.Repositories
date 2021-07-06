@@ -25,13 +25,13 @@ namespace AzStorage.Repositories
         protected AzTableRepository() { }
 
         public AzTableRepository(string connectionString,
-            OptionCreateResource optionCreateTableResource = OptionCreateResource.OnlyFirstTime,
+            CreateResourcePolicy optionCreateTableResource = CreateResourcePolicy.OnlyFirstTime,
             AzTableRetryOptions retryOptions = null)
         {
             ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(connectionString, nameof(connectionString));
 
             ConnectionString = connectionString;
-            OptionCreateResource = optionCreateTableResource;
+            CreateResourcePolicy = optionCreateTableResource;
             AzTableRetryOptions = retryOptions;
         }
 

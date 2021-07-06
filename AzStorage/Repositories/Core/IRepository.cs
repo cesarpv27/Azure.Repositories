@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AzStorage.Repositories
+namespace AzStorage.Repositories.Core
 {
-    class AzQueueRepository
+    public interface IRepository
     {
     }
 }
