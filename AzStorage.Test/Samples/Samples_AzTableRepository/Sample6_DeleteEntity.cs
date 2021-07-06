@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Xunit;
+﻿using AzStorage.Test.Helpers;
 using AzStorage.Test.Utilities;
 using Azure.Data.Tables;
-using AzStorage.Test.Helpers;
-using System.Linq;
 using CoreTools.Helpers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Xunit;
 
-namespace AzStorage.Test.Samples
+namespace AzStorage.Test.Samples.Samples_AzTableRepository
 {
     [TestCaseOrderer("AzStorage.Test.Utilities.PriorityOrderer", "AzStorage.Test")]
     public class Sample6_DeleteEntity

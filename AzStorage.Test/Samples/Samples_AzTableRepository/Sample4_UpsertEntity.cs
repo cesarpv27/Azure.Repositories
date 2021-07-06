@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Xunit;
-using AzStorage.Test.Helpers;
-using Azure.Data.Tables;
-using AzCoreTools.Core;
+﻿using AzStorage.Test.Helpers;
 using AzStorage.Test.Utilities;
+using Xunit;
 
-namespace AzStorage.Test.Samples
+namespace AzStorage.Test.Samples.Samples_AzTableRepository
 {
     [TestCaseOrderer("AzStorage.Test.Utilities.PriorityOrderer", "AzStorage.Test")]
     public class Sample4_UpsertEntity

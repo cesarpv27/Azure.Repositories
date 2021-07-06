@@ -2,7 +2,7 @@
 using AzStorage.Test.Helpers;
 using AzStorage.Test.Utilities;
 
-namespace AzStorage.Test.Samples
+namespace AzStorage.Test.Samples.Samples_AzTableRepository
 {
     [TestCaseOrderer("AzStorage.Test.Utilities.PriorityOrderer", "AzStorage.Test")]
     public class Sample3_UpdateEntity

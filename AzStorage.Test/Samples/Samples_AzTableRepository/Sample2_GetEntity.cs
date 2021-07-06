@@ -1,13 +1,11 @@
-﻿using System;
-using Xunit;
+﻿using AzStorage.Test.Helpers;
 using AzStorage.Test.Utilities;
-using AzStorage.Test.Helpers;
 using Azure.Data.Tables;
 using CoreTools.Helpers;
-using System.Threading.Tasks;
-using AzCoreTools.Core;
+using System;
+using Xunit;
 
-namespace AzStorage.Test.Samples
+namespace AzStorage.Test.Samples.Samples_AzTableRepository
 {
     [TestCaseOrderer("AzStorage.Test.Utilities.PriorityOrderer", "AzStorage.Test")]
     public class Sample2_GetEntity

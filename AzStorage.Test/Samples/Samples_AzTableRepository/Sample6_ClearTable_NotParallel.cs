@@ -6,7 +6,7 @@ using Azure.Data.Tables;
 using AzStorage.Test.Helpers;
 using System.Linq;
 
-namespace AzStorage.Test.Samples
+namespace AzStorage.Test.Samples.Samples_AzTableRepository
 {
     [TestCaseOrderer("AzStorage.Test.Utilities.PriorityOrderer", "AzStorage.Test")]
     [Collection(nameof(DisableParallelizationCollection))]

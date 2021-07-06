@@ -4,7 +4,7 @@ using AzStorage.Test.Utilities;
 using Azure.Data.Tables;
 using AzStorage.Test.Helpers;
 
-namespace AzStorage.Test.Samples
+namespace AzStorage.Test.Samples.Samples_AzTableRepository
 {
     [TestCaseOrderer("AzStorage.Test.Utilities.PriorityOrderer", "AzStorage.Test")]
     public class Sample0_Miscellaneous

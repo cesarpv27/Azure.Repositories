@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Xunit;
+﻿using AzStorage.Core.Extensions;
 using AzStorage.Core.Tables;
 using AzStorage.Test.Helpers;
 using AzStorage.Test.Utilities;
-using AzStorage.Repositories;
 using Azure.Data.Tables;
-using AzStorage.Core.Extensions;
+using Xunit;
 
-namespace AzStorage.Test.Samples
+namespace AzStorage.Test.Samples.Samples_AzTableRepository
 {
     [TestCaseOrderer("AzStorage.Test.Utilities.PriorityOrderer", "AzStorage.Test")]
     public class Sample10_AzTableTransactionStore
