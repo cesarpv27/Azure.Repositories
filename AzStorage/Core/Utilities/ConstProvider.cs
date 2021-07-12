@@ -7,5 +7,6 @@ namespace AzStorage.Core.Utilities
     internal class ConstProvider
     {
         public const int maxDegreeOfParallelism = 5;
+        public const string DefaultPartitionKeyPath = "/PartitionKey";
     }
 }

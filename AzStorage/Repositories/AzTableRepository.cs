@@ -20,19 +20,17 @@ using System.Threading.Tasks;
 
 namespace AzStorage.Repositories
 {
-    public class AzTableRepository : AzStorageRepository
+    public class AzTableRepository : AzStorageRepository<AzTableRetryOptions>
     {
         protected AzTableRepository() { }
 
         public AzTableRepository(string connectionString,
-            CreateResourcePolicy optionCreateTableResource = CreateResourcePolicy.OnlyFirstTime,
-            AzTableRetryOptions retryOptions = null)
+            CreateResourcePolicy createTableResource = CreateResourcePolicy.OnlyFirstTime,
+            AzTableRetryOptions retryOptions = null) : base(createTableResource, retryOptions)
         {
             ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(connectionString, nameof(connectionString));
 
             ConnectionString = connectionString;
-            CreateResourcePolicy = optionCreateTableResource;
-            AzTableRetryOptions = retryOptions;
         }
 
         #region Properties
@@ -84,7 +82,7 @@ namespace AzStorage.Repositories
 
         protected AzTableTransactionStore CreateAzTableTransactionStore()
         {
-            return new AzTableTransactionStore(); ;
+            return new AzTableTransactionStore();
         }
 
         #endregion
@@ -108,8 +106,8 @@ namespace AzStorage.Repositories
         protected virtual TableClientOptions CreateTableClientOptions()
         {
             var _tableClientOptions = new TableClientOptions();
-            if (AzTableRetryOptions != null)
-                AzTableRetryOptions.CopyTo(_tableClientOptions.Retry);
+            if (RetryOptions != null)
+                RetryOptions.CopyTo(_tableClientOptions.Retry);
 
             return _tableClientOptions;
         }
@@ -124,14 +122,18 @@ namespace AzStorage.Repositories
 
         protected virtual Response<TableItem> LoadTableClient(string tableName)
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmpty(tableName, nameof(tableName));
+            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(tableName, nameof(tableName));
 
             if (_TableClient == null || !tableName.Equals(_TableClient.Name))
                 SetTrueToIsFirstTime();
 
+            bool _isFirstTime = IsFirstTimeResourceCreation;
+
             Response<TableItem> response;
-            var result = TryCreateResource(tableName, default(CancellationToken), out response,
+            var result = TryCreateResource(tableName, default(CancellationToken), ref _isFirstTime, out response,
                 TableServiceClient.CreateTableIfNotExists);
+
+            IsFirstTimeResourceCreation = _isFirstTime;
 
             if (result && ResponseValidator.CreateResourceResponseSucceeded(response))
                 _TableClient = CreateTableClient(tableName);
