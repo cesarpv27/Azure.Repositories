@@ -9,7 +9,8 @@ using AzStorage.Core.Cosmos;
 using System.Threading.Tasks;
 using AzCoreTools.Core.Validators;
 using CoreTools.Extensions;
-using AzStorage.Core.Utilities;
+using AzCoreTools.Helpers;
+using System.Threading;
 
 namespace AzStorage.Repositories
 {
@@ -19,10 +20,13 @@ namespace AzStorage.Repositories
 
         public AzCosmosDBRepository(string accountEndpointUri,
             string authKeyOrResourceToken,
+            string databaseId,
+            string containerId,
+            string partitionKeyPropName,
             CreateResourcePolicy optionCreateTableResource = CreateResourcePolicy.OnlyFirstTime,
             AzCosmosRetryOptions retryOptions = null) : base(optionCreateTableResource, retryOptions)
         {
-            Initialize(accountEndpointUri, authKeyOrResourceToken);
+            Initialize(accountEndpointUri, authKeyOrResourceToken, databaseId, containerId, partitionKeyPropName);
         }
 
         #region Properties
@@ -38,6 +42,7 @@ namespace AzStorage.Repositories
         public virtual Database Database { get; protected set; }
         public virtual Container Container { get; protected set; }
 
+        protected virtual bool IsFirstTimeCosmosClientCreation { get; set; } = true;
         protected virtual bool IsFirstTimeDatabaseCreation { get; set; } = true;
         protected virtual bool IsFirstTimeContainerCreation { get; set; } = true;
 
@@ -105,14 +110,24 @@ namespace AzStorage.Repositories
 
         #region Protected methods
 
-        protected virtual void Initialize(string accountEndpointUri, string authKeyOrResourceToken)
+        protected virtual void Initialize(string accountEndpointUri,
+            string authKeyOrResourceToken,
+            string databaseId,
+            string containerId,
+            string partitionKeyPath)
         {
-            ThrowIfInvalid_AccountEndpointUri_AuthKeyOrResourceToken(accountEndpointUri, authKeyOrResourceToken);
+            CreateOrLoadCosmosClient(accountEndpointUri, authKeyOrResourceToken);
+            Initialize(databaseId, containerId, partitionKeyPath, true);
+        }
 
-            AccountEndpointUri = accountEndpointUri;
-            AuthKeyOrResourceToken = authKeyOrResourceToken;
-
-            LoadCosmosClient(accountEndpointUri, authKeyOrResourceToken);
+        private void Initialize(string databaseId,
+            string containerId,
+            string partitionKeyPath, bool throwIfNull)
+        {
+            if (throwIfNull || !string.IsNullOrEmpty(databaseId))
+                CreateOrLoadDatabase(databaseId);
+            if (throwIfNull || (!string.IsNullOrEmpty(containerId) && !string.IsNullOrEmpty(partitionKeyPath)))
+                CreateOrLoadContainer(containerId, partitionKeyPath);
         }
 
         #endregion
@@ -124,9 +139,41 @@ namespace AzStorage.Repositories
         /// </summary>
         /// <param name="accountEndpointUri">The cosmos service endpoint to use.</param>
         /// <param name="authKeyOrResourceToken">The cosmos account key or resource token to use to create the client.</param>
-        protected virtual void LoadCosmosClient(string accountEndpointUri, string authKeyOrResourceToken)
+        protected virtual void CreateOrLoadCosmosClient(string accountEndpointUri, string authKeyOrResourceToken)
         {
-            CosmosClient = new CosmosClient(accountEndpointUri, authKeyOrResourceToken);
+            ThrowIfInvalid_AccountEndpointUri_AuthKeyOrResourceToken(accountEndpointUri, authKeyOrResourceToken);
+
+            CreateOrLoadCosmosClient(accountEndpointUri, authKeyOrResourceToken, CreateCosmosClient);
+        }
+
+        private void CreateOrLoadCosmosClient(string accountEndpointUri, string authKeyOrResourceToken, Func<dynamic[], CosmosClient> func)
+        {
+            if (CosmosClient == null || !accountEndpointUri.Equals(AccountEndpointUri) || !authKeyOrResourceToken.Equals(AuthKeyOrResourceToken))
+                IsFirstTimeCosmosClientCreation = true;
+
+            bool _isFirstTime = IsFirstTimeCosmosClientCreation;
+
+            CosmosClient response;
+            var result = TryCreateResource(func, new dynamic[] { accountEndpointUri, authKeyOrResourceToken }, ref _isFirstTime, out response);
+
+            IsFirstTimeCosmosClientCreation = _isFirstTime;
+
+            if (result)
+            {
+                CosmosClient = response;
+                AccountEndpointUri = accountEndpointUri;
+                AuthKeyOrResourceToken = authKeyOrResourceToken;
+            }
+        }
+
+        protected virtual CosmosClient CreateCosmosClient(dynamic[] @params)
+        {
+            return CreateCosmosClient(@params[0], @params[1]);
+        }
+
+        protected virtual CosmosClient CreateCosmosClient(string accountEndpointUri, string authKeyOrResourceToken)
+        {
+            return new CosmosClient(accountEndpointUri, authKeyOrResourceToken);
         }
 
         #endregion
@@ -138,16 +185,16 @@ namespace AzStorage.Repositories
         /// The database id is used to verify if there is an existing database.
         /// </summary>
         /// <param name="databaseId">The database id.</param>
-        protected virtual void CreateDatabase(string databaseId)
+        protected virtual void CreateOrLoadDatabase(string databaseId)
         {
             ThrowIfInvalidDatabaseId(databaseId);
 
             ThrowIfInvalidCosmosClient();
 
-            CreateDatabase<string, DatabaseResponse>(databaseId, CreateDatabaseIfNotExists);
+            CreateOrLoadDatabase(databaseId, CreateDatabaseIfNotExists);
         }
 
-        private void CreateDatabase<FTIn1, FTOut>(string databaseId, Func<FTIn1, FTOut> func)
+        private void CreateOrLoadDatabase(string databaseId, Func<dynamic[], DatabaseResponse> func)
         {
             if (Database == null || !databaseId.Equals(DatabaseId))
                 IsFirstTimeDatabaseCreation = true;
@@ -166,6 +213,11 @@ namespace AzStorage.Repositories
             }
         }
 
+        private DatabaseResponse CreateDatabaseIfNotExists(dynamic[] @params)
+        {
+            return CreateDatabaseIfNotExists(/*(string)*/@params[0]);
+        }
+
         private DatabaseResponse CreateDatabaseIfNotExists(string databaseId)
         {
             return CosmosClient.CreateDatabaseIfNotExistsAsync(databaseId).WaitAndUnwrapException();
@@ -181,20 +233,17 @@ namespace AzStorage.Repositories
         /// </summary>
         /// <param name="containerId">The Cosmos container id</param>
         /// <param name="partitionKeyPath">The path to the partition key. Example: /PartitionKey</param>
-        protected virtual void CreateContainer(string containerId, string partitionKeyPath)
+        protected virtual void CreateOrLoadContainer(string containerId, string partitionKeyPath)
         {
             ThrowIfInvalidContainerId(containerId);
             ThrowIfInvalidPartitionKeyPath(partitionKeyPath);
 
             ThrowIfInvalidDatabase();
 
-            CreateContainer<string, string, ContainerResponse>(containerId, partitionKeyPath, CreateContainerIfNotExists);
+            CreateOrLoadContainer(containerId, partitionKeyPath, CreateContainerIfNotExists);
         }
 
-        private void CreateContainer<FTIn1, FTIn2, FTOut>(
-            string containerId, 
-            string partitionKeyPath, 
-            Func<FTIn1, FTIn2, FTOut> func)
+        private void CreateOrLoadContainer(string containerId, string partitionKeyPath, Func<dynamic[], ContainerResponse> func)
         {
             if (Container == null || !containerId.Equals(ContainerId) || !partitionKeyPath.Equals(PartitionKeyPath))
                 IsFirstTimeDatabaseCreation = true;
@@ -202,7 +251,7 @@ namespace AzStorage.Repositories
             bool _isFirstTime = IsFirstTimeDatabaseCreation;
 
             ContainerResponse response;
-            var result = TryCreateResource(func, new dynamic[] { containerId, partitionKeyPath }, 
+            var result = TryCreateResource(func, new dynamic[] { containerId, partitionKeyPath },
                 ref _isFirstTime, out response);
 
             IsFirstTimeDatabaseCreation = _isFirstTime;
@@ -215,10 +264,90 @@ namespace AzStorage.Repositories
             }
         }
 
+        private ContainerResponse CreateContainerIfNotExists(dynamic[] @params)
+        {
+            return CreateContainerIfNotExists(@params[0], @params[1]);
+        }
+
         private ContainerResponse CreateContainerIfNotExists(string containerId, string partitionKeyPath)
         {
             return Database.CreateContainerIfNotExistsAsync(containerId, partitionKeyPath).WaitAndUnwrapException();
         }
+
+        #endregion
+
+        #region Add async
+
+        public virtual async Task<AzCosmosResponse<TIn>> AddAsync<TIn>(TIn entity,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null) where TIn : BaseCosmosEntity
+        {
+            return await AddAsync<TIn, AzCosmosResponse<TIn>>(entity, cancellationToken, databaseId,
+                containerId);
+        }
+
+        public virtual async Task<TOut> AddAsync<TIn, TOut>(TIn entity,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null) where TIn : BaseCosmosEntity where TOut : AzCosmosResponse<TIn>, new()
+        {
+            return await AddAsync<TIn, TOut>(entity, cancellationToken, databaseId,
+                containerId, entity.PartitionKeyPath);
+        }
+
+        public virtual async Task<AzCosmosResponse<TIn>> AddAsync<TIn>(TIn entity,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return await AddAsync<TIn, AzCosmosResponse<TIn>>(entity, cancellationToken, databaseId,
+                containerId, partitionKeyPropName);
+        }
+
+        public virtual async Task<TOut> AddAsync<TIn, TOut>(TIn entity,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<TIn>, new()
+        {
+            Initialize(databaseId, containerId, partitionKeyPropName, false);
+
+            return await CosmosFuncHelper.ExecuteAsync<TIn, PartitionKey?, ItemRequestOptions, CancellationToken, ItemResponse<TIn>, TOut, TIn>(
+                Container.CreateItemAsync,
+                entity, new PartitionKey(partitionKeyPropName), default, cancellationToken);
+        }
+
+        #endregion
+
+        #region Get async
+
+        //public virtual async Task<AzStorageResponse<TIn>> GetByIdAsync(string partitionKey, string id)
+        //{
+        //    var goResult = GetCurrentCosmosDbInstance();
+        //    if (!goResult.Success)
+        //        return GoResult<EnT>.Create(goResult);
+
+        //    var _cosmosDbInstance = goResult.Value;
+
+        //    try
+        //    {
+        //        var response = await _cosmosDbInstance.Container.ReadItemAsync<EnT>(id, new PartitionKey(partitionKey));
+
+        //        return GoResult<EnT>.Create(response.StatusCode == HttpStatusCode.OK, response.Resource);
+        //    }
+        //    catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        //    {
+        //        return GoResult<EnT>.Create(true, value: null, comments: $"No entity found with PartitionKey:{partitionKey} and Id:{id}");
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        // TODO: Log here 
+
+        //        return GoResult<EnT>.Create(false, e);
+        //    }
+        //}
 
         #endregion
     }

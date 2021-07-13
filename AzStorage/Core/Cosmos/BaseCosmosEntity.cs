@@ -7,6 +7,14 @@ namespace AzStorage.Core.Cosmos
 {
     public abstract class BaseCosmosEntity
     {
+        public string PartitionKeyPath
+        {
+            get
+            {
+                return "/PartitionKey";
+            }
+        }
+
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
 

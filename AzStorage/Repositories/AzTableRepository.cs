@@ -53,21 +53,6 @@ namespace AzStorage.Repositories
             }
         }
 
-        protected TableClient _TableClient;
-        protected virtual TableClient GetTableClient<T>(string tableName = default) where T : class, ITableEntity, new()
-        {
-            return GetTableClient(GetTableName<T>(tableName));
-        }
-
-        protected virtual TableClient GetTableClient(string tableName)
-        {
-            var response = LoadTableClient(tableName);
-            if (response != null && !ResponseValidator.ResponseSucceeded(response.GetRawResponse()))
-                ExThrower.ST_ThrowInvalidOperationException(ErrorTextProvider.Can_not_load_create_table);
-
-            return _TableClient;
-        }
-
         //private AzTableTransactionStore _AzTableTransactionStore;
         //private AzTableTransactionStore AzTableTransactionStore
         //{
@@ -96,13 +81,6 @@ namespace AzStorage.Repositories
             return new TableServiceClient(ConnectionString, CreateTableClientOptions());
         }
 
-        protected virtual TableClient CreateTableClient(string tableName)
-        {
-            ThrowIfConnectionStringIsInvalid();
-
-            return new TableClient(ConnectionString, tableName, CreateTableClientOptions());
-        }
-
         protected virtual TableClientOptions CreateTableClientOptions()
         {
             var _tableClientOptions = new TableClientOptions();
@@ -112,38 +90,27 @@ namespace AzStorage.Repositories
             return _tableClientOptions;
         }
 
+        protected TableClient _TableClient;
+        protected virtual TableClient GetTableClient<T>(string tableName = default) where T : class, ITableEntity, new()
+        {
+            return GetTableClient(GetTableName<T>(tableName));
+        }
+
+        protected virtual TableClient GetTableClient(string tableName)
+        {
+            var response = CreateOrLoadTableClient(tableName);
+            if (response != null && !ResponseValidator.ResponseSucceeded<Response>(response.GetRawResponse()))
+                ExThrower.ST_ThrowInvalidOperationException(ErrorTextProvider.Can_not_load_create_table);
+
+            return _TableClient;
+        }
+
         protected virtual string GetTableName<T>(string tableName = default) where T : class
         {
             if (string.IsNullOrEmpty(tableName))
                 tableName = typeof(T).Name;
 
             return tableName;
-        }
-
-        protected virtual Response<TableItem> LoadTableClient(string tableName)
-        {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(tableName, nameof(tableName));
-
-            if (_TableClient == null || !tableName.Equals(_TableClient.Name))
-                SetTrueToIsFirstTime();
-
-            bool _isFirstTime = IsFirstTimeResourceCreation;
-
-            Response<TableItem> response;
-            var result = TryCreateResource(tableName, default(CancellationToken), ref _isFirstTime, out response,
-                TableServiceClient.CreateTableIfNotExists);
-
-            IsFirstTimeResourceCreation = _isFirstTime;
-
-            if (result && ResponseValidator.CreateResourceResponseSucceeded(response))
-                _TableClient = CreateTableClient(tableName);
-
-            return response;
-        }
-
-        protected virtual Response<TableItem> LoadTableClient<T>(string tableName = default) where T : class
-        {
-            return LoadTableClient(GetTableName<T>(tableName));
         }
 
         protected List<AzStorageResponse<IReadOnlyList<Response>>> DeleteEntities<T>(AzStorageResponse<List<T>> response,
@@ -157,6 +124,87 @@ namespace AzStorage.Repositories
                 ExThrower.ST_ThrowApplicationException(ErrorTextProvider.Error_retrieving_entities);
 
             return DeleteEntitiesTransactionally(response.Value, cancellationToken, tableName);
+        }
+
+        #endregion
+
+        #region TableClient creator
+
+        protected virtual Response<TableItem> CreateOrLoadTableClient<T>(string tableName = default) where T : class
+        {
+            return CreateOrLoadTableClient(GetTableName<T>(tableName));
+        }
+
+        protected virtual Response<TableItem> CreateOrLoadTableClient(string tableName)
+        {
+            ThrowIfInvalidTableName(tableName);
+
+            return CreateOrLoadTableClient(tableName, CreateTableIfNotExists);
+        }
+
+        protected virtual Response<TableItem> CreateOrLoadTableClient(string tableName, Func<dynamic[], Response<TableItem>> func)
+        {
+            if (_TableClient == null || !tableName.Equals(_TableClient.Name))
+                SetTrueToIsFirstTime();
+
+            bool _isFirstTime = IsFirstTimeResourceCreation;
+
+            Response<TableItem> response;
+            var result = TryCreateResource(func, new dynamic[] { tableName, default(CancellationToken) }, ref _isFirstTime, out response);
+
+            IsFirstTimeResourceCreation = _isFirstTime;
+
+            if (result && ResponseValidator.CreateResourceResponseSucceeded<Response<TableItem>, TableItem>(response))
+                _TableClient = CreateTableClient(tableName);
+
+            return response;
+        }
+
+        private Response<TableItem> CreateTableIfNotExists(dynamic[] @params)
+        {
+            return CreateTableIfNotExists(@params[0], @params[1]);
+        }
+
+        private Response<TableItem> CreateTableIfNotExists(string tableName, CancellationToken cancellationToken)
+        {
+            return TableServiceClient.CreateTableIfNotExists(tableName, cancellationToken);
+        }
+
+        protected virtual TableClient CreateTableClient(string tableName)
+        {
+            ThrowIfConnectionStringIsInvalid();
+
+            return new TableClient(ConnectionString, tableName, CreateTableClientOptions());
+        }
+
+        //protected virtual Response<TableItem> LoadTableClient(string tableName)
+        //{
+        //    ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(tableName, nameof(tableName));
+
+        //    if (_TableClient == null || !tableName.Equals(_TableClient.Name))
+        //        SetTrueToIsFirstTime();
+
+        //    bool _isFirstTime = IsFirstTimeResourceCreation;
+
+        //    Response<TableItem> response;
+        //    var result = TryCreateResource(tableName, default(CancellationToken), ref _isFirstTime, out response,
+        //        TableServiceClient.CreateTableIfNotExists);
+
+        //    IsFirstTimeResourceCreation = _isFirstTime;
+
+        //    if (result && ResponseValidator.CreateResourceResponseSucceeded(response))
+        //        _TableClient = CreateTableClient(tableName);
+
+        //    return response;
+        //}
+
+        #endregion
+
+        #region Throws
+
+        protected virtual void ThrowIfInvalidTableName(string tableName)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(tableName, nameof(tableName));
         }
 
         #endregion
@@ -1610,7 +1658,7 @@ namespace AzStorage.Repositories
             if (newPartitionKey.Equals(partitionKey) && newRowKey.Equals(rowKey))
                 ExThrower.ST_ThrowArgumentException(message: ErrorTextProvider.Current_keys_same_as_new_keys);
 
-            LoadTableClient<T>(tableName);
+            CreateOrLoadTableClient<T>(tableName);
 
             var _getEntityResponse = GetEntity<T>(partitionKey, rowKey, cancellationToken, tableName);
             if (!ResponseValidator.ResponseSucceeded(_getEntityResponse))

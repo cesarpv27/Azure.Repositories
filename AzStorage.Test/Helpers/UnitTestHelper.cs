@@ -44,7 +44,7 @@ namespace AzStorage.Test.Helpers
         #region Miscellaneous methods
 
         private static AzTableRepository _AzTableRepository;
-        public static AzTableRepository GetOrCreateAzTableRepository(OptionCreateResource optionCreateIfNotExist)
+        public static AzTableRepository GetOrCreateAzTableRepository(CreateResourcePolicy optionCreateIfNotExist)
         {
             if (_AzTableRepository == null)
                 _AzTableRepository = CreateAzTableRepository(optionCreateIfNotExist);
@@ -52,7 +52,7 @@ namespace AzStorage.Test.Helpers
             return _AzTableRepository;
         }
 
-        private static AzTableRepository CreateAzTableRepository(OptionCreateResource optionCreateIfNotExist)
+        private static AzTableRepository CreateAzTableRepository(CreateResourcePolicy optionCreateIfNotExist)
         {
             var _azTableRetryOptions = new AzTableRetryOptions
             {
@@ -388,7 +388,7 @@ namespace AzStorage.Test.Helpers
 
         #region Assert UpdateOrUpsert
 
-        public static void AssertUpdateOrUpsertExistingEntity(Func<TableEntity, string, OptionCreateResource, AzStorageResponse> funcUpdateOrUpsert, Action<TableEntity> actionAssertRecoveredEntity)
+        public static void AssertUpdateOrUpsertExistingEntity(Func<TableEntity, string, CreateResourcePolicy, AzStorageResponse> funcUpdateOrUpsert, Action<TableEntity> actionAssertRecoveredEntity)
         {
             // Arrange
             var entity = CreateSomeEntity();
@@ -400,7 +400,7 @@ namespace AzStorage.Test.Helpers
             AddTestProp(entity, 2);
 
             // Act
-            var _updateReplaceEntityResponseAct = funcUpdateOrUpsert(entity, null, OptionCreateResource.OnlyFirstTime);
+            var _updateReplaceEntityResponseAct = funcUpdateOrUpsert(entity, null, CreateResourcePolicy.OnlyFirstTime);
 
             // Assert
             AssertExpectedSuccessfulResponse(_updateReplaceEntityResponseAct);
@@ -410,7 +410,7 @@ namespace AzStorage.Test.Helpers
         }
 
         public static void AssertUpdateOrUpsertExistingEntitiesTransactionally(
-            Func<IEnumerable<TableEntity>, string, OptionCreateResource, List<AzStorageResponse<IReadOnlyList<Response>>>> funcUpdate, Action<TableEntity> actionAssertRecoveredEntity)
+            Func<IEnumerable<TableEntity>, string, CreateResourcePolicy, List<AzStorageResponse<IReadOnlyList<Response>>>> funcUpdate, Action<TableEntity> actionAssertRecoveredEntity)
         {
             // Arrange
             var entities = CreateSomeEntities(GetOverOneHundredRandomValue());
@@ -428,7 +428,7 @@ namespace AzStorage.Test.Helpers
             }
 
             // Act
-            var _updateEntitiesTransactionallyResponse = funcUpdate(entities, null, OptionCreateResource.OnlyFirstTime);
+            var _updateEntitiesTransactionallyResponse = funcUpdate(entities, null, CreateResourcePolicy.OnlyFirstTime);
 
             // Assert
             AssertSucceededResponses(_updateEntitiesTransactionallyResponse);
@@ -447,7 +447,7 @@ namespace AzStorage.Test.Helpers
 
         public static AzStorageResponse AddEntity<TIn>(TIn entity,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where TIn : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).AddEntity(entity, tableName: tableName);
@@ -455,7 +455,7 @@ namespace AzStorage.Test.Helpers
 
         public static int AddEntitiesParallelForEach<TIn>(IEnumerable<TIn> entities,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where TIn : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).AddEntitiesParallelForEach(entities, tableName: tableName);
@@ -463,7 +463,7 @@ namespace AzStorage.Test.Helpers
 
         public static List<AzStorageResponse<IReadOnlyList<Response>>> AddEntitiesTransactionally<TIn>(IEnumerable<TIn> entities,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where TIn : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).AddEntitiesTransactionally(entities, tableName: tableName);
@@ -476,14 +476,14 @@ namespace AzStorage.Test.Helpers
         public static async Task<AzStorageResponse> AddEntityAsync<TIn>(TIn entity)
             where TIn : class, ITableEntity, new()
         {
-            return await GetOrCreateAzTableRepository(OptionCreateResource.OnlyFirstTime).AddEntityAsync(entity, default);
+            return await GetOrCreateAzTableRepository(CreateResourcePolicy.OnlyFirstTime).AddEntityAsync(entity, default);
         }
 
         public static async Task<List<AzStorageResponse<IReadOnlyList<Response>>>> AddEntitiesTransactionallyAsync<TIn>(
             IEnumerable<TIn> entities)
             where TIn : class, ITableEntity, new()
         {
-            return await GetOrCreateAzTableRepository(OptionCreateResource.OnlyFirstTime)
+            return await GetOrCreateAzTableRepository(CreateResourcePolicy.OnlyFirstTime)
                 .AddEntitiesTransactionallyAsync(entities);
         }
 
@@ -493,7 +493,7 @@ namespace AzStorage.Test.Helpers
 
         public static AzStorageResponse<T> GetEntity<T>(string partitionKey, string rowKey,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).GetEntity<T>(partitionKey, rowKey, tableName: tableName);
@@ -502,7 +502,7 @@ namespace AzStorage.Test.Helpers
         public static Task<AzStorageResponse<T>> GetEntityAsync<T>(string partitionKey, string rowKey)
             where T : class, ITableEntity, new()
         {
-            return GetOrCreateAzTableRepository(OptionCreateResource.OnlyFirstTime).GetEntityAsync<T>(
+            return GetOrCreateAzTableRepository(CreateResourcePolicy.OnlyFirstTime).GetEntityAsync<T>(
                 partitionKey, rowKey, tableName: null);
         }
 
@@ -512,7 +512,7 @@ namespace AzStorage.Test.Helpers
 
         public static AzStorageResponse UpdateMergeEntity<TIn>(TIn entity,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where TIn : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).UpdateEntity(entity, TableUpdateMode.Merge, tableName: tableName);
@@ -520,7 +520,7 @@ namespace AzStorage.Test.Helpers
 
         public static AzStorageResponse UpdateReplaceEntity<TIn>(TIn entity,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where TIn : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).UpdateEntity(entity, TableUpdateMode.Replace, tableName: tableName);
@@ -529,7 +529,7 @@ namespace AzStorage.Test.Helpers
         public static List<AzStorageResponse<IReadOnlyList<Response>>> UpdateMergeEntitiesTransactionally<TIn>(
             IEnumerable<TIn> entities,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where TIn : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).UpdateEntitiesTransactionally(entities, TableUpdateMode.Merge, tableName: tableName);
@@ -538,7 +538,7 @@ namespace AzStorage.Test.Helpers
         public static List<AzStorageResponse<IReadOnlyList<Response>>> UpdateReplaceEntitiesTransactionally<TIn>(
             IEnumerable<TIn> entities,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where TIn : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).UpdateEntitiesTransactionally(entities, TableUpdateMode.Replace, tableName: tableName);
@@ -550,7 +550,7 @@ namespace AzStorage.Test.Helpers
 
         public static AzStorageResponse UpdateMergeEntityAsync<TIn>(TIn entity,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where TIn : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist)
@@ -559,7 +559,7 @@ namespace AzStorage.Test.Helpers
 
         public static AzStorageResponse UpdateReplaceEntityAsync<TIn>(TIn entity,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where TIn : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist)
@@ -569,7 +569,7 @@ namespace AzStorage.Test.Helpers
         public static List<AzStorageResponse<IReadOnlyList<Response>>> UpdateMergeEntitiesTransactionallyAsync<TIn>(
             IEnumerable<TIn> entities,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where TIn : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).UpdateEntitiesTransactionallyAsync(
@@ -579,7 +579,7 @@ namespace AzStorage.Test.Helpers
         public static List<AzStorageResponse<IReadOnlyList<Response>>> UpdateReplaceEntitiesTransactionallyAsync<TIn>(
             IEnumerable<TIn> entities,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where TIn : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).UpdateEntitiesTransactionallyAsync(
@@ -592,7 +592,7 @@ namespace AzStorage.Test.Helpers
 
         public static AzStorageResponse UpsertMergeEntity<TIn>(TIn entity,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where TIn : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).UpsertEntity(entity, TableUpdateMode.Merge, tableName: tableName);
@@ -600,7 +600,7 @@ namespace AzStorage.Test.Helpers
 
         public static AzStorageResponse UpsertReplaceEntity<TIn>(TIn entity,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where TIn : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).UpsertEntity(entity, TableUpdateMode.Replace, tableName: tableName);
@@ -608,7 +608,7 @@ namespace AzStorage.Test.Helpers
 
         public static List<AzStorageResponse<IReadOnlyList<Response>>> UpsertMergeEntitiesTransactionally<TIn>(IEnumerable<TIn> entities,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where TIn : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).UpsertEntitiesTransactionally(entities, TableUpdateMode.Merge, tableName: tableName);
@@ -616,7 +616,7 @@ namespace AzStorage.Test.Helpers
 
         public static List<AzStorageResponse<IReadOnlyList<Response>>> UpsertReplaceEntitiesTransactionally<TIn>(IEnumerable<TIn> entities,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where TIn : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).UpsertEntitiesTransactionally(entities, TableUpdateMode.Replace, tableName: tableName);
@@ -628,7 +628,7 @@ namespace AzStorage.Test.Helpers
 
         public static AzStorageResponse UpsertMergeEntityAsync<TIn>(TIn entity,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where TIn : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist)
@@ -637,7 +637,7 @@ namespace AzStorage.Test.Helpers
 
         public static AzStorageResponse UpsertReplaceEntityAsync<TIn>(TIn entity,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where TIn : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist)
@@ -646,7 +646,7 @@ namespace AzStorage.Test.Helpers
 
         public static List<AzStorageResponse<IReadOnlyList<Response>>> UpsertMergeEntitiesTransactionallyAsync<TIn>(IEnumerable<TIn> entities,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where TIn : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist)
@@ -656,7 +656,7 @@ namespace AzStorage.Test.Helpers
 
         public static List<AzStorageResponse<IReadOnlyList<Response>>> UpsertReplaceEntitiesTransactionallyAsync<TIn>(IEnumerable<TIn> entities,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where TIn : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist)
@@ -670,7 +670,7 @@ namespace AzStorage.Test.Helpers
 
         public static AzStorageResponse<List<T>> QueryAll<T>(int take = int.MaxValue, 
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).QueryAll<T>(take: take, tableName: tableName);
@@ -680,7 +680,7 @@ namespace AzStorage.Test.Helpers
             string partitionKey,
             int take = int.MaxValue,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).QueryByPartitionKey<T>(
@@ -691,7 +691,7 @@ namespace AzStorage.Test.Helpers
             string startPattern,
             int take = int.MaxValue,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).QueryByPartitionKeyStartPattern<T>(
@@ -702,7 +702,7 @@ namespace AzStorage.Test.Helpers
             string partitionKey,
             string rowKey,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).QueryByPartitionKeyRowKey<T>(
@@ -714,7 +714,7 @@ namespace AzStorage.Test.Helpers
             string rowKeyStartPattern,
             int take = int.MaxValue,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).QueryByPartitionKeyRowKeyStartPattern<T>(
@@ -726,7 +726,7 @@ namespace AzStorage.Test.Helpers
             string rowKeyStartPattern,
             int take = int.MaxValue,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).QueryByPartitionKeyStartPatternRowKeyStartPattern<T>(
@@ -738,7 +738,7 @@ namespace AzStorage.Test.Helpers
             DateTime timeStampTo,
             int take = int.MaxValue,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).QueryByTimestamp<T>(
@@ -751,7 +751,7 @@ namespace AzStorage.Test.Helpers
             DateTime timeStampTo,
             int take = int.MaxValue,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).QueryByPartitionKeyTimestamp<T>(
@@ -764,7 +764,7 @@ namespace AzStorage.Test.Helpers
 
         public static AzStorageResponse DeleteEntity<T>(T entity,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).DeleteEntity(entity, tableName: tableName);
@@ -772,7 +772,7 @@ namespace AzStorage.Test.Helpers
         
         public static AzStorageResponse DeleteEntity<T>(string partitionKey, string rowKey,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).DeleteEntity<T>(partitionKey, rowKey, tableName: tableName);
@@ -780,7 +780,7 @@ namespace AzStorage.Test.Helpers
         
         public static AzStorageResponse DeleteEntity(string partitionKey, string rowKey,
             string tableName,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).DeleteEntity(partitionKey, rowKey, tableName);
         }
@@ -788,7 +788,7 @@ namespace AzStorage.Test.Helpers
         public static List<AzStorageResponse<IReadOnlyList<Response>>> DeleteEntitiesByPartitionKey<T>(
             string partitionKey,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).DeleteEntitiesByPartitionKey<T>(partitionKey, tableName: tableName);
@@ -797,7 +797,7 @@ namespace AzStorage.Test.Helpers
         public static List<AzStorageResponse<IReadOnlyList<Response>>> DeleteEntitiesByPartitionKey(
             string partitionKey,
             string tableName,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).DeleteEntitiesByPartitionKey(partitionKey, tableName);
         }
@@ -805,7 +805,7 @@ namespace AzStorage.Test.Helpers
         public static List<AzStorageResponse<IReadOnlyList<Response>>> DeleteEntitiesByPartitionKeyStartPattern<T>(
             string partitionKeyStartPattern,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).DeleteEntitiesByPartitionKeyStartPattern<T>(partitionKeyStartPattern, tableName: tableName);
@@ -814,7 +814,7 @@ namespace AzStorage.Test.Helpers
         public static List<AzStorageResponse<IReadOnlyList<Response>>> DeleteEntitiesByPartitionKeyStartPattern(
             string partitionKeyStartPattern,
             string tableName,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).DeleteEntitiesByPartitionKeyStartPattern(partitionKeyStartPattern, tableName);
         }
@@ -823,7 +823,7 @@ namespace AzStorage.Test.Helpers
             string partitionKey,
             string rowKeyStartPattern,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).DeleteEntitiesByPartitionKeyRowKeyStartPattern<T>(
@@ -834,7 +834,7 @@ namespace AzStorage.Test.Helpers
             string partitionKey,
             string rowKeyStartPattern,
             string tableName,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).DeleteEntitiesByPartitionKeyRowKeyStartPattern(
                 partitionKey, rowKeyStartPattern, tableName);
@@ -842,7 +842,7 @@ namespace AzStorage.Test.Helpers
 
         public static int DeleteEntitiesParallelForEach<TIn>(IEnumerable<TIn> entities,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where TIn : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).DeleteEntitiesParallelForEach(entities, tableName: tableName);
@@ -850,7 +850,7 @@ namespace AzStorage.Test.Helpers
 
         public static List<AzStorageResponse<IReadOnlyList<Response>>> DeleteEntitiesTransactionally<TIn>(IEnumerable<TIn> entities,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where TIn : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).DeleteEntitiesTransactionally(entities, tableName: tableName);
@@ -858,7 +858,7 @@ namespace AzStorage.Test.Helpers
 
         public static List<AzStorageResponse<IReadOnlyList<Response>>> ClearTable<T>(
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).ClearTable<T>(tableName: tableName);
@@ -866,7 +866,7 @@ namespace AzStorage.Test.Helpers
 
         public static List<AzStorageResponse<IReadOnlyList<Response>>> ClearTable(
             string tableName,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).ClearTable(tableName);
         }
@@ -878,25 +878,25 @@ namespace AzStorage.Test.Helpers
         public static async Task<AzStorageResponse> DeleteEntityAsync<T>(T entity)
             where T : class, ITableEntity, new()
         {
-            return await GetOrCreateAzTableRepository(OptionCreateResource.OnlyFirstTime).DeleteEntityAsync(entity, tableName: default);
+            return await GetOrCreateAzTableRepository(CreateResourcePolicy.OnlyFirstTime).DeleteEntityAsync(entity, tableName: default);
         }
 
         public static async Task<AzStorageResponse> DeleteEntityAsync<T>(string partitionKey, string rowKey)
             where T : class, ITableEntity, new()
         {
-            return await GetOrCreateAzTableRepository(OptionCreateResource.OnlyFirstTime).DeleteEntityAsync<T>(partitionKey, rowKey);
+            return await GetOrCreateAzTableRepository(CreateResourcePolicy.OnlyFirstTime).DeleteEntityAsync<T>(partitionKey, rowKey);
         }
         
         public static async Task<AzStorageResponse> DeleteEntityAsync(string partitionKey, string rowKey)
         {
-            return await GetOrCreateAzTableRepository(OptionCreateResource.OnlyFirstTime).DeleteEntityAsync(partitionKey, rowKey, GetTableEntityName());
+            return await GetOrCreateAzTableRepository(CreateResourcePolicy.OnlyFirstTime).DeleteEntityAsync(partitionKey, rowKey, GetTableEntityName());
         }
 
         public static Task<List<AzStorageResponse<IReadOnlyList<Response>>>> DeleteEntitiesTransactionallyAsync<TIn>(
             IEnumerable<TIn> entities)
             where TIn : class, ITableEntity, new()
         {
-            return GetOrCreateAzTableRepository(OptionCreateResource.OnlyFirstTime)
+            return GetOrCreateAzTableRepository(CreateResourcePolicy.OnlyFirstTime)
                 .DeleteEntitiesTransactionallyAsync(entities);
         }
 
@@ -908,7 +908,7 @@ namespace AzStorage.Test.Helpers
             string partitionKey, string rowKey,
             string newPartitionKey, string newRowKey,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).UpdateKeys<T>(partitionKey,
@@ -919,7 +919,7 @@ namespace AzStorage.Test.Helpers
             string partitionKey, string rowKey,
             string newPartitionKey,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).UpdatePartitionKey<T>(partitionKey,
@@ -930,7 +930,7 @@ namespace AzStorage.Test.Helpers
             string partitionKey, string rowKey,
             string newRowKey,
             string tableName = null,
-            OptionCreateResource optionCreateIfNotExist = OptionCreateResource.OnlyFirstTime)
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : class, ITableEntity, new()
         {
             return GetOrCreateAzTableRepository(optionCreateIfNotExist).UpdateRowKey<T>(partitionKey,
