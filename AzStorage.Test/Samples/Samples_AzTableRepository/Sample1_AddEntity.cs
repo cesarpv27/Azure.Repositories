@@ -13,77 +13,77 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
         public void AddEntityTest()
         {
             // Arrange
-            var entity = UnitTestHelper.CreateSomeEntity();
+            var entity = AzTableUnitTestHelper.CreateSomeEntity();
 
             // Act
-            var _addEntityResponseAct = UnitTestHelper.AddEntity(entity);
+            var _addEntityResponseAct = AzTableUnitTestHelper.AddEntity(entity);
 
             // Assert
-            UnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityResponseAct);
+            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityResponseAct);
 
-            UnitTestHelper.AssertByGetEntity(entity);
+            AzTableUnitTestHelper.AssertByGetEntity(entity);
         }
 
         [Fact, TestPriority(100)]
         public void AddEntityTest2()
         {
             // Arrange
-            var entity = UnitTestHelper.CreateSomeEntity();
-            UnitTestHelper.AddTestProp(entity, 1);
+            var entity = AzTableUnitTestHelper.CreateSomeEntity();
+            AzTableUnitTestHelper.AddTestProp(entity, 1);
 
             // Act
-            var _addEntityResponseAct = UnitTestHelper.AddEntity(entity);
+            var _addEntityResponseAct = AzTableUnitTestHelper.AddEntity(entity);
 
             // Assert
-            UnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityResponseAct);
+            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityResponseAct);
 
-            var resultingEntity = UnitTestHelper.AssertByGetEntity(entity);
+            var resultingEntity = AzTableUnitTestHelper.AssertByGetEntity(entity);
             
-            Assert.Equal(resultingEntity.GetString(UnitTestHelper.GenerateTestPropKey(1)), UnitTestHelper.GenerateTestPropValue(1));
+            Assert.Equal(resultingEntity.GetString(AzTableUnitTestHelper.GenerateTestPropKey(1)), AzTableUnitTestHelper.GenerateTestPropValue(1));
         }
 
         [Fact, TestPriority(100)]
         public void AddExistingEntityTest()
         {
             // Arrange
-            var entity = UnitTestHelper.CreateSomeEntity();
-            var _addEntityResponseArr = UnitTestHelper.AddEntity(entity);
-            UnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityResponseArr);
+            var entity = AzTableUnitTestHelper.CreateSomeEntity();
+            var _addEntityResponseArr = AzTableUnitTestHelper.AddEntity(entity);
+            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityResponseArr);
 
             // Act
-            var _addEntityResponseAct = UnitTestHelper.AddEntity(entity);
+            var _addEntityResponseAct = AzTableUnitTestHelper.AddEntity(entity);
 
             // Assert
-            UnitTestHelper.AssertExpectedFailedResponse(_addEntityResponseAct, ConstProvider.The_specified_entity_already_exists);
+            AzTableUnitTestHelper.AssertExpectedFailedResponse(_addEntityResponseAct, ConstProvider.The_specified_entity_already_exists);
         }
 
         [Fact, TestPriority(300)]
         public void AddEntitiesTransactionallyTest()
         {
             // Arrange
-            var entities = UnitTestHelper.CreateSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true);
+            var entities = AzTableUnitTestHelper.CreateSomeEntities(AzTableUnitTestHelper.GetOverOneHundredRandomValue(), true);
 
             // Act
-            var _addEntitiesTransactionallyResponsesAct = UnitTestHelper.AddEntitiesTransactionally(entities);
+            var _addEntitiesTransactionallyResponsesAct = AzTableUnitTestHelper.AddEntitiesTransactionally(entities);
 
             // Assert
-            UnitTestHelper.AssertSucceededResponses(_addEntitiesTransactionallyResponsesAct);
+            AzTableUnitTestHelper.AssertSucceededResponses(_addEntitiesTransactionallyResponsesAct);
 
-            UnitTestHelper.AssertByGetEntity(entities);
+            AzTableUnitTestHelper.AssertByGetEntity(entities);
         }
 
         [Fact, TestPriority(300)]
         public void AddExistingEntitiesTransactionallyTest()
         {
             // Arrange
-            var entities = UnitTestHelper.CreateAddAssertSomeEntities(true,
+            var entities = AzTableUnitTestHelper.CreateAddAssertSomeEntities(true,
                 ConstProvider.Hundreds_RandomMinValue, ConstProvider.Hundreds_RandomMaxValue);
 
             // Act
-            var _addEntitiesTransactionallyResponsesAct = UnitTestHelper.AddEntitiesTransactionally(entities);
+            var _addEntitiesTransactionallyResponsesAct = AzTableUnitTestHelper.AddEntitiesTransactionally(entities);
 
             // Assert
-            UnitTestHelper.AssertExpectedFailedResponses(_addEntitiesTransactionallyResponsesAct, ConstProvider.The_specified_entity_already_exists);
+            AzTableUnitTestHelper.AssertExpectedFailedResponses(_addEntitiesTransactionallyResponsesAct, ConstProvider.The_specified_entity_already_exists);
         }
 
         #region Async, parallel tests
@@ -92,45 +92,45 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
         public void AddEntityAsyncTest()
         {
             // Arrange
-            var entity = UnitTestHelper.CreateSomeEntity();
+            var entity = AzTableUnitTestHelper.CreateSomeEntity();
 
             // Act
-            var _addEntityAsyncResponseAct = Helper.RunAsSync(entity, UnitTestHelper.AddEntityAsync);
+            var _addEntityAsyncResponseAct = Helper.RunAsSync(entity, AzTableUnitTestHelper.AddEntityAsync);
 
             // Assert
-            UnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityAsyncResponseAct);
+            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityAsyncResponseAct);
 
-            UnitTestHelper.AssertByGetEntity(entity);
+            AzTableUnitTestHelper.AssertByGetEntity(entity);
         }
 
         [Fact, TestPriority(100)]
         public void AddEntitiesParallelForEachTest()
         {
             // Arrange
-            var entities = UnitTestHelper.CreateSomeEntities(UnitTestHelper.GetUnderOneHundredRandomValue(), true);
+            var entities = AzTableUnitTestHelper.CreateSomeEntities(AzTableUnitTestHelper.GetUnderOneHundredRandomValue(), true);
 
             // Act
-            var _addEntitiesParallelForEachResponseAct = UnitTestHelper.AddEntitiesParallelForEach(entities);
+            var _addEntitiesParallelForEachResponseAct = AzTableUnitTestHelper.AddEntitiesParallelForEach(entities);
 
             // Assert
             Assert.Equal(_addEntitiesParallelForEachResponseAct, entities.Count());
 
-            UnitTestHelper.AssertByGetEntity(entities);
+            AzTableUnitTestHelper.AssertByGetEntity(entities);
         }
 
         [Fact, TestPriority(300)]
         public void AddEntitiesTransactionallyAsyncTest()
         {
             // Arrange
-            var entities = UnitTestHelper.CreateSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true);
+            var entities = AzTableUnitTestHelper.CreateSomeEntities(AzTableUnitTestHelper.GetOverOneHundredRandomValue(), true);
 
             // Act
-            var _addEntitiesTransactionallyAsyncResponseAct = Helper.RunAsSync(entities, UnitTestHelper.AddEntitiesTransactionallyAsync);
+            var _addEntitiesTransactionallyAsyncResponseAct = Helper.RunAsSync(entities, AzTableUnitTestHelper.AddEntitiesTransactionallyAsync);
 
             // Assert
-            UnitTestHelper.AssertSucceededResponses(_addEntitiesTransactionallyAsyncResponseAct);
+            AzTableUnitTestHelper.AssertSucceededResponses(_addEntitiesTransactionallyAsyncResponseAct);
 
-            UnitTestHelper.AssertByGetEntity(entities);
+            AzTableUnitTestHelper.AssertByGetEntity(entities);
         }
 
         #endregion

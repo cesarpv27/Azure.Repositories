@@ -16,17 +16,17 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
         public void ClearTableTest1()
         {
             // Arrange
-            UnitTestHelper.CreateAddAssertSomeEntities(true,
+            AzTableUnitTestHelper.CreateAddAssertSomeEntities(true,
                 ConstProvider.RandomMinValue, ConstProvider.RandomMaxValue);
 
             // Act
-            var _clearTableResponseAct = UnitTestHelper.ClearTable<TableEntity>();
+            var _clearTableResponseAct = AzTableUnitTestHelper.ClearTable<TableEntity>();
 
             // Assert
-            UnitTestHelper.AssertSucceededResponses(_clearTableResponseAct);
+            AzTableUnitTestHelper.AssertSucceededResponses(_clearTableResponseAct);
 
-            var _queryAllResponse = UnitTestHelper.QueryAll<TableEntity>();
-            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryAllResponse, new List<TableEntity>(0),
+            var _queryAllResponse = AzTableUnitTestHelper.QueryAll<TableEntity>();
+            AzTableUnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryAllResponse, new List<TableEntity>(0),
                 (responseValues, originalEntities) => responseValues.Count == originalEntities.Count());
         }
 
@@ -34,24 +34,24 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
         public void ClearTableTest2()
         {
             // Arrange
-            UnitTestHelper.CreateAddAssertSomeEntities(true,
+            AzTableUnitTestHelper.CreateAddAssertSomeEntities(true,
                 ConstProvider.Hundreds_RandomMinValue * 2, ConstProvider.Hundreds_RandomMaxValue * 5);
 
             // Act
-            var _clearTableResponseAct = UnitTestHelper.ClearTable(UnitTestHelper.GetTableEntityName());
+            var _clearTableResponseAct = AzTableUnitTestHelper.ClearTable(AzTableUnitTestHelper.GetTableEntityName());
 
             // Assert
-            UnitTestHelper.AssertSucceededResponses(_clearTableResponseAct);
+            AzTableUnitTestHelper.AssertSucceededResponses(_clearTableResponseAct);
 
-            var _queryAllResponse = UnitTestHelper.QueryAll<TableEntity>();
-            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryAllResponse, new List<TableEntity>(0),
+            var _queryAllResponse = AzTableUnitTestHelper.QueryAll<TableEntity>();
+            AzTableUnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryAllResponse, new List<TableEntity>(0),
                 (responseValues, originalEntities) => responseValues.Count == originalEntities.Count());
         }
 
         [Fact, TestPriority(500)]
         public void ClearTableTest3()
         {
-            Assert.Throws<ArgumentNullException>(() => UnitTestHelper.ClearTable(string.Empty));
+            Assert.Throws<ArgumentNullException>(() => AzTableUnitTestHelper.ClearTable(string.Empty));
         }
     }
 }

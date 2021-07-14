@@ -16,23 +16,23 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             // Arrange
             string partitionKey = Guid.NewGuid().ToString();
             string rowKey = Guid.NewGuid().ToString();
-            var entity = UnitTestHelper.CreateSomeEntity(partitionKey, rowKey);
-            UnitTestHelper.AssertExpectedSuccessfulResponse(UnitTestHelper.AddEntity(entity));
+            var entity = AzTableUnitTestHelper.CreateSomeEntity(partitionKey, rowKey);
+            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(AzTableUnitTestHelper.AddEntity(entity));
 
             string newPartitionKey = Guid.NewGuid().ToString();
             string newRowKey = Guid.NewGuid().ToString();
 
             // Act
-            var _updateKeysResponseAct = UnitTestHelper.UpdateKeys<TableEntity>(partitionKey, rowKey, newPartitionKey, newRowKey);
+            var _updateKeysResponseAct = AzTableUnitTestHelper.UpdateKeys<TableEntity>(partitionKey, rowKey, newPartitionKey, newRowKey);
 
             // Assert
-            UnitTestHelper.AssertExpectedSuccessfulResponse(_updateKeysResponseAct);
+            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_updateKeysResponseAct);
 
-            var _getEntityResponse = UnitTestHelper.GetEntity<TableEntity>(newPartitionKey, newRowKey);
-            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_getEntityResponse);
+            var _getEntityResponse = AzTableUnitTestHelper.GetEntity<TableEntity>(newPartitionKey, newRowKey);
+            AzTableUnitTestHelper.AssertExpectedSuccessfulGenResponse(_getEntityResponse);
 
-            _getEntityResponse = UnitTestHelper.GetEntity<TableEntity>(partitionKey, rowKey);
-            UnitTestHelper.AssertExpectedFailedGenResponse(_getEntityResponse, ConstProvider.The_specified_resource_does_not_exist);
+            _getEntityResponse = AzTableUnitTestHelper.GetEntity<TableEntity>(partitionKey, rowKey);
+            AzTableUnitTestHelper.AssertExpectedFailedGenResponse(_getEntityResponse, ConstProvider.The_specified_resource_does_not_exist);
         }
 
         [Fact, TestPriority(100)]
@@ -41,35 +41,35 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             // Arrange
             string partitionKey = Guid.NewGuid().ToString();
             string rowKey = Guid.NewGuid().ToString();
-            var entity = UnitTestHelper.CreateSomeEntity(partitionKey, rowKey);
-            UnitTestHelper.AssertExpectedSuccessfulResponse(UnitTestHelper.AddEntity(entity));
+            var entity = AzTableUnitTestHelper.CreateSomeEntity(partitionKey, rowKey);
+            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(AzTableUnitTestHelper.AddEntity(entity));
 
             string newPartitionKey = partitionKey;
             string newRowKey = Guid.NewGuid().ToString();
 
             // Act
-            var _updateKeysResponseAct = UnitTestHelper.UpdateKeys<TableEntity>(partitionKey, rowKey, newPartitionKey, newRowKey);
+            var _updateKeysResponseAct = AzTableUnitTestHelper.UpdateKeys<TableEntity>(partitionKey, rowKey, newPartitionKey, newRowKey);
 
             // Assert
-            UnitTestHelper.AssertExpectedSuccessfulResponse(_updateKeysResponseAct);
+            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_updateKeysResponseAct);
 
-            var _getEntityResponse = UnitTestHelper.GetEntity<TableEntity>(newPartitionKey, newRowKey);
-            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_getEntityResponse);
+            var _getEntityResponse = AzTableUnitTestHelper.GetEntity<TableEntity>(newPartitionKey, newRowKey);
+            AzTableUnitTestHelper.AssertExpectedSuccessfulGenResponse(_getEntityResponse);
 
-            _getEntityResponse = UnitTestHelper.GetEntity<TableEntity>(partitionKey, rowKey);
-            UnitTestHelper.AssertExpectedFailedGenResponse(_getEntityResponse, ConstProvider.The_specified_resource_does_not_exist);
+            _getEntityResponse = AzTableUnitTestHelper.GetEntity<TableEntity>(partitionKey, rowKey);
+            AzTableUnitTestHelper.AssertExpectedFailedGenResponse(_getEntityResponse, ConstProvider.The_specified_resource_does_not_exist);
         }
 
         [Fact, TestPriority(100)]
         public void UpdateKeysTest3()
         {
             string nonEmptyKey = "SomeKey";
-            Assert.Throws<ArgumentNullException>(() => UnitTestHelper.UpdateKeys<TableEntity>(string.Empty, nonEmptyKey, nonEmptyKey, nonEmptyKey));
-            Assert.Throws<ArgumentNullException>(() => UnitTestHelper.UpdateKeys<TableEntity>(nonEmptyKey, string.Empty, nonEmptyKey, nonEmptyKey));
-            Assert.Throws<ArgumentNullException>(() => UnitTestHelper.UpdateKeys<TableEntity>(nonEmptyKey, nonEmptyKey, string.Empty, nonEmptyKey));
-            Assert.Throws<ArgumentNullException>(() => UnitTestHelper.UpdateKeys<TableEntity>(nonEmptyKey, nonEmptyKey, nonEmptyKey, string.Empty));
+            Assert.Throws<ArgumentNullException>(() => AzTableUnitTestHelper.UpdateKeys<TableEntity>(string.Empty, nonEmptyKey, nonEmptyKey, nonEmptyKey));
+            Assert.Throws<ArgumentNullException>(() => AzTableUnitTestHelper.UpdateKeys<TableEntity>(nonEmptyKey, string.Empty, nonEmptyKey, nonEmptyKey));
+            Assert.Throws<ArgumentNullException>(() => AzTableUnitTestHelper.UpdateKeys<TableEntity>(nonEmptyKey, nonEmptyKey, string.Empty, nonEmptyKey));
+            Assert.Throws<ArgumentNullException>(() => AzTableUnitTestHelper.UpdateKeys<TableEntity>(nonEmptyKey, nonEmptyKey, nonEmptyKey, string.Empty));
 
-            var argException = Assert.Throws<ArgumentException>(() => UnitTestHelper.UpdateKeys<TableEntity>(nonEmptyKey, nonEmptyKey, nonEmptyKey, nonEmptyKey));
+            var argException = Assert.Throws<ArgumentException>(() => AzTableUnitTestHelper.UpdateKeys<TableEntity>(nonEmptyKey, nonEmptyKey, nonEmptyKey, nonEmptyKey));
             Assert.Equal(Core.Texting.ErrorTextProvider.Current_keys_same_as_new_keys, argException.GetDepthMessages());
         }
 
@@ -79,23 +79,23 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             // Arrange
             string partitionKey = Guid.NewGuid().ToString();
             string rowKey = Guid.NewGuid().ToString();
-            var entity = UnitTestHelper.CreateSomeEntity(partitionKey, rowKey);
+            var entity = AzTableUnitTestHelper.CreateSomeEntity(partitionKey, rowKey);
 
-            UnitTestHelper.AssertExpectedSuccessfulResponse(UnitTestHelper.AddEntity(entity));
+            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(AzTableUnitTestHelper.AddEntity(entity));
 
             string newPartitionKey = Guid.NewGuid().ToString();
 
             // Act
-            var _updatePartitionKeyResponseAct = UnitTestHelper.UpdatePartitionKey<TableEntity>(partitionKey, rowKey, newPartitionKey);
+            var _updatePartitionKeyResponseAct = AzTableUnitTestHelper.UpdatePartitionKey<TableEntity>(partitionKey, rowKey, newPartitionKey);
 
             // Assert
-            UnitTestHelper.AssertExpectedSuccessfulResponse(_updatePartitionKeyResponseAct);
+            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_updatePartitionKeyResponseAct);
 
-            var _getEntityResponse = UnitTestHelper.GetEntity<TableEntity>(newPartitionKey, rowKey);
-            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_getEntityResponse);
+            var _getEntityResponse = AzTableUnitTestHelper.GetEntity<TableEntity>(newPartitionKey, rowKey);
+            AzTableUnitTestHelper.AssertExpectedSuccessfulGenResponse(_getEntityResponse);
 
-            _getEntityResponse = UnitTestHelper.GetEntity<TableEntity>(partitionKey, rowKey);
-            UnitTestHelper.AssertExpectedFailedGenResponse(_getEntityResponse, ConstProvider.The_specified_resource_does_not_exist);
+            _getEntityResponse = AzTableUnitTestHelper.GetEntity<TableEntity>(partitionKey, rowKey);
+            AzTableUnitTestHelper.AssertExpectedFailedGenResponse(_getEntityResponse, ConstProvider.The_specified_resource_does_not_exist);
         }
 
         [Fact, TestPriority(100)]
@@ -104,23 +104,23 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             // Arrange
             string partitionKey = Guid.NewGuid().ToString();
             string rowKey = Guid.NewGuid().ToString();
-            var entity = UnitTestHelper.CreateSomeEntity(partitionKey, rowKey);
+            var entity = AzTableUnitTestHelper.CreateSomeEntity(partitionKey, rowKey);
 
-            UnitTestHelper.AssertExpectedSuccessfulResponse(UnitTestHelper.AddEntity(entity));
+            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(AzTableUnitTestHelper.AddEntity(entity));
 
             string newRowKey = Guid.NewGuid().ToString();
 
             // Act
-            var _updateRowKeyResponseAct = UnitTestHelper.UpdateRowKey<TableEntity>(partitionKey, rowKey, newRowKey);
+            var _updateRowKeyResponseAct = AzTableUnitTestHelper.UpdateRowKey<TableEntity>(partitionKey, rowKey, newRowKey);
 
             // Assert
-            UnitTestHelper.AssertExpectedSuccessfulResponse(_updateRowKeyResponseAct);
+            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_updateRowKeyResponseAct);
 
-            var _getEntityResponse = UnitTestHelper.GetEntity<TableEntity>(partitionKey, newRowKey);
-            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_getEntityResponse);
+            var _getEntityResponse = AzTableUnitTestHelper.GetEntity<TableEntity>(partitionKey, newRowKey);
+            AzTableUnitTestHelper.AssertExpectedSuccessfulGenResponse(_getEntityResponse);
 
-            _getEntityResponse = UnitTestHelper.GetEntity<TableEntity>(partitionKey, rowKey);
-            UnitTestHelper.AssertExpectedFailedGenResponse(_getEntityResponse, ConstProvider.The_specified_resource_does_not_exist);
+            _getEntityResponse = AzTableUnitTestHelper.GetEntity<TableEntity>(partitionKey, rowKey);
+            AzTableUnitTestHelper.AssertExpectedFailedGenResponse(_getEntityResponse, ConstProvider.The_specified_resource_does_not_exist);
         }
     }
 }

@@ -16,45 +16,45 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
         public void DeleteEntityTest1()
         {
             // Arrange
-            var entity = UnitTestHelper.CreateAddAssertSomeEntity();
+            var entity = AzTableUnitTestHelper.CreateAddAssertSomeEntity();
 
             // Act
-            var _deleteEntityResponseAct = UnitTestHelper.DeleteEntity(entity);
+            var _deleteEntityResponseAct = AzTableUnitTestHelper.DeleteEntity(entity);
 
             // Assert
-            UnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
+            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
 
-            UnitTestHelper.AssertByExpectedFailedGetEntity(entity, ConstProvider.The_specified_resource_does_not_exist);
+            AzTableUnitTestHelper.AssertByExpectedFailedGetEntity(entity, ConstProvider.The_specified_resource_does_not_exist);
         }
 
         [Fact, TestPriority(100)]
         public void DeleteEntityTest2()
         {
             // Arrange
-            var entity = UnitTestHelper.CreateAddAssertSomeEntity();
+            var entity = AzTableUnitTestHelper.CreateAddAssertSomeEntity();
 
             // Act
-            var _deleteEntityResponseAct = UnitTestHelper.DeleteEntity<TableEntity>(entity.PartitionKey, entity.RowKey);
+            var _deleteEntityResponseAct = AzTableUnitTestHelper.DeleteEntity<TableEntity>(entity.PartitionKey, entity.RowKey);
 
             // Assert
-            UnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
+            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
 
-            UnitTestHelper.AssertByExpectedFailedGetEntity(entity, ConstProvider.The_specified_resource_does_not_exist);
+            AzTableUnitTestHelper.AssertByExpectedFailedGetEntity(entity, ConstProvider.The_specified_resource_does_not_exist);
         }
 
         [Fact, TestPriority(100)]
         public void DeleteEntityTest3()
         {
             // Arrange
-            var entity = UnitTestHelper.CreateAddAssertSomeEntity();
+            var entity = AzTableUnitTestHelper.CreateAddAssertSomeEntity();
 
             // Act
-            var _deleteEntityResponseAct = UnitTestHelper.DeleteEntity(entity.PartitionKey, entity.RowKey, UnitTestHelper.GetTableEntityName());
+            var _deleteEntityResponseAct = AzTableUnitTestHelper.DeleteEntity(entity.PartitionKey, entity.RowKey, AzTableUnitTestHelper.GetTableEntityName());
 
             // Assert
-            UnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
+            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
 
-            UnitTestHelper.AssertByExpectedFailedGetEntity(entity, ConstProvider.The_specified_resource_does_not_exist);
+            AzTableUnitTestHelper.AssertByExpectedFailedGetEntity(entity, ConstProvider.The_specified_resource_does_not_exist);
         }
 
         [Fact, TestPriority(300)]
@@ -62,20 +62,20 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
         {
             // Arrange
             string commonPartitionKey = Guid.NewGuid().ToString();
-            var entities = UnitTestHelper.CreateAddAssertSomeEntities(commonPartitionKey);
+            var entities = AzTableUnitTestHelper.CreateAddAssertSomeEntities(commonPartitionKey);
 
-            var others = UnitTestHelper.CreateAddAssertSomeEntities(Guid.NewGuid().ToString());
+            var others = AzTableUnitTestHelper.CreateAddAssertSomeEntities(Guid.NewGuid().ToString());
 
             // Act
-            var _deleteEntitiesByPartitionKeyResponses = UnitTestHelper.DeleteEntitiesByPartitionKey<TableEntity>(commonPartitionKey);
+            var _deleteEntitiesByPartitionKeyResponses = AzTableUnitTestHelper.DeleteEntitiesByPartitionKey<TableEntity>(commonPartitionKey);
 
             // Assert
-            UnitTestHelper.AssertSucceededResponses(_deleteEntitiesByPartitionKeyResponses);
+            AzTableUnitTestHelper.AssertSucceededResponses(_deleteEntitiesByPartitionKeyResponses);
 
-            UnitTestHelper.AssertByExpectedFailedGetEntity(entities, ConstProvider.The_specified_resource_does_not_exist);
+            AzTableUnitTestHelper.AssertByExpectedFailedGetEntity(entities, ConstProvider.The_specified_resource_does_not_exist);
 
-            var _queryAllResponse = UnitTestHelper.QueryAll<TableEntity>();
-            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryAllResponse, others,
+            var _queryAllResponse = AzTableUnitTestHelper.QueryAll<TableEntity>();
+            AzTableUnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryAllResponse, others,
                 (responseValues, originalEntities) => responseValues.Count >= originalEntities.Count());
         }
 
@@ -84,20 +84,20 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
         {
             // Arrange
             string commonPartitionKey = Guid.NewGuid().ToString();
-            var entities = UnitTestHelper.CreateAddAssertSomeEntities(commonPartitionKey);
+            var entities = AzTableUnitTestHelper.CreateAddAssertSomeEntities(commonPartitionKey);
 
-            var others = UnitTestHelper.CreateAddAssertSomeEntities(Guid.NewGuid().ToString());
+            var others = AzTableUnitTestHelper.CreateAddAssertSomeEntities(Guid.NewGuid().ToString());
 
             // Act
-            var _deleteEntitiesByPartitionKeyResponses = UnitTestHelper.DeleteEntitiesByPartitionKey(commonPartitionKey, UnitTestHelper.GetTableEntityName());
+            var _deleteEntitiesByPartitionKeyResponses = AzTableUnitTestHelper.DeleteEntitiesByPartitionKey(commonPartitionKey, AzTableUnitTestHelper.GetTableEntityName());
 
             // Assert
-            UnitTestHelper.AssertSucceededResponses(_deleteEntitiesByPartitionKeyResponses);
+            AzTableUnitTestHelper.AssertSucceededResponses(_deleteEntitiesByPartitionKeyResponses);
 
-            UnitTestHelper.AssertByExpectedFailedGetEntity(entities, ConstProvider.The_specified_resource_does_not_exist);
+            AzTableUnitTestHelper.AssertByExpectedFailedGetEntity(entities, ConstProvider.The_specified_resource_does_not_exist);
 
-            var _queryAllResponse = UnitTestHelper.QueryAll<TableEntity>();
-            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryAllResponse, others,
+            var _queryAllResponse = AzTableUnitTestHelper.QueryAll<TableEntity>();
+            AzTableUnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryAllResponse, others,
                 (responseValues, originalEntities) => responseValues.Count >= originalEntities.Count());
         }
 
@@ -106,21 +106,21 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
         {
             // Arrange
             string commonPartitionKey = Guid.NewGuid().ToString();
-            var entities = UnitTestHelper.CreateAddAssertSomeEntities(commonPartitionKey);
+            var entities = AzTableUnitTestHelper.CreateAddAssertSomeEntities(commonPartitionKey);
 
-            var others = UnitTestHelper.CreateAddAssertSomeEntities(Guid.NewGuid().ToString());
+            var others = AzTableUnitTestHelper.CreateAddAssertSomeEntities(Guid.NewGuid().ToString());
 
             // Act
-            var _deleteEntitiesByPartitionKeyStartPatternResponses = UnitTestHelper
+            var _deleteEntitiesByPartitionKeyStartPatternResponses = AzTableUnitTestHelper
                 .DeleteEntitiesByPartitionKeyStartPattern<TableEntity>(commonPartitionKey.Substring(0, 5));
 
             // Assert
-            UnitTestHelper.AssertSucceededResponses(_deleteEntitiesByPartitionKeyStartPatternResponses);
+            AzTableUnitTestHelper.AssertSucceededResponses(_deleteEntitiesByPartitionKeyStartPatternResponses);
 
-            UnitTestHelper.AssertByExpectedFailedGetEntity(entities, ConstProvider.The_specified_resource_does_not_exist);
+            AzTableUnitTestHelper.AssertByExpectedFailedGetEntity(entities, ConstProvider.The_specified_resource_does_not_exist);
 
-            var _queryAllResponse = UnitTestHelper.QueryAll<TableEntity>();
-            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryAllResponse, others,
+            var _queryAllResponse = AzTableUnitTestHelper.QueryAll<TableEntity>();
+            AzTableUnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryAllResponse, others,
                 (responseValues, originalEntities) => responseValues.Count >= originalEntities.Count());
         }
 
@@ -129,21 +129,21 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
         {
             // Arrange
             string commonPartitionKey = Guid.NewGuid().ToString();
-            var entities = UnitTestHelper.CreateAddAssertSomeEntities(commonPartitionKey);
+            var entities = AzTableUnitTestHelper.CreateAddAssertSomeEntities(commonPartitionKey);
 
-            var others = UnitTestHelper.CreateAddAssertSomeEntities(Guid.NewGuid().ToString());
+            var others = AzTableUnitTestHelper.CreateAddAssertSomeEntities(Guid.NewGuid().ToString());
 
             // Act
-            var _deleteEntitiesByPartitionKeyStartPatternResponses = UnitTestHelper
-                .DeleteEntitiesByPartitionKeyStartPattern<TableEntity>(commonPartitionKey.Substring(0, 5), UnitTestHelper.GetTableEntityName());
+            var _deleteEntitiesByPartitionKeyStartPatternResponses = AzTableUnitTestHelper
+                .DeleteEntitiesByPartitionKeyStartPattern<TableEntity>(commonPartitionKey.Substring(0, 5), AzTableUnitTestHelper.GetTableEntityName());
 
             // Assert
-            UnitTestHelper.AssertSucceededResponses(_deleteEntitiesByPartitionKeyStartPatternResponses);
+            AzTableUnitTestHelper.AssertSucceededResponses(_deleteEntitiesByPartitionKeyStartPatternResponses);
 
-            UnitTestHelper.AssertByExpectedFailedGetEntity(entities, ConstProvider.The_specified_resource_does_not_exist);
+            AzTableUnitTestHelper.AssertByExpectedFailedGetEntity(entities, ConstProvider.The_specified_resource_does_not_exist);
 
-            var _queryAllResponse = UnitTestHelper.QueryAll<TableEntity>();
-            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryAllResponse, others,
+            var _queryAllResponse = AzTableUnitTestHelper.QueryAll<TableEntity>();
+            AzTableUnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryAllResponse, others,
                 (responseValues, originalEntities) => responseValues.Count >= originalEntities.Count());
         }
 
@@ -152,24 +152,24 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
         {
             // Arrange
             string commonPartitionKey = Guid.NewGuid().ToString();
-            var entities = UnitTestHelper.CreateAddAssertSomeEntities(commonPartitionKey).ToList();
+            var entities = AzTableUnitTestHelper.CreateAddAssertSomeEntities(commonPartitionKey).ToList();
             var selectedEntity = entities[entities.Count - 1];
 
             // Act
-            var _deleteEntitiesByPartitionKeyRowKeyStartPatternResponses = UnitTestHelper
+            var _deleteEntitiesByPartitionKeyRowKeyStartPatternResponses = AzTableUnitTestHelper
                 .DeleteEntitiesByPartitionKeyRowKeyStartPattern<TableEntity>(selectedEntity.PartitionKey,
                 selectedEntity.RowKey.Substring(0, 5));
 
             // Assert
-            UnitTestHelper.AssertSucceededResponses(_deleteEntitiesByPartitionKeyRowKeyStartPatternResponses);
+            AzTableUnitTestHelper.AssertSucceededResponses(_deleteEntitiesByPartitionKeyRowKeyStartPatternResponses);
 
-            UnitTestHelper.AssertByExpectedFailedGetEntity(new List<TableEntity> { selectedEntity },
+            AzTableUnitTestHelper.AssertByExpectedFailedGetEntity(new List<TableEntity> { selectedEntity },
                 ConstProvider.The_specified_resource_does_not_exist);
 
             entities.RemoveAt(entities.Count - 1);
 
-            var _queryAllResponse = UnitTestHelper.QueryAll<TableEntity>();
-            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryAllResponse, entities,
+            var _queryAllResponse = AzTableUnitTestHelper.QueryAll<TableEntity>();
+            AzTableUnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryAllResponse, entities,
                 (responseValues, originalEntities) => responseValues.Count >= originalEntities.Count());
         }
 
@@ -178,24 +178,24 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
         {
             // Arrange
             string commonPartitionKey = Guid.NewGuid().ToString();
-            var entities = UnitTestHelper.CreateAddAssertSomeEntities(commonPartitionKey).ToList();
+            var entities = AzTableUnitTestHelper.CreateAddAssertSomeEntities(commonPartitionKey).ToList();
             var selectedEntity = entities[entities.Count - 1];
 
             // Act
-            var _deleteEntitiesByPartitionKeyRowKeyStartPatternResponses = UnitTestHelper
+            var _deleteEntitiesByPartitionKeyRowKeyStartPatternResponses = AzTableUnitTestHelper
                 .DeleteEntitiesByPartitionKeyRowKeyStartPattern(selectedEntity.PartitionKey,
-                selectedEntity.RowKey.Substring(0, 5), UnitTestHelper.GetTableEntityName());
+                selectedEntity.RowKey.Substring(0, 5), AzTableUnitTestHelper.GetTableEntityName());
 
             // Assert
-            UnitTestHelper.AssertSucceededResponses(_deleteEntitiesByPartitionKeyRowKeyStartPatternResponses);
+            AzTableUnitTestHelper.AssertSucceededResponses(_deleteEntitiesByPartitionKeyRowKeyStartPatternResponses);
 
-            UnitTestHelper.AssertByExpectedFailedGetEntity(new List<TableEntity> { selectedEntity },
+            AzTableUnitTestHelper.AssertByExpectedFailedGetEntity(new List<TableEntity> { selectedEntity },
                 ConstProvider.The_specified_resource_does_not_exist);
 
             entities.RemoveAt(entities.Count - 1);
 
-            var _queryAllResponse = UnitTestHelper.QueryAll<TableEntity>();
-            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryAllResponse, entities,
+            var _queryAllResponse = AzTableUnitTestHelper.QueryAll<TableEntity>();
+            AzTableUnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryAllResponse, entities,
                 (responseValues, originalEntities) => responseValues.Count >= originalEntities.Count());
         }
 
@@ -203,31 +203,31 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
         public void DeleteEntitiesParallelForEachTest()
         {
             // Arrange
-            var entities = UnitTestHelper.CreateAddAssertSomeEntities();
+            var entities = AzTableUnitTestHelper.CreateAddAssertSomeEntities();
 
             // Act
-            var _deleteEntitiesParallelForEachArc = UnitTestHelper.DeleteEntitiesParallelForEach(entities);
+            var _deleteEntitiesParallelForEachArc = AzTableUnitTestHelper.DeleteEntitiesParallelForEach(entities);
 
             // Assert
             Assert.Equal(_deleteEntitiesParallelForEachArc, entities.Count());
 
-            UnitTestHelper.AssertByExpectedFailedGetEntity(entities, ConstProvider.The_specified_resource_does_not_exist);
+            AzTableUnitTestHelper.AssertByExpectedFailedGetEntity(entities, ConstProvider.The_specified_resource_does_not_exist);
         }
 
         [Fact, TestPriority(300)]
         public void DeleteEntitiesTransactionallyTest()
         {
             // Arrange
-            var entities = UnitTestHelper.CreateAddAssertSomeEntities(true,
+            var entities = AzTableUnitTestHelper.CreateAddAssertSomeEntities(true,
                 ConstProvider.RandomMinValue, ConstProvider.RandomMaxValue);
 
             // Act
-            var _deleteEntitiesTransactionallyResponsesAct = UnitTestHelper.DeleteEntitiesTransactionally(entities);
+            var _deleteEntitiesTransactionallyResponsesAct = AzTableUnitTestHelper.DeleteEntitiesTransactionally(entities);
 
             // Assert
-            UnitTestHelper.AssertSucceededResponses(_deleteEntitiesTransactionallyResponsesAct);
+            AzTableUnitTestHelper.AssertSucceededResponses(_deleteEntitiesTransactionallyResponsesAct);
 
-            UnitTestHelper.AssertByExpectedFailedGetEntity(entities, ConstProvider.The_specified_resource_does_not_exist);
+            AzTableUnitTestHelper.AssertByExpectedFailedGetEntity(entities, ConstProvider.The_specified_resource_does_not_exist);
         }
 
         #region Async
@@ -236,61 +236,61 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
         public void DeleteEntityAsyncTest1()
         {
             // Arrange
-            var entity = UnitTestHelper.CreateAddAssertSomeEntity();
+            var entity = AzTableUnitTestHelper.CreateAddAssertSomeEntity();
 
             // Act
-            var _deleteEntityResponseAct = Helper.RunAsSync(entity, UnitTestHelper.DeleteEntityAsync);
+            var _deleteEntityResponseAct = Helper.RunAsSync(entity, AzTableUnitTestHelper.DeleteEntityAsync);
 
             // Assert
-            UnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
+            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
 
-            UnitTestHelper.AssertByExpectedFailedGetEntity(entity, ConstProvider.The_specified_resource_does_not_exist);
+            AzTableUnitTestHelper.AssertByExpectedFailedGetEntity(entity, ConstProvider.The_specified_resource_does_not_exist);
         }
 
         [Fact, TestPriority(100)]
         public void DeleteEntityAsyncTest2()
         {
             // Arrange
-            var entity = UnitTestHelper.CreateAddAssertSomeEntity();
+            var entity = AzTableUnitTestHelper.CreateAddAssertSomeEntity();
 
             // Act
-            var _deleteEntityResponseAct = Helper.RunAsSync(entity.PartitionKey, entity.RowKey, UnitTestHelper.DeleteEntityAsync<TableEntity>);
+            var _deleteEntityResponseAct = Helper.RunAsSync(entity.PartitionKey, entity.RowKey, AzTableUnitTestHelper.DeleteEntityAsync<TableEntity>);
 
             // Assert
-            UnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
+            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
 
-            UnitTestHelper.AssertByExpectedFailedGetEntity(entity, ConstProvider.The_specified_resource_does_not_exist);
+            AzTableUnitTestHelper.AssertByExpectedFailedGetEntity(entity, ConstProvider.The_specified_resource_does_not_exist);
         }
 
         [Fact, TestPriority(100)]
         public void DeleteEntityAsyncTest3()
         {
             // Arrange
-            var entity = UnitTestHelper.CreateAddAssertSomeEntity();
+            var entity = AzTableUnitTestHelper.CreateAddAssertSomeEntity();
 
             // Act
-            var _deleteEntityResponseAct = Helper.RunAsSync(entity.PartitionKey, entity.RowKey, UnitTestHelper.DeleteEntityAsync);
+            var _deleteEntityResponseAct = Helper.RunAsSync(entity.PartitionKey, entity.RowKey, AzTableUnitTestHelper.DeleteEntityAsync);
 
             // Assert
-            UnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
+            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
 
-            UnitTestHelper.AssertByExpectedFailedGetEntity(entity, ConstProvider.The_specified_resource_does_not_exist);
+            AzTableUnitTestHelper.AssertByExpectedFailedGetEntity(entity, ConstProvider.The_specified_resource_does_not_exist);
         }
 
         [Fact, TestPriority(300)]
         public void DeleteEntitiesTransactionallyAsyncTest()
         {
             // Arrange
-            var entities = UnitTestHelper.CreateAddAssertSomeEntities(true,
+            var entities = AzTableUnitTestHelper.CreateAddAssertSomeEntities(true,
                 ConstProvider.RandomMinValue, ConstProvider.RandomMaxValue);
 
             // Act
-            var _deleteEntitiesTransactionallyAsyncResponsesAct = Helper.RunAsSync(entities, UnitTestHelper.DeleteEntitiesTransactionallyAsync);
+            var _deleteEntitiesTransactionallyAsyncResponsesAct = Helper.RunAsSync(entities, AzTableUnitTestHelper.DeleteEntitiesTransactionallyAsync);
 
             // Assert
-            UnitTestHelper.AssertSucceededResponses(_deleteEntitiesTransactionallyAsyncResponsesAct);
+            AzTableUnitTestHelper.AssertSucceededResponses(_deleteEntitiesTransactionallyAsyncResponsesAct);
 
-            UnitTestHelper.AssertByExpectedFailedGetEntity(entities, ConstProvider.The_specified_resource_does_not_exist);
+            AzTableUnitTestHelper.AssertByExpectedFailedGetEntity(entities, ConstProvider.The_specified_resource_does_not_exist);
         }
 
         #endregion

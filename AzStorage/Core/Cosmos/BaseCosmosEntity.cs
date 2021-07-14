@@ -1,20 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using AzStorage.Core.Utilities;
 using Newtonsoft.Json;
 
 namespace AzStorage.Core.Cosmos
 {
     public abstract class BaseCosmosEntity
     {
-        public string PartitionKeyPath
-        {
-            get
-            {
-                return "/PartitionKey";
-            }
-        }
-
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
 

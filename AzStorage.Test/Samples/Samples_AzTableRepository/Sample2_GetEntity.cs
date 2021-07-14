@@ -14,15 +14,15 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
         public void GetEntityTest()
         {
             // Arrange
-            var entity = UnitTestHelper.CreateSomeEntity();
-            var _addEntityResponseArr = UnitTestHelper.AddEntity(entity);
-            UnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityResponseArr);
+            var entity = AzTableUnitTestHelper.CreateSomeEntity();
+            var _addEntityResponseArr = AzTableUnitTestHelper.AddEntity(entity);
+            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityResponseArr);
 
             // Act
-            var _getEntityResponseAct = UnitTestHelper.GetEntity<TableEntity>(entity.PartitionKey, entity.RowKey);
+            var _getEntityResponseAct = AzTableUnitTestHelper.GetEntity<TableEntity>(entity.PartitionKey, entity.RowKey);
 
             // Assert
-            UnitTestHelper.AssertExpectedSuccessfulGenResponse(entity, _getEntityResponseAct);
+            AzTableUnitTestHelper.AssertExpectedSuccessfulGenResponse(entity, _getEntityResponseAct);
         }
 
         [Fact, TestPriority(100)]
@@ -31,10 +31,10 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             // Arrange
 
             // Act
-            var _getEntityResponseAct = UnitTestHelper.GetEntity<TableEntity>(Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
+            var _getEntityResponseAct = AzTableUnitTestHelper.GetEntity<TableEntity>(Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
 
             // Assert
-            UnitTestHelper.AssertExpectedFailedGenResponse(_getEntityResponseAct, ConstProvider.The_specified_resource_does_not_exist);
+            AzTableUnitTestHelper.AssertExpectedFailedGenResponse(_getEntityResponseAct, ConstProvider.The_specified_resource_does_not_exist);
         }
 
         #region Async
@@ -43,16 +43,16 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
         public void GetEntityAsyncTest()
         {
             // Arrange
-            var entity = UnitTestHelper.CreateSomeEntity();
-            var _addEntityResponseArr = UnitTestHelper.AddEntity(entity);
-            UnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityResponseArr);
+            var entity = AzTableUnitTestHelper.CreateSomeEntity();
+            var _addEntityResponseArr = AzTableUnitTestHelper.AddEntity(entity);
+            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityResponseArr);
 
             // Act
             var _getEntityResponseAct = Helper.RunAsSync(entity.PartitionKey, entity.RowKey, 
-                UnitTestHelper.GetEntityAsync<TableEntity>);
+                AzTableUnitTestHelper.GetEntityAsync<TableEntity>);
 
             // Assert
-            UnitTestHelper.AssertExpectedSuccessfulGenResponse(entity, _getEntityResponseAct);
+            AzTableUnitTestHelper.AssertExpectedSuccessfulGenResponse(entity, _getEntityResponseAct);
         }
 
         #endregion

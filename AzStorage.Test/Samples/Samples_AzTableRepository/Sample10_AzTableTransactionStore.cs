@@ -14,12 +14,12 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
         public void AzTableTransactionStoreTest()
         {
             // Arrange
-            var entitiesToAdd = UnitTestHelper.CreateSomeEntities(ConstProvider.Hundreds_RandomMaxValue + 10, false);
+            var entitiesToAdd = AzTableUnitTestHelper.CreateSomeEntities(ConstProvider.Hundreds_RandomMaxValue + 10, false);
             
-            var entitiesToUpdate = UnitTestHelper.CreateAddAssertSomeEntities(false,
+            var entitiesToUpdate = AzTableUnitTestHelper.CreateAddAssertSomeEntities(false,
                 ConstProvider.Hundreds_RandomMinValue, ConstProvider.Hundreds_RandomMaxValue);
 
-            var entitiesToAddNDelete = UnitTestHelper.CreateAddAssertSomeEntities(true,
+            var entitiesToAddNDelete = AzTableUnitTestHelper.CreateAddAssertSomeEntities(true,
                 ConstProvider.Hundreds_RandomMinValue, ConstProvider.Hundreds_RandomMaxValue);
 
             var _azTableTransactionStore = new AzTableTransactionStore();
@@ -27,13 +27,13 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             _azTableTransactionStore.Update(entitiesToUpdate, TableUpdateMode.Replace);
             _azTableTransactionStore.Delete(entitiesToAddNDelete);
 
-            var _tableClient = UnitTestHelper.GetExistingTableClient(UnitTestHelper.GetTableEntityName());
+            var _tableClient = AzTableUnitTestHelper.GetExistingTableClient(AzTableUnitTestHelper.GetTableEntityName());
 
             // Act
             var responses = _tableClient.SubmitTransaction<AzTableTransactionStore>(_azTableTransactionStore, default);
 
             // Assert
-            UnitTestHelper.AssertSucceededResponses(responses);
+            AzTableUnitTestHelper.AssertSucceededResponses(responses);
         }
     }
 }

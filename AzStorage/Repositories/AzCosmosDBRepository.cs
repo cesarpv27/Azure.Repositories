@@ -11,6 +11,7 @@ using AzCoreTools.Core.Validators;
 using CoreTools.Extensions;
 using AzCoreTools.Helpers;
 using System.Threading;
+using AzStorage.Core.Utilities;
 
 namespace AzStorage.Repositories
 {
@@ -31,11 +32,9 @@ namespace AzStorage.Repositories
 
         #region Properties
 
-        public virtual string AccountEndpointUri { get; set; }
+        public virtual string EndpointUri { get; set; }
         public virtual string AuthKeyOrResourceToken { get; set; }
 
-        public virtual string DatabaseId { get; set; }
-        public virtual string ContainerId { get; set; }
         public virtual string PartitionKeyPath { get; protected set; }
 
         public virtual CosmosClient CosmosClient { get; protected set; }
@@ -81,7 +80,7 @@ namespace AzStorage.Repositories
         protected virtual void ThrowIfInvalidPartitionKeyPath(string partitionKeyPath)
         {
             ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(partitionKeyPath, nameof(partitionKeyPath), nameof(partitionKeyPath));
-            if (!partitionKeyPath.StartsWith("/"))
+            if (!partitionKeyPath.StartsWith(ConstProvider.CosmosPartitionKeyPathStartPattern))
                 ExThrower.ST_ThrowArgumentException(nameof(partitionKeyPath), $"{nameof(partitionKeyPath)} does not have the expected format");
         }
 
@@ -105,6 +104,11 @@ namespace AzStorage.Repositories
         //    if (!ResponseValidator.StatusSucceeded(response.StatusCode))
         //        ExThrower.ST_ThrowApplicationException($"Can not create container. StatusCode:{response.StatusCode}");
         //}
+
+        protected virtual void ThrowIfInvalidPartitionKeyValue(string partitionKey)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(partitionKey, nameof(partitionKey));
+        }
 
         #endregion
 
@@ -148,7 +152,7 @@ namespace AzStorage.Repositories
 
         private void CreateOrLoadCosmosClient(string accountEndpointUri, string authKeyOrResourceToken, Func<dynamic[], CosmosClient> func)
         {
-            if (CosmosClient == null || !accountEndpointUri.Equals(AccountEndpointUri) || !authKeyOrResourceToken.Equals(AuthKeyOrResourceToken))
+            if (CosmosClient == null || !accountEndpointUri.Equals(EndpointUri) || !authKeyOrResourceToken.Equals(AuthKeyOrResourceToken))
                 IsFirstTimeCosmosClientCreation = true;
 
             bool _isFirstTime = IsFirstTimeCosmosClientCreation;
@@ -161,7 +165,7 @@ namespace AzStorage.Repositories
             if (result)
             {
                 CosmosClient = response;
-                AccountEndpointUri = accountEndpointUri;
+                EndpointUri = accountEndpointUri;
                 AuthKeyOrResourceToken = authKeyOrResourceToken;
             }
         }
@@ -196,7 +200,7 @@ namespace AzStorage.Repositories
 
         private void CreateOrLoadDatabase(string databaseId, Func<dynamic[], DatabaseResponse> func)
         {
-            if (Database == null || !databaseId.Equals(DatabaseId))
+            if (Database == null || !databaseId.Equals(Database.Id))
                 IsFirstTimeDatabaseCreation = true;
 
             bool _isFirstTime = IsFirstTimeDatabaseCreation;
@@ -207,10 +211,7 @@ namespace AzStorage.Repositories
             IsFirstTimeDatabaseCreation = _isFirstTime;
 
             if (result && ResponseValidator.CreateResourceCosmosResponseSucceeded<Response<DatabaseProperties>, DatabaseProperties>(response))
-            {
                 Database = response;
-                DatabaseId = databaseId;
-            }
         }
 
         private DatabaseResponse CreateDatabaseIfNotExists(dynamic[] @params)
@@ -236,6 +237,10 @@ namespace AzStorage.Repositories
         protected virtual void CreateOrLoadContainer(string containerId, string partitionKeyPath)
         {
             ThrowIfInvalidContainerId(containerId);
+
+            if (!string.IsNullOrEmpty(partitionKeyPath) && !partitionKeyPath.StartsWith(ConstProvider.CosmosPartitionKeyPathStartPattern))
+                partitionKeyPath = ConstProvider.CosmosPartitionKeyPathStartPattern + partitionKeyPath;
+
             ThrowIfInvalidPartitionKeyPath(partitionKeyPath);
 
             ThrowIfInvalidDatabase();
@@ -245,7 +250,7 @@ namespace AzStorage.Repositories
 
         private void CreateOrLoadContainer(string containerId, string partitionKeyPath, Func<dynamic[], ContainerResponse> func)
         {
-            if (Container == null || !containerId.Equals(ContainerId) || !partitionKeyPath.Equals(PartitionKeyPath))
+            if (Container == null || !containerId.Equals(Container.Id) || !partitionKeyPath.Equals(PartitionKeyPath))
                 IsFirstTimeDatabaseCreation = true;
 
             bool _isFirstTime = IsFirstTimeDatabaseCreation;
@@ -259,7 +264,6 @@ namespace AzStorage.Repositories
             if (result && ResponseValidator.CreateResourceCosmosResponseSucceeded<Response<ContainerProperties>, ContainerProperties>(response))
             {
                 Container = response;
-                ContainerId = containerId;
                 PartitionKeyPath = partitionKeyPath;
             }
         }
@@ -278,45 +282,49 @@ namespace AzStorage.Repositories
 
         #region Add async
 
-        public virtual async Task<AzCosmosResponse<TIn>> AddAsync<TIn>(TIn entity,
+        public virtual async Task<AzCosmosResponse<TIn>> AddEntityAsync<TIn>(TIn entity,
             CancellationToken cancellationToken = default,
             string databaseId = null,
             string containerId = null) where TIn : BaseCosmosEntity
         {
-            return await AddAsync<TIn, AzCosmosResponse<TIn>>(entity, cancellationToken, databaseId,
+            return await AddEntityAsync<TIn, AzCosmosResponse<TIn>>(entity, cancellationToken, databaseId,
                 containerId);
         }
 
-        public virtual async Task<TOut> AddAsync<TIn, TOut>(TIn entity,
+        public virtual async Task<TOut> AddEntityAsync<TIn, TOut>(TIn entity,
             CancellationToken cancellationToken = default,
             string databaseId = null,
             string containerId = null) where TIn : BaseCosmosEntity where TOut : AzCosmosResponse<TIn>, new()
         {
-            return await AddAsync<TIn, TOut>(entity, cancellationToken, databaseId,
-                containerId, entity.PartitionKeyPath);
+            return await AddEntityAsync<TIn, TOut>(entity, entity.PartitionKey, cancellationToken, databaseId,
+                containerId, ConstProvider.DefaultCosmosPartitionKeyPath);
         }
 
-        public virtual async Task<AzCosmosResponse<TIn>> AddAsync<TIn>(TIn entity,
+        public virtual async Task<AzCosmosResponse<TIn>> AddEntityAsync<TIn>(TIn entity,
+            string partitionKey,
             CancellationToken cancellationToken = default,
             string databaseId = null,
             string containerId = null,
             string partitionKeyPropName = null)
         {
-            return await AddAsync<TIn, AzCosmosResponse<TIn>>(entity, cancellationToken, databaseId,
+            return await AddEntityAsync<TIn, AzCosmosResponse<TIn>>(entity, partitionKey, cancellationToken, databaseId,
                 containerId, partitionKeyPropName);
         }
 
-        public virtual async Task<TOut> AddAsync<TIn, TOut>(TIn entity,
+        public virtual async Task<TOut> AddEntityAsync<TIn, TOut>(TIn entity,
+            string partitionKey,
             CancellationToken cancellationToken = default,
             string databaseId = null,
             string containerId = null,
             string partitionKeyPropName = null) where TOut : AzCosmosResponse<TIn>, new()
         {
+            ThrowIfInvalidPartitionKeyValue(partitionKey);
+
             Initialize(databaseId, containerId, partitionKeyPropName, false);
 
             return await CosmosFuncHelper.ExecuteAsync<TIn, PartitionKey?, ItemRequestOptions, CancellationToken, ItemResponse<TIn>, TOut, TIn>(
                 Container.CreateItemAsync,
-                entity, new PartitionKey(partitionKeyPropName), default, cancellationToken);
+                entity, new PartitionKey(partitionKey), default, cancellationToken);
         }
 
         #endregion
