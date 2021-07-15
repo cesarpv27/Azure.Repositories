@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace AzStorage.Test.Helpers
 {
@@ -152,6 +153,28 @@ namespace AzStorage.Test.Helpers
 
         #endregion
 
+        #region Assert response
+
+        public static void AssertExpectedSuccessfulGenResponse<T>(T sourceEntity, AzCosmosResponse<T> response)
+            where T : BaseCosmosEntity
+        {
+            Assert.NotNull(sourceEntity);
+            AssertExpectedSuccessfulGenResponse(response);
+
+            var resultingEntity = response.Value;
+            Assert.Equal(sourceEntity.PartitionKey, resultingEntity.PartitionKey);
+            Assert.Equal(sourceEntity.Id, resultingEntity.Id);
+        }
+
+        public static void AssertExpectedSuccessfulGenResponse<T>(AzCosmosResponse<T> response)
+        {
+            AssertExpectedSuccessfulResponse(response);
+
+            Assert.NotNull(response.Value);
+        }
+
+        #endregion
+
         #region Add entities
 
         public static async Task<AzCosmosResponse<TIn>> AddEntityAsync<TIn>(TIn entity,
@@ -160,6 +183,19 @@ namespace AzStorage.Test.Helpers
         {
             return await GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).AddEntityAsync(entity,
                 cancellationToken: default, databaseId: default, containerId: default);
+        }
+
+        #endregion
+
+        #region Get entities
+
+        public static async Task<AzCosmosResponse<T>> GetEntityByIdAsync<T>(string partitionKey,
+            string id,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : BaseCosmosEntity
+        {
+            return await GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).GetEntityByIdAsync<T>(partitionKey,
+                id, cancellationToken: default, databaseId: default, containerId: default);
         }
 
         #endregion

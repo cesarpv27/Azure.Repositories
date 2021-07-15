@@ -200,7 +200,7 @@ namespace AzStorage.Test.Helpers
 
         public static void AssertExpectedSuccessfulGenResponse<T>(AzStorageResponse<T> response)
         {
-            AssertExpectedSuccessfulResponse(response.InduceGenericLessResponse());
+            AssertExpectedSuccessfulResponse(response);
 
             Assert.NotNull(response.Value);
         }

@@ -110,6 +110,11 @@ namespace AzStorage.Repositories
             ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(partitionKey, nameof(partitionKey));
         }
 
+        protected virtual void ThrowIfInvalidId(string id)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(id, nameof(id));
+        }
+
         #endregion
 
         #region Protected methods
@@ -331,32 +336,34 @@ namespace AzStorage.Repositories
 
         #region Get async
 
-        //public virtual async Task<AzStorageResponse<TIn>> GetByIdAsync(string partitionKey, string id)
-        //{
-        //    var goResult = GetCurrentCosmosDbInstance();
-        //    if (!goResult.Success)
-        //        return GoResult<EnT>.Create(goResult);
+        public virtual async Task<AzCosmosResponse<T>> GetEntityByIdAsync<T>(string partitionKey,
+            string id,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return await GetEntityByIdAsync<T, AzCosmosResponse<T>>(partitionKey,
+                id, cancellationToken, databaseId, containerId, partitionKeyPropName);
+        }
+        
+        public virtual async Task<TOut> GetEntityByIdAsync<T, TOut>(string partitionKey, 
+            string id,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<T>, new()
+        {
+            ThrowIfInvalidPartitionKeyValue(partitionKey);
+            ThrowIfInvalidId(id);
 
-        //    var _cosmosDbInstance = goResult.Value;
+            Initialize(databaseId, containerId, partitionKeyPropName, false);
 
-        //    try
-        //    {
-        //        var response = await _cosmosDbInstance.Container.ReadItemAsync<EnT>(id, new PartitionKey(partitionKey));
-
-        //        return GoResult<EnT>.Create(response.StatusCode == HttpStatusCode.OK, response.Resource);
-        //    }
-        //    catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
-        //    {
-        //        return GoResult<EnT>.Create(true, value: null, comments: $"No entity found with PartitionKey:{partitionKey} and Id:{id}");
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        // TODO: Log here 
-
-        //        return GoResult<EnT>.Create(false, e);
-        //    }
-        //}
-
+            return await CosmosFuncHelper.ExecuteAsync<string, PartitionKey, ItemRequestOptions, CancellationToken, ItemResponse<T>, TOut, T>(
+                Container.ReadItemAsync<T>,
+                id, new PartitionKey(partitionKey), default, cancellationToken);
+        }
+        
         #endregion
     }
 }
