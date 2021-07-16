@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using CoreTools.Extensions;
+using System.Threading;
 
 namespace AzStorage.Test.Helpers
 {
@@ -151,6 +153,16 @@ namespace AzStorage.Test.Helpers
             return entities;
         }
 
+        public static string GenerateProp(int number, string prefix = "")
+        {
+            return $"{prefix}Prop{number}";
+        }
+        
+        public static string GenerateUpdatedProp(int number)
+        {
+            return GenerateProp(number, "Updated");
+        }
+
         #endregion
 
         #region Assert response
@@ -166,11 +178,62 @@ namespace AzStorage.Test.Helpers
             Assert.Equal(sourceEntity.Id, resultingEntity.Id);
         }
 
-        public static void AssertExpectedSuccessfulGenResponse<T>(AzCosmosResponse<T> response)
-        {
-            AssertExpectedSuccessfulResponse(response);
+        #endregion
 
-            Assert.NotNull(response.Value);
+        #region Assert by GetEntities
+
+        public static CustomCosmosEntity AssertByGetEntity(CustomCosmosEntity entity)
+        {
+            return AssertWithGetEntity(entity, true);
+        }
+
+        private static CustomCosmosEntity AssertWithGetEntity(
+            CustomCosmosEntity entity,
+            bool succeededResponse,
+            string failedErrorMessage = null)
+        {
+            var _getEntityResponseAct = GetEntityByIdAsync<CustomCosmosEntity>(entity.PartitionKey, entity.Id)
+                .WaitAndUnwrapException();
+            if (succeededResponse)
+            {
+                AssertExpectedSuccessfulGenResponse(entity, _getEntityResponseAct);
+                return _getEntityResponseAct.Value;
+            }
+
+            AssertExpectedFailedGenResponse(_getEntityResponseAct, failedErrorMessage);
+
+            return default;
+        }
+
+        #endregion
+
+        #region Assert UpdateOrUpsert
+
+        public static void AssertUpdateOrUpsertExistingEntity(
+            Func<CustomCosmosEntity, CreateResourcePolicy, Task<AzCosmosResponse<CustomCosmosEntity>>> funcUpdateOrUpsert, 
+            Action<CustomCosmosEntity> actionAssertRecoveredEntity)
+        {
+            // Arrange
+            var entity = CreateSomeEntity();
+            entity.Prop1 = GenerateProp(1);
+            entity.Prop2 = GenerateProp(2);
+
+            var _createResourcePolicy = CreateResourcePolicy.OnlyFirstTime;
+
+            var _addEntityResponseArr = AddEntityAsync(entity).WaitAndUnwrapException();
+            AssertExpectedSuccessfulResponse(_addEntityResponseArr);
+
+            entity.Prop1 = GenerateUpdatedProp(1);
+            entity.Prop2 = GenerateUpdatedProp(2);
+
+            // Act
+            var _updateReplaceEntityResponseAct = funcUpdateOrUpsert(entity, _createResourcePolicy).WaitAndUnwrapException();
+
+            // Assert
+            AssertExpectedSuccessfulResponse(_updateReplaceEntityResponseAct);
+
+            var resultingEntity = AssertByGetEntity(entity);
+            actionAssertRecoveredEntity(resultingEntity);
         }
 
         #endregion
@@ -196,6 +259,26 @@ namespace AzStorage.Test.Helpers
         {
             return await GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).GetEntityByIdAsync<T>(partitionKey,
                 id, cancellationToken: default, databaseId: default, containerId: default);
+        }
+
+        #endregion
+
+        #region Update entities
+
+        public static async Task<AzCosmosResponse<TIn>> UpdateEntityAsync<TIn>(TIn entity,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where TIn : BaseCosmosEntity
+        {
+            return await GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).UpdateEntityAsync(entity,
+                cancellationToken: default, databaseId: default, containerId: default);
+        }
+        
+        public static async Task<AzCosmosResponse<TIn>> UpdateEntityAsync2<TIn>(TIn entity,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where TIn : BaseCosmosEntity
+        {
+            return await GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).UpdateEntityAsync(entity,
+                entity.Id, entity.PartitionKey, cancellationToken: default, databaseId: default, containerId: default);
         }
 
         #endregion

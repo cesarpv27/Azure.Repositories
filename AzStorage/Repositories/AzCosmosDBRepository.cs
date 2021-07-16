@@ -105,6 +105,14 @@ namespace AzStorage.Repositories
         //        ExThrower.ST_ThrowApplicationException($"Can not create container. StatusCode:{response.StatusCode}");
         //}
 
+        protected virtual void ThrowIfInvalidEntity<T>(T entity) where T: BaseCosmosEntity
+        {
+            ExThrower.ST_ThrowIfArgumentIsNull(entity, nameof(entity));
+
+            ThrowIfInvalidPartitionKeyValue(entity.PartitionKey);
+            ThrowIfInvalidId(entity.Id);
+        }
+
         protected virtual void ThrowIfInvalidPartitionKeyValue(string partitionKey)
         {
             ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(partitionKey, nameof(partitionKey));
@@ -301,6 +309,8 @@ namespace AzStorage.Repositories
             string databaseId = null,
             string containerId = null) where TIn : BaseCosmosEntity where TOut : AzCosmosResponse<TIn>, new()
         {
+            ThrowIfInvalidEntity(entity);
+
             return await AddEntityAsync<TIn, TOut>(entity, entity.PartitionKey, cancellationToken, databaseId,
                 containerId, ConstProvider.DefaultCosmosPartitionKeyPath);
         }
@@ -363,7 +373,63 @@ namespace AzStorage.Repositories
                 Container.ReadItemAsync<T>,
                 id, new PartitionKey(partitionKey), default, cancellationToken);
         }
+
+        #endregion
+
+        #region Update async
+
+        public virtual async Task<AzCosmosResponse<TIn>> UpdateEntityAsync<TIn>(TIn entity,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TIn : BaseCosmosEntity
+        {
+            return await UpdateEntityAsync<TIn, AzCosmosResponse<TIn>>(entity,
+                cancellationToken, databaseId, containerId, partitionKeyPropName);
+        }
+
+        public virtual async Task<TOut> UpdateEntityAsync<TIn, TOut>(TIn entity,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TIn : BaseCosmosEntity where TOut : AzCosmosResponse<TIn>, new()
+        {
+            ThrowIfInvalidEntity(entity);
+
+            return await UpdateEntityAsync<TIn, TOut>(entity, entity.Id, entity.PartitionKey, 
+                cancellationToken, databaseId, containerId, partitionKeyPropName);
+        }
         
+        public virtual async Task<AzCosmosResponse<TIn>> UpdateEntityAsync<TIn>(TIn entity,
+            string id,
+            string partitionKey,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return await UpdateEntityAsync<TIn, AzCosmosResponse<TIn>>(entity, id, partitionKey, 
+                cancellationToken, databaseId, containerId, partitionKeyPropName);
+        }
+
+        public virtual async Task<TOut> UpdateEntityAsync<TIn, TOut>(TIn entity,
+            string id,
+            string partitionKey,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<TIn>, new()
+        {
+            ThrowIfInvalidId(id);
+            ThrowIfInvalidPartitionKeyValue(partitionKey);
+
+            Initialize(databaseId, containerId, partitionKeyPropName, false);
+
+            return await CosmosFuncHelper.ExecuteAsync<TIn, string, PartitionKey?, ItemRequestOptions, CancellationToken, ItemResponse<TIn>, TOut, TIn>(
+                Container.ReplaceItemAsync,
+                entity, id, new PartitionKey(partitionKey), default, cancellationToken);
+        }
+
         #endregion
     }
 }

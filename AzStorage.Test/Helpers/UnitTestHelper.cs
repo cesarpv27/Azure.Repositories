@@ -18,6 +18,33 @@ namespace AzStorage.Test.Helpers
             Assert.Null(failedResponse.Message);
         }
 
+        public static void AssertExpectedSuccessfulGenResponse<T>(IAzDetailedResponse<T> response)
+        {
+            AssertExpectedSuccessfulResponse(response);
+
+            Assert.NotNull(response.Value);
+        }
+
+        public static void AssertExpectedFailedResponse(IAzDetailedResponse failedResponse, string errorMessage)
+        {
+            Assert.False(failedResponse.Succeeded);
+
+            Assert.NotNull(failedResponse.Exception);
+            Assert.NotNull(failedResponse.Message);
+            Assert.Contains(errorMessage, failedResponse.Message);
+        }
+
+        public static void AssertExpectedFailedGenResponse<T>(
+            IAzDetailedResponse<T> failedResponse,
+            string errorMessage,
+            bool assertValue = true)
+        {
+            AssertExpectedFailedResponse(failedResponse, errorMessage);
+
+            if (assertValue)
+                Assert.Null(failedResponse.Value);
+        }
+
         #endregion
 
     }

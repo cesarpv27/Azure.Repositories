@@ -198,13 +198,6 @@ namespace AzStorage.Test.Helpers
             Assert.Equal(sourceEntity.RowKey, resultingEntity.RowKey);
         }
 
-        public static void AssertExpectedSuccessfulGenResponse<T>(AzStorageResponse<T> response)
-        {
-            AssertExpectedSuccessfulResponse(response);
-
-            Assert.NotNull(response.Value);
-        }
-
         public static void AssertExpectedSuccessfulGenResponse<T>(AzStorageResponse<List<T>> response,
             IEnumerable<T> originalEntities, Func<List<T>, IEnumerable<T>, bool> funcToAssertTrue)
             where T : class, ITableEntity, new()
@@ -222,26 +215,6 @@ namespace AzStorage.Test.Helpers
                     return item.PartitionKey.Equals(entt.PartitionKey) &&
                         item.RowKey.Equals(entt.RowKey);
                 }));
-        }
-
-        public static void AssertExpectedFailedResponse(AzStorageResponse failedResponse, string errorMessage)
-        {
-            Assert.False(failedResponse.Succeeded);
-
-            Assert.NotNull(failedResponse.Exception);
-            Assert.NotNull(failedResponse.Message);
-            Assert.Contains(errorMessage, failedResponse.Message);
-        }
-
-        public static void AssertExpectedFailedGenResponse<T>(
-            AzStorageResponse<T> failedResponse,
-            string errorMessage,
-            bool assertValue = true)
-        {
-            AssertExpectedFailedResponse(failedResponse.InduceGenericLessResponse(), errorMessage);
-
-            if (assertValue)
-                Assert.Null(failedResponse.Value);
         }
 
         #endregion
