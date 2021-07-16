@@ -8,28 +8,40 @@ using AzStorage.Test.Utilities;
 namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
 {
     [TestCaseOrderer("AzStorage.Test.Utilities.PriorityOrderer", "AzStorage.Test")]
-    public class Sample3_UpdateEntity
+    public class Sample4_UpsertEntity
     {
         [Fact, TestPriority(100)]
-        public void UpdateEntityAsyncTest()
+        public void UpsertEntityAsync_UpdateTest()
         {
             AzCosmosUnitTestHelper.AssertUpdateOrUpsertExistingEntity(true,
-                AzCosmosUnitTestHelper.UpdateEntityAsync,
+                AzCosmosUnitTestHelper.UpsertEntityAsync,
                 cmsEntt => {
                     Assert.Null(cmsEntt.Prop1);
                     Assert.Equal(cmsEntt.Prop2, AzCosmosUnitTestHelper.GenerateUpdatedProp(2));
                 });
         }
-        
+
         [Fact, TestPriority(100)]
-        public void UpdateEntityAsyncTest2()
+        public void UpsertEntityAsync_UpdateTest2()
         {
             AzCosmosUnitTestHelper.AssertUpdateOrUpsertExistingEntity(true,
-                AzCosmosUnitTestHelper.UpdateEntityAsync2,
+                AzCosmosUnitTestHelper.UpsertEntityAsync2,
                 cmsEntt => {
                     Assert.Null(cmsEntt.Prop1);
                     Assert.Equal(cmsEntt.Prop2, AzCosmosUnitTestHelper.GenerateUpdatedProp(2));
                 });
         }
+
+        [Fact, TestPriority(100)]
+        public void UpsertEntityAsync_AddTest()
+        {
+            AzCosmosUnitTestHelper.AssertUpdateOrUpsertExistingEntity(false,
+                AzCosmosUnitTestHelper.UpsertEntityAsync,
+                cmsEntt => {
+                    Assert.Null(cmsEntt.Prop1);
+                    Assert.Equal(cmsEntt.Prop2, AzCosmosUnitTestHelper.GenerateUpdatedProp(2));
+                });
+        }
+
     }
 }

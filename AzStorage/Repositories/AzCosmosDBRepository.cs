@@ -431,5 +431,58 @@ namespace AzStorage.Repositories
         }
 
         #endregion
+
+        #region Upsert async
+
+        public virtual async Task<AzCosmosResponse<TIn>> UpsertEntityAsync<TIn>(TIn entity,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TIn : BaseCosmosEntity
+        {
+            return await UpsertEntityAsync<TIn, AzCosmosResponse<TIn>>(entity, cancellationToken,
+                databaseId, containerId, partitionKeyPropName);
+        }
+        
+        public virtual async Task<TOut> UpsertEntityAsync<TIn, TOut>(TIn entity,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TIn : BaseCosmosEntity where TOut : AzCosmosResponse<TIn>, new()
+        {
+            ThrowIfInvalidEntity(entity);
+
+            return await UpsertEntityAsync<TIn, TOut>(entity, entity.PartitionKey, cancellationToken,
+                databaseId, containerId, partitionKeyPropName);
+        }
+        
+        public virtual async Task<AzCosmosResponse<TIn>> UpsertEntityAsync<TIn>(TIn entity,
+            string partitionKey,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return await UpsertEntityAsync<TIn, AzCosmosResponse<TIn>>(entity, partitionKey, cancellationToken,
+                databaseId, containerId, partitionKeyPropName);
+        }
+        
+        public virtual async Task<TOut> UpsertEntityAsync<TIn, TOut>(TIn entity,
+            string partitionKey,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<TIn>, new()
+        {
+            ThrowIfInvalidPartitionKeyValue(partitionKey);
+
+            Initialize(databaseId, containerId, partitionKeyPropName, false);
+
+            return await CosmosFuncHelper.ExecuteAsync<TIn, PartitionKey?, ItemRequestOptions, CancellationToken, ItemResponse<TIn>, TOut, TIn>(
+                Container.UpsertItemAsync,
+                entity, new PartitionKey(partitionKey), default, cancellationToken);
+        }
+
+        #endregion
     }
 }
