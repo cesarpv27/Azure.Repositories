@@ -34,10 +34,10 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             var _addEntityResponseAct = AzTableUnitTestHelper.AddEntity(sampleEntity);
 
             // Assert
-            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityResponseAct);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityResponseAct);
 
             var _getEntityResponse = AzTableUnitTestHelper.GetEntity<TableEntity>(partitionKey, rowKey, tableName: tableName);
-            AzTableUnitTestHelper.AssertExpectedSuccessfulGenResponse(_getEntityResponse);
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_getEntityResponse);
             var recoveredEntity = _getEntityResponse.Value;
 
             Assert.Equal(sampleEntity.PartitionKey, recoveredEntity.PartitionKey);
@@ -61,10 +61,10 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             var _addEntityResponseAct = AzTableUnitTestHelper.AddEntity(sampleEntity);
 
             // Assert
-            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityResponseAct);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityResponseAct);
 
             var _getEntityResponse = AzTableUnitTestHelper.GetEntity<SampleTableEntity>(partitionKey, rowKey);
-            AzTableUnitTestHelper.AssertExpectedSuccessfulGenResponse(_getEntityResponse);
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_getEntityResponse);
 
             var recoveredEntity = _getEntityResponse.Value;
 
@@ -84,10 +84,10 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             var _addEntityResponseAct = AzTableUnitTestHelper.AddEntity(entity, tableName);
 
             // Assert
-            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityResponseAct);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityResponseAct);
 
             var _getEntityResponse = AzTableUnitTestHelper.GetEntity<TableEntity>(entity.PartitionKey, entity.RowKey, tableName: tableName);
-            AzTableUnitTestHelper.AssertExpectedSuccessfulGenResponse(_getEntityResponse);
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_getEntityResponse);
 
             var recoveredEntity = _getEntityResponse.Value;
 
@@ -95,7 +95,7 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             Assert.Equal(entity.RowKey, recoveredEntity.RowKey);
 
             _getEntityResponse = AzTableUnitTestHelper.GetEntity<TableEntity>(entity.PartitionKey, entity.RowKey);
-            AzTableUnitTestHelper.AssertExpectedFailedGenResponse(_getEntityResponse, ConstProvider.The_specified_resource_does_not_exist);
+            UnitTestHelper.AssertExpectedFailedGenResponse(_getEntityResponse, ConstProvider.The_specified_resource_does_not_exist);
         }
 
         [Fact, TestPriority(100)]
@@ -110,13 +110,13 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             var _addEntityResponseAct = AzTableUnitTestHelper.AddEntity(entity, tableName);
 
             // Assert
-            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityResponseAct);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityResponseAct);
 
             var _getEntityResponse = AzTableUnitTestHelper.GetEntity<TableEntity>(entity.PartitionKey, entity.RowKey, tableName: tableName);
-            AzTableUnitTestHelper.AssertExpectedSuccessfulGenResponse(_getEntityResponse);
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_getEntityResponse);
 
             _getEntityResponse = AzTableUnitTestHelper.GetEntity<TableEntity>(entity.PartitionKey, entity.RowKey);
-            AzTableUnitTestHelper.AssertExpectedFailedGenResponse(_getEntityResponse, ConstProvider.The_specified_resource_does_not_exist);
+            UnitTestHelper.AssertExpectedFailedGenResponse(_getEntityResponse, ConstProvider.The_specified_resource_does_not_exist);
         }
     }
 }

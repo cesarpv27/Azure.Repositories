@@ -484,5 +484,59 @@ namespace AzStorage.Repositories
         }
 
         #endregion
+
+        #region Delete async
+
+        public virtual async Task<AzCosmosResponse<T>> DeleteEntityAsync<T>(T entity,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where T : BaseCosmosEntity
+        {
+            return await DeleteEntityAsync<T, AzCosmosResponse<T>>(entity, cancellationToken,
+                databaseId, containerId, partitionKeyPropName);
+        }
+        
+        public virtual async Task<TOut> DeleteEntityAsync<T, TOut>(T entity,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where T : BaseCosmosEntity where TOut : AzCosmosResponse<T>, new()
+        {
+            ThrowIfInvalidEntity(entity);
+
+            return await DeleteEntityAsync<T, TOut>(entity.Id, entity.PartitionKey, cancellationToken,
+                databaseId, containerId, partitionKeyPropName);
+        }
+        
+        public virtual async Task<AzCosmosResponse<T>> DeleteEntityAsync<T>(string id,
+            string partitionKey,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return await DeleteEntityAsync<T, AzCosmosResponse<T>>(id, partitionKey, cancellationToken,
+                databaseId, containerId, partitionKeyPropName);
+        }
+        
+        public virtual async Task<TOut> DeleteEntityAsync<T, TOut>(string id,
+            string partitionKey,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<T>, new()
+        {
+            ThrowIfInvalidId(id);
+            ThrowIfInvalidPartitionKeyValue(partitionKey);
+
+            Initialize(databaseId, containerId, partitionKeyPropName, false);
+
+            return await CosmosFuncHelper.ExecuteAsync<string, PartitionKey, ItemRequestOptions, CancellationToken, ItemResponse<T>, TOut, T>(
+                Container.DeleteItemAsync<T>,
+                id, new PartitionKey(partitionKey), default, cancellationToken);
+        }
+
+        #endregion
     }
 }

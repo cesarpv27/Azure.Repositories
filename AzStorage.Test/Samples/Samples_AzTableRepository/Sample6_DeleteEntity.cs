@@ -22,7 +22,7 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             var _deleteEntityResponseAct = AzTableUnitTestHelper.DeleteEntity(entity);
 
             // Assert
-            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
 
             AzTableUnitTestHelper.AssertByExpectedFailedGetEntity(entity, ConstProvider.The_specified_resource_does_not_exist);
         }
@@ -37,7 +37,7 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             var _deleteEntityResponseAct = AzTableUnitTestHelper.DeleteEntity<TableEntity>(entity.PartitionKey, entity.RowKey);
 
             // Assert
-            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
 
             AzTableUnitTestHelper.AssertByExpectedFailedGetEntity(entity, ConstProvider.The_specified_resource_does_not_exist);
         }
@@ -52,7 +52,7 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             var _deleteEntityResponseAct = AzTableUnitTestHelper.DeleteEntity(entity.PartitionKey, entity.RowKey, AzTableUnitTestHelper.GetTableEntityName());
 
             // Assert
-            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
 
             AzTableUnitTestHelper.AssertByExpectedFailedGetEntity(entity, ConstProvider.The_specified_resource_does_not_exist);
         }
@@ -242,7 +242,7 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             var _deleteEntityResponseAct = Helper.RunAsSync(entity, AzTableUnitTestHelper.DeleteEntityAsync);
 
             // Assert
-            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
 
             AzTableUnitTestHelper.AssertByExpectedFailedGetEntity(entity, ConstProvider.The_specified_resource_does_not_exist);
         }
@@ -257,7 +257,7 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             var _deleteEntityResponseAct = Helper.RunAsSync(entity.PartitionKey, entity.RowKey, AzTableUnitTestHelper.DeleteEntityAsync<TableEntity>);
 
             // Assert
-            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
 
             AzTableUnitTestHelper.AssertByExpectedFailedGetEntity(entity, ConstProvider.The_specified_resource_does_not_exist);
         }
@@ -272,7 +272,7 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             var _deleteEntityResponseAct = Helper.RunAsSync(entity.PartitionKey, entity.RowKey, AzTableUnitTestHelper.DeleteEntityAsync);
 
             // Assert
-            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
 
             AzTableUnitTestHelper.AssertByExpectedFailedGetEntity(entity, ConstProvider.The_specified_resource_does_not_exist);
         }

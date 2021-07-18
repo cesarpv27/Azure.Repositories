@@ -117,10 +117,10 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             var _upsertReplaceEntityResponseAct = AzTableUnitTestHelper.UpsertReplaceEntity(entityB);
 
             // Assert
-            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_upsertMergeEntityResponseAct);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_upsertMergeEntityResponseAct);
             AzTableUnitTestHelper.AssertByGetEntity(entityA);
 
-            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_upsertReplaceEntityResponseAct);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_upsertReplaceEntityResponseAct);
             AzTableUnitTestHelper.AssertByGetEntity(entityB);
         }
 
@@ -159,10 +159,10 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             var _upsertReplaceEntityResponseAct = AzTableUnitTestHelper.UpsertReplaceEntityAsync(entityB);
 
             // Assert
-            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_upsertMergeEntityResponseAct);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_upsertMergeEntityResponseAct);
             AzTableUnitTestHelper.AssertByGetEntity(entityA);
 
-            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_upsertReplaceEntityResponseAct);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_upsertReplaceEntityResponseAct);
             AzTableUnitTestHelper.AssertByGetEntity(entityB);
         }
 

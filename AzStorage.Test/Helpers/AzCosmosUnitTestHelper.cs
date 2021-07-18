@@ -234,7 +234,7 @@ namespace AzStorage.Test.Helpers
             var _updateReplaceEntityResponseAct = funcUpdateOrUpsert(entity, _createResourcePolicy).WaitAndUnwrapException();
 
             // Assert
-            AssertExpectedSuccessfulResponse(_updateReplaceEntityResponseAct);
+            AssertExpectedSuccessfulGenResponse(_updateReplaceEntityResponseAct);
 
             var resultingEntity = AssertByGetEntity(entity);
             actionAssertRecoveredEntity(resultingEntity);
@@ -250,6 +250,14 @@ namespace AzStorage.Test.Helpers
         {
             return await GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).AddEntityAsync(entity,
                 cancellationToken: default, databaseId: default, containerId: default);
+        }
+        
+        public static async Task<AzCosmosResponse<TIn>> AddEntityAsync2<TIn>(TIn entity,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where TIn : BaseCosmosEntity
+        {
+            return await GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).AddEntityAsync(entity,
+                entity.PartitionKey, cancellationToken: default, databaseId: default, containerId: default);
         }
 
         #endregion
@@ -302,6 +310,26 @@ namespace AzStorage.Test.Helpers
             where TIn : BaseCosmosEntity
         {
             return await GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).UpsertEntityAsync(entity,
+                entity.PartitionKey, cancellationToken: default, databaseId: default, containerId: default);
+        }
+
+        #endregion
+
+        #region Delete entities
+
+        public static async Task<AzCosmosResponse<T>> DeleteEntityAsync<T>(T entity,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : BaseCosmosEntity
+        {
+            return await GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).DeleteEntityAsync(entity, 
+                cancellationToken: default, databaseId: default, containerId: default);
+        }
+        
+        public static async Task<AzCosmosResponse<T>> DeleteEntityAsync2<T>(T entity,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : BaseCosmosEntity
+        {
+            return await GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).DeleteEntityAsync<T>(entity.Id, 
                 entity.PartitionKey, cancellationToken: default, databaseId: default, containerId: default);
         }
 

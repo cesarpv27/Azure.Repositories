@@ -19,7 +19,7 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             var _addEntityResponseAct = AzTableUnitTestHelper.AddEntity(entity);
 
             // Assert
-            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityResponseAct);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityResponseAct);
 
             AzTableUnitTestHelper.AssertByGetEntity(entity);
         }
@@ -35,7 +35,7 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             var _addEntityResponseAct = AzTableUnitTestHelper.AddEntity(entity);
 
             // Assert
-            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityResponseAct);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityResponseAct);
 
             var resultingEntity = AzTableUnitTestHelper.AssertByGetEntity(entity);
             
@@ -48,13 +48,13 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             // Arrange
             var entity = AzTableUnitTestHelper.CreateSomeEntity();
             var _addEntityResponseArr = AzTableUnitTestHelper.AddEntity(entity);
-            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityResponseArr);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityResponseArr);
 
             // Act
             var _addEntityResponseAct = AzTableUnitTestHelper.AddEntity(entity);
 
             // Assert
-            AzTableUnitTestHelper.AssertExpectedFailedResponse(_addEntityResponseAct, ConstProvider.The_specified_entity_already_exists);
+            UnitTestHelper.AssertExpectedFailedResponse(_addEntityResponseAct, ConstProvider.The_specified_entity_already_exists);
         }
 
         [Fact, TestPriority(300)]
@@ -98,7 +98,7 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             var _addEntityAsyncResponseAct = Helper.RunAsSync(entity, AzTableUnitTestHelper.AddEntityAsync);
 
             // Assert
-            AzTableUnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityAsyncResponseAct);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_addEntityAsyncResponseAct);
 
             AzTableUnitTestHelper.AssertByGetEntity(entity);
         }

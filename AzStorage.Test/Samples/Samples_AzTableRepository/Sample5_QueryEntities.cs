@@ -122,7 +122,7 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             AzTableUnitTestHelper.CreateAddAssertSomeEntities(commonPartitionKey);
 
             var _queryByPartitionKeyResponse = AzTableUnitTestHelper.QueryByPartitionKey<TableEntity>(commonPartitionKey);
-            AzTableUnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryByPartitionKeyResponse);
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryByPartitionKeyResponse);
 
             var entities = _queryByPartitionKeyResponse.Value.OrderBy(entt => entt.Timestamp).ToList();
 
@@ -146,7 +146,7 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             AzTableUnitTestHelper.CreateAddAssertSomeEntities(commonPartitionKey);
 
             var _queryByPartitionKeyResponse = AzTableUnitTestHelper.QueryByPartitionKey<TableEntity>(commonPartitionKey);
-            AzTableUnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryByPartitionKeyResponse);
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryByPartitionKeyResponse);
 
             var entities = _queryByPartitionKeyResponse.Value.OrderBy(entt => entt.Timestamp).ToList();
 

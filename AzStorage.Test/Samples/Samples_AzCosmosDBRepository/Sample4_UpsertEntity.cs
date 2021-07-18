@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Xunit;
-using AzStorage.Test.Helpers;
+﻿using AzStorage.Test.Helpers;
 using AzStorage.Test.Utilities;
+using Xunit;
 
 namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
 {
