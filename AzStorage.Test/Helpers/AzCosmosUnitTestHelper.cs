@@ -260,6 +260,16 @@ namespace AzStorage.Test.Helpers
                 entity.PartitionKey, cancellationToken: default, databaseId: default, containerId: default);
         }
 
+        public static async Task<AzCosmosResponse<TIn>> AddEntityAsync<TIn>(TIn entity,
+            string databaseId,
+            string containerId,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where TIn : BaseCosmosEntity
+        {
+            return await GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).AddEntityAsync(entity,
+                cancellationToken: default, databaseId: databaseId, containerId: containerId);
+        }
+
         #endregion
 
         #region Get entities
