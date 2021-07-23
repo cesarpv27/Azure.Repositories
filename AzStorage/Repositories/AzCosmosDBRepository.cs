@@ -12,6 +12,7 @@ using CoreTools.Extensions;
 using AzCoreTools.Helpers;
 using System.Threading;
 using AzStorage.Core.Utilities;
+using AzCoreTools.Extensions;
 
 namespace AzStorage.Repositories
 {
@@ -373,6 +374,67 @@ namespace AzStorage.Repositories
                 Container.ReadItemAsync<T>,
                 id, new PartitionKey(partitionKey), default, cancellationToken);
         }
+
+        #endregion
+
+        #region Query
+
+        #region QueryAll
+
+        public virtual AzCosmosResponse<List<T>> QueryAll<T>(
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return QueryAll<T, AzCosmosResponse<List<T>>>(databaseId,
+                containerId,
+                partitionKeyPropName);
+        }
+
+        public virtual TOut QueryAll<T, TOut>(
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+        {
+            Initialize(databaseId, containerId, partitionKeyPropName, false);
+
+            return CosmosFuncHelper.Execute<int, AzCosmosResponse<List<T>>, TOut, List<T>>(
+                Container.QueryAll<T>,
+                int.MaxValue);
+        }
+
+        #endregion
+
+        #region QueryByPartitionKey
+
+        public virtual AzCosmosResponse<List<T>> QueryByPartitionKey<T>(
+            string partitionKey,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return QueryByPartitionKey<T, AzCosmosResponse<List<T>>>(
+                partitionKey,
+                databaseId,
+                containerId,
+                partitionKeyPropName);
+        }
+
+        public virtual TOut QueryByPartitionKey<T, TOut>(
+            string partitionKey,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+        {
+            Initialize(databaseId, containerId, partitionKeyPropName, false);
+
+            return CosmosFuncHelper.Execute<string, int, AzCosmosResponse<List<T>>, TOut, List<T>>(
+                Container.QueryByPartitionKey<T>,
+                partitionKey,
+                int.MaxValue);
+        }
+
+        #endregion
 
         #endregion
 

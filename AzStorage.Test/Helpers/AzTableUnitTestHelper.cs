@@ -449,6 +449,100 @@ namespace AzStorage.Test.Helpers
 
         #endregion
 
+        #region Query entities
+
+        public static AzStorageResponse<List<T>> QueryAll<T>(int take = int.MaxValue,
+            string tableName = null,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : class, ITableEntity, new()
+        {
+            return GetOrCreateAzTableRepository(optionCreateIfNotExist).QueryAll<T>(take: take, tableName: tableName);
+        }
+
+        public static AzStorageResponse<List<T>> QueryByPartitionKey<T>(
+            string partitionKey,
+            int take = int.MaxValue,
+            string tableName = null,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : class, ITableEntity, new()
+        {
+            return GetOrCreateAzTableRepository(optionCreateIfNotExist).QueryByPartitionKey<T>(
+                partitionKey, take: take, tableName: tableName);
+        }
+
+        public static AzStorageResponse<List<T>> QueryByPartitionKeyStartPattern<T>(
+            string startPattern,
+            int take = int.MaxValue,
+            string tableName = null,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : class, ITableEntity, new()
+        {
+            return GetOrCreateAzTableRepository(optionCreateIfNotExist).QueryByPartitionKeyStartPattern<T>(
+                startPattern, take: take, tableName: tableName);
+        }
+
+        public static AzStorageResponse<T> QueryByPartitionKeyRowKey<T>(
+            string partitionKey,
+            string rowKey,
+            string tableName = null,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : class, ITableEntity, new()
+        {
+            return GetOrCreateAzTableRepository(optionCreateIfNotExist).QueryByPartitionKeyRowKey<T>(
+                partitionKey, rowKey, tableName: tableName);
+        }
+
+        public static AzStorageResponse<List<T>> QueryByPartitionKeyRowKeyStartPattern<T>(
+            string partitionKey,
+            string rowKeyStartPattern,
+            int take = int.MaxValue,
+            string tableName = null,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : class, ITableEntity, new()
+        {
+            return GetOrCreateAzTableRepository(optionCreateIfNotExist).QueryByPartitionKeyRowKeyStartPattern<T>(
+                partitionKey, rowKeyStartPattern, take: take, tableName: tableName);
+        }
+
+        public static AzStorageResponse<List<T>> QueryByPartitionKeyStartPatternRowKeyStartPattern<T>(
+            string partitionKeyStartPattern,
+            string rowKeyStartPattern,
+            int take = int.MaxValue,
+            string tableName = null,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : class, ITableEntity, new()
+        {
+            return GetOrCreateAzTableRepository(optionCreateIfNotExist).QueryByPartitionKeyStartPatternRowKeyStartPattern<T>(
+                partitionKeyStartPattern, rowKeyStartPattern, take: take, tableName: tableName);
+        }
+
+        public static AzStorageResponse<List<T>> QueryByTimestamp<T>(
+            DateTime timeStampFrom,
+            DateTime timeStampTo,
+            int take = int.MaxValue,
+            string tableName = null,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : class, ITableEntity, new()
+        {
+            return GetOrCreateAzTableRepository(optionCreateIfNotExist).QueryByTimestamp<T>(
+                timeStampFrom, timeStampTo, take: take, tableName: tableName);
+        }
+
+        public static AzStorageResponse<List<T>> QueryByPartitionKeyTimestamp<T>(
+            string partitionKey,
+            DateTime timeStampFrom,
+            DateTime timeStampTo,
+            int take = int.MaxValue,
+            string tableName = null,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : class, ITableEntity, new()
+        {
+            return GetOrCreateAzTableRepository(optionCreateIfNotExist).QueryByPartitionKeyTimestamp<T>(
+                partitionKey, timeStampFrom, timeStampTo, take: take, tableName: tableName);
+        }
+
+        #endregion
+
         #region Update
 
         public static AzStorageResponse UpdateMergeEntity<TIn>(TIn entity,
@@ -603,100 +697,6 @@ namespace AzStorage.Test.Helpers
             return GetOrCreateAzTableRepository(optionCreateIfNotExist)
                 .UpsertEntitiesTransactionallyAsync(entities, TableUpdateMode.Replace, tableName: tableName)
                 .WaitAndUnwrapException();
-        }
-
-        #endregion
-
-        #region Query entities
-
-        public static AzStorageResponse<List<T>> QueryAll<T>(int take = int.MaxValue, 
-            string tableName = null,
-            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
-            where T : class, ITableEntity, new()
-        {
-            return GetOrCreateAzTableRepository(optionCreateIfNotExist).QueryAll<T>(take: take, tableName: tableName);
-        }
-
-        public static AzStorageResponse<List<T>> QueryByPartitionKey<T>(
-            string partitionKey,
-            int take = int.MaxValue,
-            string tableName = null,
-            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
-            where T : class, ITableEntity, new()
-        {
-            return GetOrCreateAzTableRepository(optionCreateIfNotExist).QueryByPartitionKey<T>(
-                partitionKey, take: take, tableName: tableName);
-        }
-
-        public static AzStorageResponse<List<T>> QueryByPartitionKeyStartPattern<T>(
-            string startPattern,
-            int take = int.MaxValue,
-            string tableName = null,
-            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
-            where T : class, ITableEntity, new()
-        {
-            return GetOrCreateAzTableRepository(optionCreateIfNotExist).QueryByPartitionKeyStartPattern<T>(
-                startPattern, take: take, tableName: tableName);
-        }
-        
-        public static AzStorageResponse<T> QueryByPartitionKeyRowKey<T>(
-            string partitionKey,
-            string rowKey,
-            string tableName = null,
-            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
-            where T : class, ITableEntity, new()
-        {
-            return GetOrCreateAzTableRepository(optionCreateIfNotExist).QueryByPartitionKeyRowKey<T>(
-                partitionKey, rowKey, tableName: tableName);
-        }
-
-        public static AzStorageResponse<List<T>> QueryByPartitionKeyRowKeyStartPattern<T>(
-            string partitionKey,
-            string rowKeyStartPattern,
-            int take = int.MaxValue,
-            string tableName = null,
-            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
-            where T : class, ITableEntity, new()
-        {
-            return GetOrCreateAzTableRepository(optionCreateIfNotExist).QueryByPartitionKeyRowKeyStartPattern<T>(
-                partitionKey, rowKeyStartPattern, take: take, tableName: tableName);
-        }
-        
-        public static AzStorageResponse<List<T>> QueryByPartitionKeyStartPatternRowKeyStartPattern<T>(
-            string partitionKeyStartPattern,
-            string rowKeyStartPattern,
-            int take = int.MaxValue,
-            string tableName = null,
-            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
-            where T : class, ITableEntity, new()
-        {
-            return GetOrCreateAzTableRepository(optionCreateIfNotExist).QueryByPartitionKeyStartPatternRowKeyStartPattern<T>(
-                partitionKeyStartPattern, rowKeyStartPattern, take: take, tableName: tableName);
-        }
-        
-        public static AzStorageResponse<List<T>> QueryByTimestamp<T>(
-            DateTime timeStampFrom,
-            DateTime timeStampTo,
-            int take = int.MaxValue,
-            string tableName = null,
-            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
-            where T : class, ITableEntity, new()
-        {
-            return GetOrCreateAzTableRepository(optionCreateIfNotExist).QueryByTimestamp<T>(
-                timeStampFrom, timeStampTo, take: take, tableName: tableName);
-        }
-        
-        public static AzStorageResponse<List<T>> QueryByPartitionKeyTimestamp<T>(
-            string partitionKey,
-            DateTime timeStampFrom,
-            DateTime timeStampTo,
-            int take = int.MaxValue,
-            string tableName = null,
-            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
-            where T : class, ITableEntity, new()
-        {
-            return GetOrCreateAzTableRepository(optionCreateIfNotExist).QueryByPartitionKeyTimestamp<T>(
-                partitionKey, timeStampFrom, timeStampTo, take: take, tableName: tableName);
         }
 
         #endregion

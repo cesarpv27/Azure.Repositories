@@ -153,6 +153,74 @@ namespace AzStorage.Test.Helpers
             return entities;
         }
 
+        public static IEnumerable<CustomCosmosEntity> CreateSomeEntities(int amount, bool scatterPartitionKeys)
+        {
+            if (!scatterPartitionKeys)
+                return CreateSomeEntities(amount);
+
+            var pKeysAmount = (amount / 100 / 2) + 1;
+            var partitionKeys = new List<string>(pKeysAmount);
+            for (int i = 0; i < pKeysAmount; i++)
+                partitionKeys.Add(Guid.NewGuid().ToString());
+
+            return CreateSomeEntities(amount, partitionKeys);
+        }
+
+        public static IEnumerable<CustomCosmosEntity> CreateAddAssertSomeEntities(
+            bool scatterPartitionKeys,
+            int randomMinValue = Utilities.ConstProvider.RandomMinValue,
+            int randomMaxValue = Utilities.ConstProvider.RandomMaxValue)
+        {
+            return CreateAddAssertSomeEntities(
+                scatterPartitionKeys,
+                default,
+                randomMinValue,
+                randomMaxValue);
+        }
+
+        public static IEnumerable<CustomCosmosEntity> CreateAddAssertSomeEntities(
+            string commonPartitionKey = default,
+            int randomMinValue = Utilities.ConstProvider.RandomMinValue,
+            int randomMaxValue = Utilities.ConstProvider.RandomMaxValue)
+        {
+            return CreateAddAssertSomeEntities(
+                false,
+                commonPartitionKey,
+                randomMinValue,
+                randomMaxValue);
+        }
+
+        private static IEnumerable<CustomCosmosEntity> CreateAddAssertSomeEntities(
+            bool scatterPartitionKeys,
+            string commonPartitionKey,
+            int randomMinValue,
+            int randomMaxValue)
+        {
+            var amount = new Random().Next(randomMinValue, randomMaxValue);
+            IEnumerable<CustomCosmosEntity> entities;
+
+            if (!string.IsNullOrEmpty(commonPartitionKey))
+                entities = CreateSomeEntities(amount, commonPartitionKey);
+            else
+                entities = CreateSomeEntities(amount, scatterPartitionKeys);
+
+            return AddAssertSomeEntities(entities);
+        }
+
+        private static IEnumerable<CustomCosmosEntity> AddAssertSomeEntities(IEnumerable<CustomCosmosEntity> entities)
+        {
+            AzCosmosResponse<CustomCosmosEntity> _addEntityAsyncResponseAct;
+            foreach (var entt in entities)
+            {
+                _addEntityAsyncResponseAct = AddEntityAsync(entt).WaitAndUnwrapException();
+
+                // Assert
+                AssertExpectedSuccessfulGenResponse(_addEntityAsyncResponseAct);
+            }
+
+            return entities;
+        }
+
         public static string GenerateProp(int number, string prefix = "")
         {
             return $"{prefix}Prop{number}";
@@ -281,6 +349,24 @@ namespace AzStorage.Test.Helpers
         {
             return await GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).GetEntityByIdAsync<T>(partitionKey,
                 id, cancellationToken: default, databaseId: default, containerId: default);
+        }
+
+        #endregion
+
+        #region Query entities
+
+        public static AzCosmosResponse<List<T>> QueryAll<T>(
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : BaseCosmosEntity
+        {
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryAll<T>();
+        }
+        
+        public static AzCosmosResponse<List<T>> QueryByPartitionKey<T>(string partitionKey,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : BaseCosmosEntity
+        {
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryByPartitionKey<T>(partitionKey);
         }
 
         #endregion

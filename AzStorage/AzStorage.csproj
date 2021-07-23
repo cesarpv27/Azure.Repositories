@@ -4,14 +4,14 @@
     <!-- This project will output netstandard2.0 and net461 assemblies -->
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <PackageId>Az.Storage.Repositories</PackageId>
-    <Version>1.2.1-beta</Version>
+    <Version>2.0.0-beta</Version>
     <Authors>César Palomino Vila</Authors>
     <Product>Azure.Repositories</Product>
     <Description>This project contains repositories aimed manage the Azure platform resources.
 All repositories were implemented over the last sdk version, e.g. Azure SDK version 12.x client libraries
 -Current and nearby repositories:
 AzTableRepository
-AzCosmosRepository (soon)
+AzCosmosRepository (First version)
 AzQueueRepository (near)
 AzBlobRepository (near)
 
@@ -19,12 +19,14 @@ TargetFrameworks: netstandard2.0; net461</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/cesarpv27/Azure.Repositories</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <RepositoryUrl>https://github.com/cesarpv27/Azure.Repositories</RepositoryUrl>
+    <PackageReleaseNotes>This version contains the first implementation of AzCosmosRepository. This repository will be expanded in future versions, mainly in query methods.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Azure.Data.Tables" Version="12.1.0" />
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.20.1" />
-    <PackageReference Include="Miscellaneous.AzCoreTools" Version="1.3.7-beta" />
+    <PackageReference Include="Miscellaneous.AzCoreTools" Version="2.0.3-beta" />
     <PackageReference Include="Miscellaneous.CoreTools" Version="1.0.0.9" />
   </ItemGroup>
 
