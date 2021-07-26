@@ -8,7 +8,7 @@
     <Authors>César Palomino Vila</Authors>
     <Product>Azure.Repositories</Product>
     <Description>This project contains repositories aimed manage the Azure platform resources.
-All repositories were implemented over the last sdk version, e.g. Azure SDK version 12.x client libraries
+All repositories were implemented over the last sdk version, e.g. Azure Storage SDK version 12.x client libraries and Azure Cosmos DB .NET SDK v3.
 -Current and nearby repositories:
 AzTableRepository
 AzCosmosRepository (First version)
