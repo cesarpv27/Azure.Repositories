@@ -362,11 +362,39 @@ namespace AzStorage.Test.Helpers
             return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryAll<T>();
         }
         
+        public static AzCosmosResponse<IEnumerable<T>> LazyQueryAll<T>(
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : BaseCosmosEntity
+        {
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).LazyQueryAll<T>();
+        }
+        
+        public static AzCosmosResponse<List<T>> QueryByFilter<T>(string filter,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : BaseCosmosEntity
+        {
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryByFilter<T>(filter);
+        }
+        
+        public static AzCosmosResponse<IEnumerable<T>> LazyQueryByFilter<T>(string filter,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : BaseCosmosEntity
+        {
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).LazyQueryByFilter<T>(filter);
+        }
+        
         public static AzCosmosResponse<List<T>> QueryByPartitionKey<T>(string partitionKey,
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : BaseCosmosEntity
         {
             return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryByPartitionKey<T>(partitionKey);
+        }
+        
+        public static AzCosmosResponse<IEnumerable<T>> LazyQueryByPartitionKey<T>(string partitionKey,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : BaseCosmosEntity
+        {
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).LazyQueryByPartitionKey<T>(partitionKey);
         }
 
         #endregion

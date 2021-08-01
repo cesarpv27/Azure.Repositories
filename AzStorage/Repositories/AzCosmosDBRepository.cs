@@ -405,6 +405,95 @@ namespace AzStorage.Repositories
 
         #endregion
 
+        #region LazyQueryAll
+
+        public virtual AzCosmosResponse<IEnumerable<T>> LazyQueryAll<T>(
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return LazyQueryAll<T, AzCosmosResponse<IEnumerable<T>>>(
+                databaseId,
+                containerId,
+                partitionKeyPropName);
+        }
+
+        public virtual TOut LazyQueryAll<T, TOut>(
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<IEnumerable<T>>, new()
+        {
+            Initialize(databaseId, containerId, partitionKeyPropName, false);
+
+            return CosmosFuncHelper.Execute<int, AzCosmosResponse<IEnumerable<T>>, TOut, IEnumerable<T>>(
+                Container.LazyQueryAll<T>,
+                int.MaxValue);
+        }
+
+        #endregion
+
+        #region QueryByFilter
+
+        public virtual AzCosmosResponse<List<T>> QueryByFilter<T>(
+            string filter,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return QueryByFilter<T, AzCosmosResponse<List<T>>>(
+                filter,
+                databaseId,
+                containerId,
+                partitionKeyPropName);
+        }
+
+        public virtual TOut QueryByFilter<T, TOut>(
+            string filter,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+        {
+            Initialize(databaseId, containerId, partitionKeyPropName, false);
+
+            return CosmosFuncHelper.Execute<string, int, AzCosmosResponse<List<T>>, TOut, List<T>>(
+                Container.QueryByFilter<T>,
+                filter,
+                int.MaxValue);
+        }
+
+        #endregion
+
+        #region LazyQueryByFilter
+
+        public virtual AzCosmosResponse<IEnumerable<T>> LazyQueryByFilter<T>(
+            string filter,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return LazyQueryByFilter<T, AzCosmosResponse<IEnumerable<T>>>(
+                filter,
+                databaseId,
+                containerId,
+                partitionKeyPropName);
+        }
+
+        public virtual TOut LazyQueryByFilter<T, TOut>(
+            string filter,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<IEnumerable<T>>, new()
+        {
+            Initialize(databaseId, containerId, partitionKeyPropName, false);
+
+            return CosmosFuncHelper.Execute<string, int, AzCosmosResponse<IEnumerable<T>>, TOut, IEnumerable<T>>(
+                Container.LazyQueryByFilter<T>,
+                filter,
+                int.MaxValue);
+        }
+
+        #endregion
+
         #region QueryByPartitionKey
 
         public virtual AzCosmosResponse<List<T>> QueryByPartitionKey<T>(
@@ -430,6 +519,37 @@ namespace AzStorage.Repositories
 
             return CosmosFuncHelper.Execute<string, int, AzCosmosResponse<List<T>>, TOut, List<T>>(
                 Container.QueryByPartitionKey<T>,
+                partitionKey,
+                int.MaxValue);
+        }
+
+        #endregion
+
+        #region LazyQueryByPartitionKey
+
+        public virtual AzCosmosResponse<IEnumerable<T>> LazyQueryByPartitionKey<T>(
+            string partitionKey,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return LazyQueryByPartitionKey<T, AzCosmosResponse<IEnumerable<T>>>(
+                partitionKey,
+                databaseId,
+                containerId,
+                partitionKeyPropName);
+        }
+
+        public virtual TOut LazyQueryByPartitionKey<T, TOut>(
+            string partitionKey,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<IEnumerable<T>>, new()
+        {
+            Initialize(databaseId, containerId, partitionKeyPropName, false);
+
+            return CosmosFuncHelper.Execute<string, int, AzCosmosResponse<IEnumerable<T>>, TOut, IEnumerable<T>>(
+                Container.LazyQueryByPartitionKey<T>,
                 partitionKey,
                 int.MaxValue);
         }
