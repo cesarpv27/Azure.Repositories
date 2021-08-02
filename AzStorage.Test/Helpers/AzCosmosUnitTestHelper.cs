@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Xunit;
 using CoreTools.Extensions;
 using System.Threading;
+using Microsoft.Azure.Cosmos;
 
 namespace AzStorage.Test.Helpers
 {
@@ -382,7 +383,21 @@ namespace AzStorage.Test.Helpers
         {
             return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).LazyQueryByFilter<T>(filter);
         }
+
+        public static AzCosmosResponse<List<T>> QueryByQueryDefinition<T>(QueryDefinition queryDefinition,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : BaseCosmosEntity
+        {
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryByQueryDefinition<T>(queryDefinition);
+        }
         
+        public static AzCosmosResponse<IEnumerable<T>> LazyQueryByQueryDefinition<T>(QueryDefinition queryDefinition,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : BaseCosmosEntity
+        {
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).LazyQueryByQueryDefinition<T>(queryDefinition);
+        }
+
         public static AzCosmosResponse<List<T>> QueryByPartitionKey<T>(string partitionKey,
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : BaseCosmosEntity

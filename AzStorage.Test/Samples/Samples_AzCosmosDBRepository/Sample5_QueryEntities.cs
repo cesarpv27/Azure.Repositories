@@ -5,6 +5,7 @@ using System.Text;
 using AzStorage.Test.Helpers;
 using AzStorage.Test.Utilities;
 using CoreTools.Extensions;
+using Microsoft.Azure.Cosmos;
 using Xunit;
 
 namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
@@ -12,6 +13,8 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
     [TestCaseOrderer("AzStorage.Test.Utilities.PriorityOrderer", "AzStorage.Test")]
     public class Sample5_QueryEntities
     {
+        #region QueryAll
+
         [Fact, TestPriority(100)]
         public void QueryAllTest()
         {
@@ -27,7 +30,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             Assert.Equal(entities.Count(), _queryAllResponseAct.Value.Count);
         }
 
-        [Fact, TestPriority(210)]
+        [Fact, TestPriority(110)]
         public void LazyQueryAllTest()
         {
             // Arrange
@@ -42,6 +45,10 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
 
             Assert.True(_lazyQueryAllResponseAct.Value.Count() >= entities.Count());
         }
+
+        #endregion
+
+        #region QueryByPartitionKey
 
         [Fact, TestPriority(210)]
         public void QueryByPartitionKeyTest()
@@ -88,7 +95,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
         //{
         //    // Arrange
         //    var entities = AzCosmosUnitTestHelper.CreateAddAssertSomeEntities(false,
-        //        ConstProvider.Hundreds_RandomMinValue * 20, ConstProvider.Hundreds_RandomMaxValue * 40);
+        //        ConstProvider.Thousands_RandomMinValue, ConstProvider.Thousands_RandomMaxValue);
 
         //    string partitionKey = entities.First().PartitionKey;
 
@@ -100,6 +107,10 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
 
         //    Assert.Equal(entities.Where(entt => entt.PartitionKey.Equals(partitionKey)).Count(), _lazyQueryByPartitionKeyResponseAct.Value.Count());
         //}
+
+        #endregion
+
+        #region QueryByFilter
 
         [Fact, TestPriority(210)]
         public void QueryByFilterTest()
@@ -123,13 +134,36 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
 
             Assert.Equal(entities.Where(entt => entt.PartitionKey.Equals(partitionKey)).Count(), enttAmount);
         }
+        
+        [Fact, TestPriority(210)]
+        public void LazyQueryByFilter()
+        {
+            // Arrange
+            var entities = AzCosmosUnitTestHelper.CreateAddAssertSomeEntities(true,
+                ConstProvider.Hundreds_RandomMinValue, ConstProvider.Hundreds_RandomMaxValue);
+
+            string partitionKey = entities.First().PartitionKey;
+
+            string filter = $"select * from Container1 c1 where c1.PartitionKey = '{partitionKey}'";
+            // Act
+            var _lazyQueryByFilterResponseAct = AzCosmosUnitTestHelper.LazyQueryByFilter<CustomCosmosEntity>(filter);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_lazyQueryByFilterResponseAct);
+
+            var enttAmount = 0;
+            foreach (var item in _lazyQueryByFilterResponseAct.Value)
+                enttAmount++;
+
+            Assert.Equal(entities.Where(entt => entt.PartitionKey.Equals(partitionKey)).Count(), enttAmount);
+        }
 
         //[Fact, TestPriority(210)]
         //public void QueryByFilterTest2()
         //{
         //    Arrange
         //   var entities = AzCosmosUnitTestHelper.CreateAddAssertSomeEntities(true,
-        //       ConstProvider.Hundreds_RandomMinValue * 20, ConstProvider.Hundreds_RandomMaxValue * 40);
+        //       ConstProvider.Thousands_RandomMinValue, ConstProvider.Thousands_RandomMaxValue);
 
         //    string partitionKey = entities.First().PartitionKey;
 
@@ -143,5 +177,60 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
         //    Assert.Equal(entities.Where(entt => entt.PartitionKey.Equals(partitionKey)).Count(), queryCount);
         //}
 
+        #endregion
+
+        #region QueryByQueryDefinition
+
+        [Fact, TestPriority(210)]
+        public void QueryByQueryDefinitionTest()
+        {
+            // Arrange
+            var entities = AzCosmosUnitTestHelper.CreateAddAssertSomeEntities(true,
+                ConstProvider.Hundreds_RandomMinValue, ConstProvider.Hundreds_RandomMaxValue);
+
+            string partitionKey = entities.First().PartitionKey;
+
+            string queryText = $"select * from Container1 c1 where c1.PartitionKey = @PartitionKey";
+            var queryDefinition = new QueryDefinition(queryText).WithParameter("@PartitionKey", partitionKey);
+
+            // Act
+            var _queryByQueryDefinitionResponseAct = AzCosmosUnitTestHelper.QueryByQueryDefinition<CustomCosmosEntity>(queryDefinition);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryByQueryDefinitionResponseAct);
+
+            var enttAmount = 0;
+            foreach (var item in _queryByQueryDefinitionResponseAct.Value)
+                enttAmount++;
+
+            Assert.Equal(entities.Where(entt => entt.PartitionKey.Equals(partitionKey)).Count(), enttAmount);
+        }
+        
+        [Fact, TestPriority(210)]
+        public void LazyQueryByQueryDefinitionTest()
+        {
+            // Arrange
+            var entities = AzCosmosUnitTestHelper.CreateAddAssertSomeEntities(true,
+                ConstProvider.Hundreds_RandomMinValue, ConstProvider.Hundreds_RandomMaxValue);
+
+            string partitionKey = entities.First().PartitionKey;
+
+            string queryText = $"select * from Container1 c1 where c1.PartitionKey = @PartitionKey";
+            var queryDefinition = new QueryDefinition(queryText).WithParameter("@PartitionKey", partitionKey);
+
+            // Act
+            var _queryByQueryDefinitionResponseAct = AzCosmosUnitTestHelper.LazyQueryByQueryDefinition<CustomCosmosEntity>(queryDefinition);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryByQueryDefinitionResponseAct);
+
+            var enttAmount = 0;
+            foreach (var item in _queryByQueryDefinitionResponseAct.Value)
+                enttAmount++;
+
+            Assert.Equal(entities.Where(entt => entt.PartitionKey.Equals(partitionKey)).Count(), enttAmount);
+        }
+
+        #endregion
     }
 }

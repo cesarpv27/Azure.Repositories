@@ -12,5 +12,7 @@ namespace AzStorage.Test.Utilities
         public const int RandomMaxValue = 101;
         public const int Hundreds_RandomMinValue = 200;
         public const int Hundreds_RandomMaxValue = 301;
+        public const int Thousands_RandomMinValue = 2001;
+        public const int Thousands_RandomMaxValue = 5001;
     }
 }
