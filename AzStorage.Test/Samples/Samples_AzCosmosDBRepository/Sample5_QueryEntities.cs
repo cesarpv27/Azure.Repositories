@@ -15,7 +15,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
     {
         #region QueryAll
 
-        [Fact, TestPriority(100)]
+        [Fact, TestPriority(10)]
         public void QueryAllTest()
         {
             // Arrange
@@ -27,10 +27,10 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
 
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryAllResponseAct);
-            Assert.Equal(entities.Count(), _queryAllResponseAct.Value.Count);
+            AzCosmosUnitTestHelper.AssertEnumerableBContainsEnumerableAEntities(entities, _queryAllResponseAct.Value);
         }
 
-        [Fact, TestPriority(110)]
+        [Fact, TestPriority(20)]
         public void LazyQueryAllTest()
         {
             // Arrange
@@ -43,7 +43,8 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_lazyQueryAllResponseAct);
 
-            Assert.True(_lazyQueryAllResponseAct.Value.Count() >= entities.Count());
+            var storedEntities = AzCosmosUnitTestHelper.GetEntitiesFromResponse(_lazyQueryAllResponseAct);
+            AzCosmosUnitTestHelper.AssertEnumerableBContainsEnumerableAEntities(entities, storedEntities);
         }
 
         #endregion
@@ -68,6 +69,18 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
         }
 
         [Fact, TestPriority(210)]
+        public void QueryByPartitionKeyTest2()
+        {
+            // Arrange
+            string partitionKey = Guid.Empty.ToString();
+
+            // Act
+            // Assert
+            Assert.Throws<ArgumentException>(() => AzCosmosUnitTestHelper
+                .QueryByPartitionKey<CustomCosmosEntity>(partitionKey, "Container2"));
+        }
+
+        [Fact, TestPriority(210)]
         public void LazyQueryByPartitionKeyTest()
         {
             // Arrange
@@ -83,30 +96,11 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_lazyQueryByPartitionKeyResponseAct);
 
-            //var enttAmount = 0;
-            //foreach (var item in _lazyQueryByPartitionKeyResponseAct.Value)
-            //    enttAmount++;
+            var responseEntities = AzCosmosUnitTestHelper.GetEntitiesFromResponse(_lazyQueryByPartitionKeyResponseAct);
 
-            Assert.Equal(entities.Where(entt => entt.PartitionKey.Equals(partitionKey)).Count(), _lazyQueryByPartitionKeyResponseAct.Value.Count());
+            Assert.Equal(entities.Where(entt => entt.PartitionKey.Equals(partitionKey)).Count(), responseEntities.Count());
+            AzCosmosUnitTestHelper.AssertEnumerableBContainsEnumerableAEntities(responseEntities, entities);
         }
-
-        //[Fact, TestPriority(210)]
-        //public void LazyQueryByPartitionKey2Test()
-        //{
-        //    // Arrange
-        //    var entities = AzCosmosUnitTestHelper.CreateAddAssertSomeEntities(false,
-        //        ConstProvider.Thousands_RandomMinValue, ConstProvider.Thousands_RandomMaxValue);
-
-        //    string partitionKey = entities.First().PartitionKey;
-
-        //    // Act
-        //    var _lazyQueryByPartitionKeyResponseAct = AzCosmosUnitTestHelper.LazyQueryByPartitionKey<CustomCosmosEntity>(partitionKey);
-
-        //    // Assert
-        //    UnitTestHelper.AssertExpectedSuccessfulGenResponse(_lazyQueryByPartitionKeyResponseAct);
-
-        //    Assert.Equal(entities.Where(entt => entt.PartitionKey.Equals(partitionKey)).Count(), _lazyQueryByPartitionKeyResponseAct.Value.Count());
-        //}
 
         #endregion
 
@@ -128,13 +122,38 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryByFilterResponseAct);
 
-            var enttAmount = 0;
-            foreach (var item in _queryByFilterResponseAct.Value)
-                enttAmount++;
+            var responseEntities = _queryByFilterResponseAct.Value;
 
-            Assert.Equal(entities.Where(entt => entt.PartitionKey.Equals(partitionKey)).Count(), enttAmount);
+            Assert.Equal(entities.Where(entt => entt.PartitionKey.Equals(partitionKey)).Count(), responseEntities.Count);
+            AzCosmosUnitTestHelper.AssertEnumerableBContainsEnumerableAEntities(responseEntities, entities);
         }
         
+        [Fact, TestPriority(210)]
+        public void QueryByFilterTest2()
+        {
+            // Arrange
+            var entities = AzCosmosUnitTestHelper.CreateAddAssertSomeEntities(true,
+                ConstProvider.Hundreds_RandomMinValue, ConstProvider.Hundreds_RandomMaxValue);
+
+            string partitionKey1 = entities.First().PartitionKey;
+            string partitionKey2 = entities.Where(entt => !entt.PartitionKey.Equals(partitionKey1)).First().PartitionKey;
+
+            string filter = $"select * from C c1 where c1.PartitionKey = '{partitionKey1}'" +
+                $" or c1.PartitionKey = '{partitionKey2}'";
+            // Act
+            var _queryByFilterResponseAct = AzCosmosUnitTestHelper.QueryByFilter<CustomCosmosEntity>(filter);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryByFilterResponseAct);
+
+            var responseEntities = _queryByFilterResponseAct.Value;
+
+            Assert.Equal(entities.Where(
+                entt => entt.PartitionKey.Equals(partitionKey1) || entt.PartitionKey.Equals(partitionKey2))
+                .Count(), responseEntities.Count);
+            AzCosmosUnitTestHelper.AssertEnumerableBContainsEnumerableAEntities(responseEntities, entities);
+        }
+
         [Fact, TestPriority(210)]
         public void LazyQueryByFilter()
         {
@@ -144,37 +163,39 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
 
             string partitionKey = entities.First().PartitionKey;
 
-            string filter = $"select * from Container1 c1 where c1.PartitionKey = '{partitionKey}'";
+            string filter = $"select * from C c1 where c1.PartitionKey = '{partitionKey}'";
             // Act
             var _lazyQueryByFilterResponseAct = AzCosmosUnitTestHelper.LazyQueryByFilter<CustomCosmosEntity>(filter);
 
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_lazyQueryByFilterResponseAct);
 
-            var enttAmount = 0;
-            foreach (var item in _lazyQueryByFilterResponseAct.Value)
-                enttAmount++;
+            var responseEntities = AzCosmosUnitTestHelper.GetEntitiesFromResponse(_lazyQueryByFilterResponseAct);
 
-            Assert.Equal(entities.Where(entt => entt.PartitionKey.Equals(partitionKey)).Count(), enttAmount);
+            Assert.Equal(entities.Where(entt => entt.PartitionKey.Equals(partitionKey)).Count(), responseEntities.Count());
+            AzCosmosUnitTestHelper.AssertEnumerableBContainsEnumerableAEntities(responseEntities, entities);
         }
 
         //[Fact, TestPriority(210)]
-        //public void QueryByFilterTest2()
+        //public void LazyQueryByFilterTest2()
         //{
-        //    Arrange
-        //   var entities = AzCosmosUnitTestHelper.CreateAddAssertSomeEntities(true,
-        //       ConstProvider.Thousands_RandomMinValue, ConstProvider.Thousands_RandomMaxValue);
+        //    // Arrange
+        //    var entities = AzCosmosUnitTestHelper.CreateAddAssertSomeEntities(true,
+        //        ConstProvider.Thousands_RandomMinValue, ConstProvider.Thousands_RandomMaxValue);
 
         //    string partitionKey = entities.First().PartitionKey;
 
-        //    string filter = $"select * from Container1 c1 where c1.PartitionKey = '{partitionKey}'";
-        //    Act
-        //   var _queryByFilterResponseAct = AzCosmosUnitTestHelper.LazyQueryByFilter<CustomCosmosEntity>(filter);
+        //    string filter = $"select * from C c1 where c1.PartitionKey = '{partitionKey}'";
+        //    // Act
+        //    var _lazyQueryByFilterResponseAct = AzCosmosUnitTestHelper.LazyQueryByFilter<CustomCosmosEntity>(filter);
 
-        //    Assert
-        //    UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryByFilterResponseAct);
+        //    // Assert
+        //    UnitTestHelper.AssertExpectedSuccessfulGenResponse(_lazyQueryByFilterResponseAct);
 
-        //    Assert.Equal(entities.Where(entt => entt.PartitionKey.Equals(partitionKey)).Count(), queryCount);
+        //    var responseEntities = AzCosmosUnitTestHelper.GetEntitiesFromResponse(_lazyQueryByFilterResponseAct);
+
+        //    Assert.Equal(entities.Where(entt => entt.PartitionKey.Equals(partitionKey)).Count(), responseEntities.Count());
+        //    AzCosmosUnitTestHelper.AssertEnumerableBContainsEnumerableAEntities(responseEntities, entities);
         //}
 
         #endregion
@@ -190,7 +211,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
 
             string partitionKey = entities.First().PartitionKey;
 
-            string queryText = $"select * from Container1 c1 where c1.PartitionKey = @PartitionKey";
+            string queryText = $"select * from C c1 where c1.PartitionKey = @PartitionKey";
             var queryDefinition = new QueryDefinition(queryText).WithParameter("@PartitionKey", partitionKey);
 
             // Act
@@ -199,11 +220,10 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryByQueryDefinitionResponseAct);
 
-            var enttAmount = 0;
-            foreach (var item in _queryByQueryDefinitionResponseAct.Value)
-                enttAmount++;
+            var responseEntities = _queryByQueryDefinitionResponseAct.Value;
 
-            Assert.Equal(entities.Where(entt => entt.PartitionKey.Equals(partitionKey)).Count(), enttAmount);
+            Assert.Equal(entities.Where(entt => entt.PartitionKey.Equals(partitionKey)).Count(), responseEntities.Count());
+            AzCosmosUnitTestHelper.AssertEnumerableBContainsEnumerableAEntities(responseEntities, entities);
         }
         
         [Fact, TestPriority(210)]
@@ -215,20 +235,19 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
 
             string partitionKey = entities.First().PartitionKey;
 
-            string queryText = $"select * from Container1 c1 where c1.PartitionKey = @PartitionKey";
+            string queryText = $"select * from C c1 where c1.PartitionKey = @PartitionKey";
             var queryDefinition = new QueryDefinition(queryText).WithParameter("@PartitionKey", partitionKey);
 
             // Act
-            var _queryByQueryDefinitionResponseAct = AzCosmosUnitTestHelper.LazyQueryByQueryDefinition<CustomCosmosEntity>(queryDefinition);
+            var _lazyQueryByQueryDefinitionResponseAct = AzCosmosUnitTestHelper.LazyQueryByQueryDefinition<CustomCosmosEntity>(queryDefinition);
 
             // Assert
-            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryByQueryDefinitionResponseAct);
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_lazyQueryByQueryDefinitionResponseAct);
 
-            var enttAmount = 0;
-            foreach (var item in _queryByQueryDefinitionResponseAct.Value)
-                enttAmount++;
+            var responseEntities = AzCosmosUnitTestHelper.GetEntitiesFromResponse(_lazyQueryByQueryDefinitionResponseAct);
 
-            Assert.Equal(entities.Where(entt => entt.PartitionKey.Equals(partitionKey)).Count(), enttAmount);
+            Assert.Equal(entities.Where(entt => entt.PartitionKey.Equals(partitionKey)).Count(), responseEntities.Count());
+            AzCosmosUnitTestHelper.AssertEnumerableBContainsEnumerableAEntities(responseEntities, entities);
         }
 
         #endregion

@@ -10,6 +10,7 @@ using Xunit;
 using CoreTools.Extensions;
 using System.Threading;
 using Microsoft.Azure.Cosmos;
+using System.Linq;
 
 namespace AzStorage.Test.Helpers
 {
@@ -232,6 +233,28 @@ namespace AzStorage.Test.Helpers
             return GenerateProp(number, "Updated");
         }
 
+        public static IEnumerable<T> GetEntitiesFromResponse<T>(AzCosmosResponse<IEnumerable<T>> azCosmosResponse)
+            where T : CustomCosmosEntity
+        {
+            var entities = new List<T>();
+            foreach (var cosmosEntity in azCosmosResponse.Value)
+                entities.Add(cosmosEntity);
+
+            return entities;
+        }
+
+        #endregion
+
+        #region Miscellaneous Asserts
+
+        public static void AssertEnumerableBContainsEnumerableAEntities<T>(IEnumerable<T> enumerableA,
+            IEnumerable<T> enumerableB) where T : CustomCosmosEntity
+        {
+            foreach (var entity in enumerableA)
+                Assert.True(enumerableB.Where(entt => entt.Id.Equals(entity.Id)
+                && entt.PartitionKey.Equals(entity.PartitionKey)).Count() == 1);
+        }
+
         #endregion
 
         #region Assert response
@@ -370,11 +393,14 @@ namespace AzStorage.Test.Helpers
             return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).LazyQueryAll<T>();
         }
         
-        public static AzCosmosResponse<List<T>> QueryByFilter<T>(string filter,
+        public static AzCosmosResponse<List<T>> QueryByFilter<T>(string filter, 
+            string containerId = null,
+            string partitionKeyPropName = null,
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : BaseCosmosEntity
         {
-            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryByFilter<T>(filter);
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryByFilter<T>(filter,
+                containerId: containerId, partitionKeyPropName: partitionKeyPropName);
         }
         
         public static AzCosmosResponse<IEnumerable<T>> LazyQueryByFilter<T>(string filter,
@@ -399,10 +425,13 @@ namespace AzStorage.Test.Helpers
         }
 
         public static AzCosmosResponse<List<T>> QueryByPartitionKey<T>(string partitionKey,
+            string containerId = null,
+            string partitionKeyPropName = null,
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : BaseCosmosEntity
         {
-            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryByPartitionKey<T>(partitionKey);
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryByPartitionKey<T>(partitionKey,
+                containerId: containerId, partitionKeyPropName: partitionKeyPropName);
         }
         
         public static AzCosmosResponse<IEnumerable<T>> LazyQueryByPartitionKey<T>(string partitionKey,

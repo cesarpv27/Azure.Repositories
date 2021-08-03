@@ -20,7 +20,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             var _deleteEntityResponseAct = AzCosmosUnitTestHelper.DeleteEntityAsync(entity).WaitAndUnwrapException();
 
             // Assert
-            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_deleteEntityResponseAct);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
         }
         
         [Fact, TestPriority(100)]
@@ -35,7 +35,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             var _deleteEntityResponseAct = AzCosmosUnitTestHelper.DeleteEntityAsync2(entity).WaitAndUnwrapException();
 
             // Assert
-            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_deleteEntityResponseAct);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
         }
     }
 }
