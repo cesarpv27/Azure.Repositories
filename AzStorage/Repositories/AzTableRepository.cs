@@ -1661,7 +1661,7 @@ namespace AzStorage.Repositories
             CreateOrLoadTableClient<T>(tableName);
 
             var _getEntityResponse = GetEntity<T>(partitionKey, rowKey, cancellationToken, tableName);
-            if (!ResponseValidator.ResponseSucceeded(_getEntityResponse))
+            if (!ResponseValidator.ResponseSucceeded<AzStorageResponse<T>, T>(_getEntityResponse))
                 return _getEntityResponse.InduceGenericLessResponse();
 
             var entity = _getEntityResponse.Value;
