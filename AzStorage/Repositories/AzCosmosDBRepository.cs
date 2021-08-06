@@ -14,6 +14,8 @@ using System.Threading;
 using AzStorage.Core.Utilities;
 using AzCoreTools.Extensions;
 using CoreTools.Utilities;
+using AzStorage.Core.Texting;
+using System.Linq;
 
 namespace AzStorage.Repositories
 {
@@ -96,16 +98,19 @@ namespace AzStorage.Repositories
             ExThrower.ST_ThrowIfArgumentIsNull(Database, nameof(Database), nameof(Database));
         }
 
-        //protected virtual void ThrowIfInvalidContainer()
-        //{
-        //    ExThrower.ST_ThrowIfArgumentIsNull(Container, nameof(Container), nameof(Container));
-        //}
+        protected virtual void ThrowIfInvalidNameValueProperties(IEnumerable<KeyValuePair<string, string>> nameValueProperties)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNull(nameValueProperties, nameof(nameValueProperties), nameof(nameValueProperties));
+            
+            foreach (var nameValueProp in nameValueProperties)
+                ThrowIfInvalidNameValueProperty(nameValueProp, nameof(nameValueProperties));
+        }
 
-        //protected virtual void ThrowIfInvalidCreateContainerResponse(ContainerResponse response)
-        //{
-        //    if (!ResponseValidator.StatusSucceeded(response.StatusCode))
-        //        ExThrower.ST_ThrowApplicationException($"Can not create container. StatusCode:{response.StatusCode}");
-        //}
+        protected virtual void ThrowIfInvalidNameValueProperty(KeyValuePair<string, string> nameValueProperty, string paramName)
+        {
+            if (string.IsNullOrEmpty(nameValueProperty.Key) || string.IsNullOrWhiteSpace(nameValueProperty.Key))
+                ExThrower.ST_ThrowArgumentException(paramName, ErrorTextProvider.Invalid_KeyValuePair_key_null_empty_whitespaces);
+        }
 
         protected virtual void ThrowIfInvalidEntity<T>(T entity) where T: BaseCosmosEntity
         {
@@ -145,7 +150,7 @@ namespace AzStorage.Repositories
         {
             if (throwIfNull || !string.IsNullOrEmpty(databaseId))
                 CreateOrLoadDatabase(databaseId);
-            if (throwIfNull || (!string.IsNullOrEmpty(containerId) && !string.IsNullOrEmpty(partitionKeyPath)))
+            if (throwIfNull || !string.IsNullOrEmpty(containerId) || !string.IsNullOrEmpty(partitionKeyPath))
                 CreateOrLoadContainer(containerId, partitionKeyPath);
         }
 
@@ -156,39 +161,71 @@ namespace AzStorage.Repositories
                 .GetNameValueProperties(operationTerms, operationTerms.GetType().GetProperties()), boolOperator);
         }
         
-        protected virtual QueryDefinition GenerateQueryDefinition(Dictionary<string, string> nameValueProperties, 
+        protected virtual QueryDefinition GenerateQueryDefinition(
+            IEnumerable<KeyValuePair<string, string>> nameValueProperties, 
             BooleanOperator boolOperator)
         {
             ExThrower.ST_ThrowIfArgumentIsNull(nameValueProperties);
 
+            Dictionary<string, KeyValuePair<string, string>> aliasKeyValueDict;
             var queryText = BuildQueryTextToQueryDefinition(nameValueProperties,
-                boolOperator);
+                boolOperator, out aliasKeyValueDict);
             var queryDefinition = new QueryDefinition(queryText);
-            foreach (var nameValue in nameValueProperties)
-                queryDefinition.WithParameter($"@{nameValue.Key}", nameValue.Value);
+            foreach (var nameValue in aliasKeyValueDict)
+                queryDefinition.WithParameter($"@{nameValue.Key}", nameValue.Value.Value);
 
             return queryDefinition;
         }
 
-        protected virtual string BuildQueryTextToQueryDefinition(Dictionary<string, string> nameValueProperties,
-            BooleanOperator boolOperator)
+        protected virtual string BuildQueryTextToQueryDefinition(
+            IEnumerable<KeyValuePair<string, string>> nameValueProperties,
+            BooleanOperator boolOperator, out Dictionary<string, KeyValuePair<string, string>> aliasKeyValueDict)
         {
             string queryText = BuildDefaultQueryPrefix();
 
-            string qvarName = ConstProvider.DefaultQueryVarName;
-            string operatorText = $"{boolOperator} ";
+            string queryvarName = ConstProvider.DefaultQueryVarName;
+            string operatorText = $" {boolOperator} ";
+
+            aliasKeyValueDict = BuildQueryAliasKeyValueDict(nameValueProperties);
 
             bool firstIteration = true;
-            foreach (var nameValue in nameValueProperties)
+            foreach (var aliasKeyValue in aliasKeyValueDict)
             {
                 if (!firstIteration)
                     queryText += operatorText;
-                
-                firstIteration = false;
-                queryText += $"{qvarName}.{nameValue.Key} = @{nameValue.Key}"; 
+                else
+                    firstIteration = false;
+
+                queryText += $"{queryvarName}.{aliasKeyValue.Value.Key} = @{aliasKeyValue.Key}"; 
             }
 
             return queryText;
+        }
+
+        private Dictionary<string, KeyValuePair<string, string>> BuildQueryAliasKeyValueDict(IEnumerable<KeyValuePair<string, string>> nameValueProperties)
+        {
+            var aliasKeyValueDict = new Dictionary<string, KeyValuePair<string, string>>(nameValueProperties.Count());
+            bool currentAliasAdded;
+            string currentAlias;
+            var r = new Random();
+            foreach (var nameValueProp in nameValueProperties)
+            {
+                currentAliasAdded = false;
+                currentAlias = nameValueProp.Key;
+                do
+                {
+                    if (!aliasKeyValueDict.ContainsKey(currentAlias))
+                    {
+                        aliasKeyValueDict.Add(currentAlias, nameValueProp);
+                        currentAliasAdded = true;
+                    }
+                    else
+                        currentAlias += r.Next(1, int.MaxValue);
+
+                } while (!currentAliasAdded);
+            }
+
+            return aliasKeyValueDict;
         }
 
         protected virtual string BuildDefaultQueryPrefix()
@@ -669,6 +706,31 @@ namespace AzStorage.Repositories
         #region QueryWithOr
 
         public virtual AzCosmosResponse<List<T>> QueryWithOr<T>(
+            IEnumerable<KeyValuePair<string, string>> nameValueProperties,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return QueryWithOr<T, AzCosmosResponse<List<T>>>(
+                nameValueProperties,
+                databaseId,
+                containerId,
+                partitionKeyPropName);
+        }
+        
+        public virtual TOut QueryWithOr<T, TOut>(
+            IEnumerable<KeyValuePair<string, string>> nameValueProperties,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+        {
+            ThrowIfInvalidNameValueProperties(nameValueProperties);
+
+            return QueryByQueryDefinition<T, TOut>(GenerateQueryDefinition(nameValueProperties, BooleanOperator.or),
+                databaseId, containerId, partitionKeyPropName);
+        }
+
+        public virtual AzCosmosResponse<List<T>> QueryWithOr<T>(
             dynamic operationTerms,
             string databaseId = null,
             string containerId = null,
@@ -689,13 +751,92 @@ namespace AzStorage.Repositories
         {
             ExThrower.ST_ThrowIfArgumentIsNull(operationTerms, nameof(operationTerms), nameof(operationTerms));
 
-            return QueryByQueryDefinition<T>(GenerateQueryDefinition(operationTerms, BooleanOperator.or), 
+            return QueryByQueryDefinition<T, TOut>(GenerateQueryDefinition(operationTerms, BooleanOperator.or), 
+                databaseId, containerId, partitionKeyPropName);
+        }
+        
+        #endregion
+        
+        #region LazyQueryWithOr
+
+        public virtual AzCosmosResponse<IEnumerable<T>> LazyQueryWithOr<T>(
+            IEnumerable<KeyValuePair<string, string>> nameValueProperties,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return LazyQueryWithOr<T, AzCosmosResponse<IEnumerable<T>>>(
+                nameValueProperties,
+                databaseId,
+                containerId,
+                partitionKeyPropName);
+        }
+        
+        public virtual TOut LazyQueryWithOr<T, TOut>(
+            IEnumerable<KeyValuePair<string, string>> nameValueProperties,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<IEnumerable<T>>, new()
+        {
+            ThrowIfInvalidNameValueProperties(nameValueProperties);
+
+            return LazyQueryByQueryDefinition<T, TOut>(GenerateQueryDefinition(nameValueProperties, BooleanOperator.or),
+                databaseId, containerId, partitionKeyPropName);
+        }
+
+        public virtual AzCosmosResponse<IEnumerable<T>> LazyQueryWithOr<T>(
+            dynamic operationTerms,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return LazyQueryWithOr<T, AzCosmosResponse<IEnumerable<T>>>(
+                operationTerms,
+                databaseId,
+                containerId,
+                partitionKeyPropName);
+        }
+
+        public virtual TOut LazyQueryWithOr<T, TOut>(
+            dynamic operationTerms,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<IEnumerable<T>>, new()
+        {
+            ExThrower.ST_ThrowIfArgumentIsNull(operationTerms, nameof(operationTerms), nameof(operationTerms));
+
+            return LazyQueryByQueryDefinition<T, TOut>(GenerateQueryDefinition(operationTerms, BooleanOperator.or), 
                 databaseId, containerId, partitionKeyPropName);
         }
 
         #endregion
 
         #region QueryWithAnd
+
+        public virtual AzCosmosResponse<List<T>> QueryWithAnd<T>(
+            IEnumerable<KeyValuePair<string, string>> nameValueProperties,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return QueryWithAnd<T, AzCosmosResponse<List<T>>>(
+                nameValueProperties,
+                databaseId,
+                containerId,
+                partitionKeyPropName);
+        }
+
+        public virtual TOut QueryWithAnd<T, TOut>(
+            IEnumerable<KeyValuePair<string, string>> nameValueProperties,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+        {
+            ThrowIfInvalidNameValueProperties(nameValueProperties);
+
+            return QueryByQueryDefinition<T, TOut>(GenerateQueryDefinition(nameValueProperties, BooleanOperator.and),
+                databaseId, containerId, partitionKeyPropName);
+        }
 
         public virtual AzCosmosResponse<List<T>> QueryWithAnd<T>(
             dynamic operationTerms,
@@ -718,7 +859,61 @@ namespace AzStorage.Repositories
         {
             ExThrower.ST_ThrowIfArgumentIsNull(operationTerms, nameof(operationTerms), nameof(operationTerms));
 
-            return QueryByQueryDefinition<T>(GenerateQueryDefinition(operationTerms, BooleanOperator.And), 
+            return QueryByQueryDefinition<T, TOut>(GenerateQueryDefinition(operationTerms, BooleanOperator.and), 
+                databaseId, containerId, partitionKeyPropName);
+        }
+
+        #endregion
+        
+        #region LazyQueryWithAnd
+
+        public virtual AzCosmosResponse<IEnumerable<T>> LazyQueryWithAnd<T>(
+            IEnumerable<KeyValuePair<string, string>> nameValueProperties,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return LazyQueryWithAnd<T, AzCosmosResponse<IEnumerable<T>>>(
+                nameValueProperties,
+                databaseId,
+                containerId,
+                partitionKeyPropName);
+        }
+
+        public virtual TOut LazyQueryWithAnd<T, TOut>(
+            IEnumerable<KeyValuePair<string, string>> nameValueProperties,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<IEnumerable<T>>, new()
+        {
+            ThrowIfInvalidNameValueProperties(nameValueProperties);
+
+            return LazyQueryByQueryDefinition<T, TOut>(GenerateQueryDefinition(nameValueProperties, BooleanOperator.and),
+                databaseId, containerId, partitionKeyPropName);
+        }
+
+        public virtual AzCosmosResponse<IEnumerable<T>> LazyQueryWithAnd<T>(
+            dynamic operationTerms,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return LazyQueryWithAnd<T, AzCosmosResponse<IEnumerable<T>>>(
+                operationTerms,
+                databaseId,
+                containerId,
+                partitionKeyPropName);
+        }
+
+        public virtual TOut LazyQueryWithAnd<T, TOut>(
+            dynamic operationTerms,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<IEnumerable<T>>, new()
+        {
+            ExThrower.ST_ThrowIfArgumentIsNull(operationTerms, nameof(operationTerms), nameof(operationTerms));
+
+            return LazyQueryByQueryDefinition<T, TOut>(GenerateQueryDefinition(operationTerms, BooleanOperator.and), 
                 databaseId, containerId, partitionKeyPropName);
         }
 

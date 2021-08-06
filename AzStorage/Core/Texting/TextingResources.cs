@@ -12,5 +12,6 @@ namespace AzStorage.Core.Texting
         public const string Operation_not_allowed = "Operation not allowed";
         public const string Current_keys_same_as_new_keys = "Current keys are the same as the new keys";
         public const string Can_not_load_create_table = "Can't load or create table";
+        public const string Invalid_KeyValuePair_key_null_empty_whitespaces = "Invalid element in collection, some KeyValuePair contains key equals null, empty or whitespace";
     }
 }

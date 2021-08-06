@@ -11,6 +11,7 @@ using CoreTools.Extensions;
 using System.Threading;
 using Microsoft.Azure.Cosmos;
 using System.Linq;
+using ExThrower = CoreTools.Throws.ExceptionThrower;
 
 namespace AzStorage.Test.Helpers
 {
@@ -134,7 +135,7 @@ namespace AzStorage.Test.Helpers
             return new CustomCosmosEntity(partitionKey, id);
         }
 
-        public static IEnumerable<CustomCosmosEntity> CreateSomeEntities(int amount, string commonPartitionKey)
+        public static List<CustomCosmosEntity> CreateSomeEntities(int amount, string commonPartitionKey)
         {
             if (string.IsNullOrEmpty(commonPartitionKey))
                 return CreateSomeEntities(amount);
@@ -142,7 +143,7 @@ namespace AzStorage.Test.Helpers
             return CreateSomeEntities(amount, new List<string> { commonPartitionKey });
         }
 
-        public static IEnumerable<CustomCosmosEntity> CreateSomeEntities(int amount, List<string> partitionKeys = null)
+        public static List<CustomCosmosEntity> CreateSomeEntities(int amount, List<string> partitionKeys = null)
         {
             var _r = new Random();
             var entities = new List<CustomCosmosEntity>(amount);
@@ -155,7 +156,7 @@ namespace AzStorage.Test.Helpers
             return entities;
         }
 
-        public static IEnumerable<CustomCosmosEntity> CreateSomeEntities(int amount, bool scatterPartitionKeys)
+        public static List<CustomCosmosEntity> CreateSomeEntities(int amount, bool scatterPartitionKeys)
         {
             if (!scatterPartitionKeys)
                 return CreateSomeEntities(amount);
@@ -209,7 +210,7 @@ namespace AzStorage.Test.Helpers
             return AddAssertSomeEntities(entities);
         }
 
-        private static IEnumerable<CustomCosmosEntity> AddAssertSomeEntities(IEnumerable<CustomCosmosEntity> entities)
+        public static IEnumerable<CustomCosmosEntity> AddAssertSomeEntities(IEnumerable<CustomCosmosEntity> entities)
         {
             AzCosmosResponse<CustomCosmosEntity> _addEntityAsyncResponseAct;
             foreach (var entt in entities)
@@ -223,6 +224,43 @@ namespace AzStorage.Test.Helpers
             return entities;
         }
 
+        public static IEnumerable<CustomCosmosEntity> CreateSetPropsAddAssertSomeEntities(
+            string prop1QueryValue1,
+            string prop1QueryValue2,
+            string prop1QueryValue3,
+            string prop2QueryValue1,
+            string prop2QueryValue2,
+            string prop2QueryValue3,
+            int randomMinValue = Utilities.ConstProvider.Hundreds_RandomMinValue,
+            int randomMaxValue = Utilities.ConstProvider.Hundreds_RandomMaxValue)
+        {
+            var r = new Random();
+
+            var amount = r.Next(randomMinValue, randomMaxValue);
+            var entities = CreateSomeEntities(amount, true);
+
+            var rangeAmount = entities.Count() / 3;
+            for (int i = 0; i < rangeAmount; i++)
+            {
+                entities[i].Prop1 = prop1QueryValue1;
+                entities[i].Prop2 = prop2QueryValue1;
+            }
+            for (int i = rangeAmount, length = rangeAmount * 2; i < length; i++)
+            {
+                entities[i].Prop1 = prop1QueryValue2;
+                entities[i].Prop2 = prop2QueryValue2;
+            }
+            for (int i = rangeAmount * 2; i < entities.Count; i++)
+            {
+                entities[i].Prop1 = prop1QueryValue3;
+                entities[i].Prop2 = prop2QueryValue3;
+            }
+
+            AddAssertSomeEntities(entities);
+
+            return entities;
+        }
+
         public static string GenerateProp(int number, string prefix = "")
         {
             return $"{prefix}Prop{number}";
@@ -231,16 +269,6 @@ namespace AzStorage.Test.Helpers
         public static string GenerateUpdatedProp(int number)
         {
             return GenerateProp(number, "Updated");
-        }
-
-        public static IEnumerable<T> GetEntitiesFromResponse<T>(AzCosmosResponse<IEnumerable<T>> azCosmosResponse)
-            where T : CustomCosmosEntity
-        {
-            var entities = new List<T>();
-            foreach (var cosmosEntity in azCosmosResponse.Value)
-                entities.Add(cosmosEntity);
-
-            return entities;
         }
 
         #endregion
@@ -334,6 +362,213 @@ namespace AzStorage.Test.Helpers
 
         #endregion
 
+        #region Samples_AzCosmosDBRepository tests
+
+        public static void CommonQueryAllTest<T, TOutGen>(Func<CreateResourcePolicy, AzCosmosResponse<TOutGen>> func)
+            where T : CustomCosmosEntity where TOutGen : IEnumerable<T>
+        {
+            // Arrange
+            var entities = CreateAddAssertSomeEntities(true,
+                Utilities.ConstProvider.Hundreds_RandomMinValue, Utilities.ConstProvider.Hundreds_RandomMaxValue);
+
+            // Act
+            var _queryAllResponseAct = func(CreateResourcePolicy.OnlyFirstTime);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryAllResponseAct);
+
+            var storedEntities = _queryAllResponseAct.Value.ToList();
+            AssertEnumerableBContainsEnumerableAEntities(entities, storedEntities);
+        }
+
+        public static void CommonQueryByPartitionKeyTest<T, TOutGen>(Func<string, string, string, CreateResourcePolicy, AzCosmosResponse<TOutGen>> func)
+            where T : CustomCosmosEntity where TOutGen : IEnumerable<T>
+        {
+            // Arrange
+            var entities = CreateAddAssertSomeEntities(true,
+                Utilities.ConstProvider.Hundreds_RandomMinValue, Utilities.ConstProvider.Hundreds_RandomMaxValue);
+
+            string partitionKey = entities.First().PartitionKey;
+
+            // Act
+            var _queryByPartitionKeyResponseAct = func(partitionKey, null, null, CreateResourcePolicy.OnlyFirstTime);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryByPartitionKeyResponseAct);
+
+            var responseEntities = _queryByPartitionKeyResponseAct.Value.ToList();
+
+            Assert.Equal(entities.Where(entt => entt.PartitionKey.Equals(partitionKey)).Count(), responseEntities.Count);
+            AssertEnumerableBContainsEnumerableAEntities(responseEntities, entities);
+        }
+
+        public static void CommonQueryByFilterTest<T, TOutGen>(Func<string, string, string, CreateResourcePolicy, AzCosmosResponse<TOutGen>> func)
+            where T : CustomCosmosEntity where TOutGen : IEnumerable<T>
+        {
+            // Arrange
+            var entities = CreateAddAssertSomeEntities(true,
+                Utilities.ConstProvider.Hundreds_RandomMinValue, Utilities.ConstProvider.Hundreds_RandomMaxValue);
+
+            string partitionKey = entities.First().PartitionKey;
+
+            string filter = $"select * from Container c1 where c1.PartitionKey = '{partitionKey}'";
+
+            // Act
+            var _queryByFilterResponseAct = func(filter, null, null, CreateResourcePolicy.OnlyFirstTime);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryByFilterResponseAct);
+
+            var responseEntities = _queryByFilterResponseAct.Value.ToList();
+
+            Assert.Equal(entities.Where(entt => entt.PartitionKey.Equals(partitionKey)).Count(), responseEntities.Count);
+            AssertEnumerableBContainsEnumerableAEntities(responseEntities, entities);
+        }
+
+        public static void CommonQueryByQueryDefinitionTest<T, TOutGen>(Func<QueryDefinition, CreateResourcePolicy, AzCosmosResponse<TOutGen>> func)
+            where T : CustomCosmosEntity where TOutGen : IEnumerable<T>
+        {
+            // Arrange
+            var entities = CreateAddAssertSomeEntities(true,
+                Utilities.ConstProvider.Hundreds_RandomMinValue, Utilities.ConstProvider.Hundreds_RandomMaxValue);
+
+            string partitionKey = entities.First().PartitionKey;
+
+            string queryText = $"select * from Container c1 where c1.PartitionKey = @PartitionKey";
+            var queryDefinition = new QueryDefinition(queryText).WithParameter("@PartitionKey", partitionKey);
+
+            // Act
+            var _queryByQueryDefinitionResponseAct = func(queryDefinition, CreateResourcePolicy.OnlyFirstTime);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryByQueryDefinitionResponseAct);
+
+            var responseEntities = _queryByQueryDefinitionResponseAct.Value.ToList();
+
+            Assert.Equal(entities.Where(entt => entt.PartitionKey.Equals(partitionKey)).Count(), responseEntities.Count());
+            AssertEnumerableBContainsEnumerableAEntities(responseEntities, entities);
+        }
+
+        public static void CommonQueryWithAndOrTest<T, TOutGen>(Func<dynamic, string, string,
+            CreateResourcePolicy, AzCosmosResponse<TOutGen>> func, CoreTools.Utilities.BooleanOperator boolOperator) 
+            where T : CustomCosmosEntity where TOutGen : IEnumerable<T>
+        {
+            // Arrange
+            var r = new Random();
+
+            var amount = r.Next(Utilities.ConstProvider.Hundreds_RandomMinValue, Utilities.ConstProvider.Hundreds_RandomMaxValue);
+            var entities = CreateSomeEntities(amount, true);
+
+            foreach (var item in entities)
+            {
+                item.Prop1 = r.Next(1, 4).ToString();
+                item.Prop2 = r.Next(1, 4).ToString();
+            }
+
+            AddAssertSomeEntities(entities);
+
+            var prop1QueryValue = "1";
+            var prop2QueryValue = "2";
+
+            // Act
+            var _queryWithAndOrResponseAct = func(
+                new
+                {
+                    Prop1 = prop1QueryValue,
+                    Prop2 = prop2QueryValue
+                }, null, null, CreateResourcePolicy.OnlyFirstTime);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryWithAndOrResponseAct);
+
+            IEnumerable<CustomCosmosEntity> locallyQueriedEntities = null;
+            switch (boolOperator)
+            {
+                case CoreTools.Utilities.BooleanOperator.and:
+                    locallyQueriedEntities = entities.Where(entt => entt.Prop1.Equals(prop1QueryValue) && entt.Prop2.Equals(prop2QueryValue));
+                    break;
+                case CoreTools.Utilities.BooleanOperator.or:
+                    locallyQueriedEntities = entities.Where(entt => entt.Prop1.Equals(prop1QueryValue) || entt.Prop2.Equals(prop2QueryValue));
+                    break;
+                default:
+                    ExThrower.ST_ThrowNotImplementedException(boolOperator);
+                    break;
+            }
+            var responseEntities = _queryWithAndOrResponseAct.Value.ToList();
+
+            Assert.True(responseEntities.Count() >= locallyQueriedEntities.Count());
+            AssertEnumerableBContainsEnumerableAEntities(locallyQueriedEntities, responseEntities);
+        }
+
+        public static void CommonQueryWithAndOrTest2<T, TOutGen>(Func<IEnumerable<KeyValuePair<string, string>>, string, string, 
+            CreateResourcePolicy, AzCosmosResponse<TOutGen>> func, CoreTools.Utilities.BooleanOperator boolOperator) 
+            where T : CustomCosmosEntity where TOutGen : IEnumerable<T>
+        {
+            // Arrange
+            string prop1QueryValue1 = "4";
+            string prop1QueryValue2 = "5";
+            string prop1QueryValue3 = "6";
+
+            string prop2QueryValue1 = "1";
+            string prop2QueryValue2 = "2";
+            string prop2QueryValue3 = "3";
+
+            var entities = CreateSetPropsAddAssertSomeEntities(
+                prop1QueryValue1, prop1QueryValue2, prop1QueryValue3,
+                prop2QueryValue1, prop2QueryValue2, prop2QueryValue3);
+
+            List<KeyValuePair<string, string>> param = null;
+            switch (boolOperator)
+            {
+                case CoreTools.Utilities.BooleanOperator.and:
+                    param = new List<KeyValuePair<string, string>>
+                    {
+                        new KeyValuePair<string, string>("Prop1", prop1QueryValue1),
+                        new KeyValuePair<string, string>("Prop2", prop2QueryValue1),
+                    };
+                    break;
+                case CoreTools.Utilities.BooleanOperator.or:
+                    param = new List<KeyValuePair<string, string>>
+                    {
+                        new KeyValuePair<string, string>("Prop1", prop1QueryValue3),
+                        new KeyValuePair<string, string>("Prop2", prop2QueryValue1),
+                        new KeyValuePair<string, string>("Prop2", prop2QueryValue2),
+                    };
+                    break;
+                default:
+                    ExThrower.ST_ThrowNotImplementedException(boolOperator);
+                    break;
+            }
+
+            // Act
+            var _queryWithAndOrResponseAct = func(param, null, null, CreateResourcePolicy.OnlyFirstTime);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryWithAndOrResponseAct);
+
+            IEnumerable<CustomCosmosEntity> locallyQueriedEntities = null;
+            switch (boolOperator)
+            {
+                case CoreTools.Utilities.BooleanOperator.and:
+                    locallyQueriedEntities = entities.Where(entt => entt.Prop1.Equals(prop1QueryValue1) && entt.Prop2.Equals(prop2QueryValue1));
+                    break;
+                case CoreTools.Utilities.BooleanOperator.or:
+                    locallyQueriedEntities = entities.Where(entt => entt.Prop1.Equals(prop1QueryValue3) || entt.Prop2.Equals(prop2QueryValue1) 
+                        || entt.Prop2.Equals(prop2QueryValue2));
+                    break;
+                default:
+                    ExThrower.ST_ThrowNotImplementedException(boolOperator);
+                    break;
+            }
+
+            var responseEntities = _queryWithAndOrResponseAct.Value.ToList();
+
+            Assert.True(responseEntities.Count() >= locallyQueriedEntities.Count());
+            AssertEnumerableBContainsEnumerableAEntities(locallyQueriedEntities, responseEntities);
+        }
+
+        #endregion
+
         #region Add entities
 
         public static async Task<AzCosmosResponse<TIn>> AddEntityAsync<TIn>(TIn entity,
@@ -404,10 +639,13 @@ namespace AzStorage.Test.Helpers
         }
         
         public static AzCosmosResponse<IEnumerable<T>> LazyQueryByFilter<T>(string filter,
+            string containerId = null,
+            string partitionKeyPropName = null,
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : BaseCosmosEntity
         {
-            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).LazyQueryByFilter<T>(filter);
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).LazyQueryByFilter<T>(filter,
+                containerId: containerId, partitionKeyPropName: partitionKeyPropName);
         }
 
         public static AzCosmosResponse<List<T>> QueryByQueryDefinition<T>(QueryDefinition queryDefinition,
@@ -435,10 +673,93 @@ namespace AzStorage.Test.Helpers
         }
         
         public static AzCosmosResponse<IEnumerable<T>> LazyQueryByPartitionKey<T>(string partitionKey,
+            string containerId = null,
+            string partitionKeyPropName = null,
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : BaseCosmosEntity
         {
-            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).LazyQueryByPartitionKey<T>(partitionKey);
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).LazyQueryByPartitionKey<T>(partitionKey,
+                containerId: containerId, partitionKeyPropName: partitionKeyPropName);
+        }
+
+        public static AzCosmosResponse<List<T>> QueryWithOr<T>(dynamic operationTerms,
+            string containerId = null,
+            string partitionKeyPropName = null,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : BaseCosmosEntity
+        {
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryWithOr<T>(operationTerms,
+                containerId: containerId, partitionKeyPropName: partitionKeyPropName);
+        }
+        
+        public static AzCosmosResponse<List<T>> QueryWithOr<T>(IEnumerable<KeyValuePair<string, string>> nameValueProperties,
+            string containerId = null,
+            string partitionKeyPropName = null,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : BaseCosmosEntity
+        {
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryWithOr<T>(nameValueProperties,
+                containerId: containerId, partitionKeyPropName: partitionKeyPropName);
+        }
+        
+        public static AzCosmosResponse<IEnumerable<T>> LazyQueryWithOr<T>(dynamic operationTerms,
+            string containerId = null,
+            string partitionKeyPropName = null,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : BaseCosmosEntity
+        {
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).LazyQueryWithOr<T>(operationTerms,
+                containerId: containerId, partitionKeyPropName: partitionKeyPropName);
+        }
+        
+        public static AzCosmosResponse<IEnumerable<T>> LazyQueryWithOr<T>(IEnumerable<KeyValuePair<string, string>> nameValueProperties,
+            string containerId = null,
+            string partitionKeyPropName = null,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : BaseCosmosEntity
+        {
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).LazyQueryWithOr<T>(nameValueProperties,
+                containerId: containerId, partitionKeyPropName: partitionKeyPropName);
+        }
+        
+        public static AzCosmosResponse<List<T>> QueryWithAnd<T>(dynamic operationTerms,
+            string containerId = null,
+            string partitionKeyPropName = null,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : BaseCosmosEntity
+        {
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryWithAnd<T>(operationTerms,
+                containerId: containerId, partitionKeyPropName: partitionKeyPropName);
+        }
+        
+        public static AzCosmosResponse<List<T>> QueryWithAnd<T>(IEnumerable<KeyValuePair<string, string>> nameValueProperties,
+            string containerId = null,
+            string partitionKeyPropName = null,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : BaseCosmosEntity
+        {
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryWithAnd<T>(nameValueProperties,
+                containerId: containerId, partitionKeyPropName: partitionKeyPropName);
+        }
+        
+        public static AzCosmosResponse<IEnumerable<T>> LazyQueryWithAnd<T>(dynamic operationTerms,
+            string containerId = null,
+            string partitionKeyPropName = null,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : BaseCosmosEntity
+        {
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).LazyQueryWithAnd<T>(operationTerms,
+                containerId: containerId, partitionKeyPropName: partitionKeyPropName);
+        }
+        
+        public static AzCosmosResponse<IEnumerable<T>> LazyQueryWithAnd<T>(IEnumerable<KeyValuePair<string, string>> nameValueProperties,
+            string containerId = null,
+            string partitionKeyPropName = null,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : BaseCosmosEntity
+        {
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).LazyQueryWithAnd<T>(nameValueProperties,
+                containerId: containerId, partitionKeyPropName: partitionKeyPropName);
         }
 
         #endregion
