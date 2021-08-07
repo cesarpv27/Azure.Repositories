@@ -425,7 +425,8 @@ namespace AzStorage.Repositories
         /// Adds a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
         /// </summary>
         /// <typeparam name="TIn">A custom model type that inherits from <see cref="BaseCosmosEntity" />.</typeparam>
-        /// <typeparam name="TOut">A custom model type that inherits from <see cref="AzCosmosResponse{TIn}" />.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{TIn}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{TIn}" />.</typeparam>
         /// <param name="entity">The item to add.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="databaseId">The Id of the Cosmos database.</param>
@@ -474,7 +475,8 @@ namespace AzStorage.Repositories
         /// Adds a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
         /// </summary>
         /// <typeparam name="TIn">A custom model type.</typeparam>
-        /// <typeparam name="TOut">A custom model type that inherits from <see cref="AzCosmosResponse{TIn}" />.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{TIn}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{TIn}" />.</typeparam>
         /// <param name="entity">The item to add.</param>
         /// <param name="partitionKey">The value to use as partition key</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
@@ -509,7 +511,7 @@ namespace AzStorage.Repositories
         /// Reads a item of type <typeparamref name="T"/> from the Azure Cosmos service as an asynchronous operation.
         /// </summary>
         /// <typeparam name="T">A custom model type.</typeparam>
-        /// <param name="partitionKey">The partition key for the item.</param>
+        /// <param name="partitionKey">The partition key value of the item.</param>
         /// <param name="id">The Cosmos item id.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="databaseId">The Id of the Cosmos database.</param>
@@ -535,8 +537,9 @@ namespace AzStorage.Repositories
         /// Reads a item of type <typeparamref name="T"/> from the Azure Cosmos service as an asynchronous operation.
         /// </summary>
         /// <typeparam name="T">A custom model type.</typeparam>
-        /// <typeparam name="TOut">A custom model type that inherits from <see cref="AzCosmosResponse{T}" />.</typeparam>
-        /// <param name="partitionKey">The partition key for the item.</param>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{T}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{T}" />.</typeparam>
+        /// <param name="partitionKey">The partition key value of the item.</param>
         /// <param name="id">The Cosmos item id.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="databaseId">The Id of the Cosmos database.</param>
@@ -570,6 +573,14 @@ namespace AzStorage.Repositories
 
         #region QueryAll
 
+        /// <summary>
+        /// Queries all items of type <typeparamref name="T"/> under a container in an Azure Cosmos database.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<List<T>> QueryAll<T>(
             string databaseId = null,
             string containerId = null,
@@ -580,6 +591,16 @@ namespace AzStorage.Repositories
                 partitionKeyPropName);
         }
 
+        /// <summary>
+        /// Queries all items of type <typeparamref name="T"/> under a container in an Azure Cosmos database.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{List{T}}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{List{T}}" />.</typeparam>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual TOut QueryAll<T, TOut>(
             string databaseId = null,
             string containerId = null,
@@ -596,6 +617,15 @@ namespace AzStorage.Repositories
 
         #region LazyQueryAll
 
+        /// <summary>
+        /// Query allowing to iterate on demand over all items of type <typeparamref name="T"/> under a container in an Azure Cosmos database.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="AzCosmosResponse{IEnumerable{T}}"/> containing a collection 
+        /// that allows to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<IEnumerable<T>> LazyQueryAll<T>(
             string databaseId = null,
             string containerId = null,
@@ -607,6 +637,17 @@ namespace AzStorage.Repositories
                 partitionKeyPropName);
         }
 
+        /// <summary>
+        /// Query allowing to iterate on demand over all items of type <typeparamref name="T"/> under a container in an Azure Cosmos database.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{IEnumerable{T}}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{IEnumerable{T}}" />.</typeparam>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="TOut"/> containing a collection that allows 
+        /// to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual TOut LazyQueryAll<T, TOut>(
             string databaseId = null,
             string containerId = null,
@@ -623,6 +664,16 @@ namespace AzStorage.Repositories
 
         #region QueryByFilter
 
+        /// <summary>
+        /// Creates a query with the <paramref name="filter"/> for items of type <typeparamref name="T"/> 
+        /// under a container in an Azure Cosmos database, using a SQL statement with parameterized values.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="filter">The Cosmos SQL query text.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<List<T>> QueryByFilter<T>(
             string filter,
             string databaseId = null,
@@ -636,6 +687,18 @@ namespace AzStorage.Repositories
                 partitionKeyPropName);
         }
 
+        /// <summary>
+        /// Creates a query with the <paramref name="filter"/> for items of type <typeparamref name="T"/> 
+        /// under a container in an Azure Cosmos database, using a SQL statement with parameterized values.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{List{T}}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{List{T}}" />.</typeparam>
+        /// <param name="filter">The Cosmos SQL query text.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual TOut QueryByFilter<T, TOut>(
             string filter,
             string databaseId = null,
@@ -654,6 +717,18 @@ namespace AzStorage.Repositories
 
         #region LazyQueryByFilter
 
+        /// <summary>
+        /// Creates a query with the <paramref name="filter"/> that allows to iterate on demand over 
+        /// items of type <typeparamref name="T"/> under a container in an Azure Cosmos database, 
+        /// using a SQL statement with parameterized values.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="filter">The Cosmos SQL query text.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="AzCosmosResponse{IEnumerable{T}}"/> containing a collection 
+        /// that allows to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<IEnumerable<T>> LazyQueryByFilter<T>(
             string filter,
             string databaseId = null,
@@ -667,6 +742,20 @@ namespace AzStorage.Repositories
                 partitionKeyPropName);
         }
 
+        /// <summary>
+        /// Creates a query with the <paramref name="filter"/> that allows to iterate on demand over 
+        /// items of type <typeparamref name="T"/> under a container in an Azure Cosmos database, 
+        /// using a SQL statement with parameterized values.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{IEnumerable{T}}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{IEnumerable{T}}" />.</typeparam>
+        /// <param name="filter">The Cosmos SQL query text.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="TOut"/> containing a collection that allows 
+        /// to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual TOut LazyQueryByFilter<T, TOut>(
             string filter,
             string databaseId = null,
@@ -685,6 +774,16 @@ namespace AzStorage.Repositories
 
         #region QueryByQueryDefinition
 
+        /// <summary>
+        /// Creates a query with the <paramref name="queryDefinition"/> for items of type <typeparamref name="T"/> 
+        /// under a container in an Azure Cosmos database, using a SQL statement with parameterized values.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="queryDefinition">The Cosmos SQL query definition.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<List<T>> QueryByQueryDefinition<T>(
             QueryDefinition queryDefinition,
             string databaseId = null,
@@ -698,6 +797,18 @@ namespace AzStorage.Repositories
                 partitionKeyPropName);
         }
 
+        /// <summary>
+        /// Creates a query with the <paramref name="queryDefinition"/> for items of type <typeparamref name="T"/> 
+        /// under a container in an Azure Cosmos database, using a SQL statement with parameterized values.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{List{T}}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{List{T}}" />.</typeparam>
+        /// <param name="queryDefinition">The Cosmos SQL query definition.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual TOut QueryByQueryDefinition<T, TOut>(
             QueryDefinition queryDefinition,
             string databaseId = null,
@@ -716,6 +827,18 @@ namespace AzStorage.Repositories
 
         #region LazyQueryByQueryDefinition
 
+        /// <summary>
+        /// Creates a query with the <paramref name="queryDefinition"/> that allows to iterate on demand over 
+        /// items of type <typeparamref name="T"/> under a container in an Azure Cosmos database, 
+        /// using a SQL statement with parameterized values.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="queryDefinition">The Cosmos SQL query definition.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="AzCosmosResponse{IEnumerable{T}}"/> containing a collection 
+        /// that allows to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<IEnumerable<T>> LazyQueryByQueryDefinition<T>(
             QueryDefinition queryDefinition,
             string databaseId = null,
@@ -729,6 +852,20 @@ namespace AzStorage.Repositories
                 partitionKeyPropName);
         }
 
+        /// <summary>
+        /// Creates a query with the <paramref name="queryDefinition"/> that allows to iterate on demand over 
+        /// items of type <typeparamref name="T"/> under a container in an Azure Cosmos database, 
+        /// using a SQL statement with parameterized values.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{IEnumerable{T}}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{IEnumerable{T}}" />.</typeparam>
+        /// <param name="queryDefinition">The Cosmos SQL query definition.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="TOut"/> containing a collection that allows 
+        /// to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual TOut LazyQueryByQueryDefinition<T, TOut>(
             QueryDefinition queryDefinition,
             string databaseId = null,
@@ -747,6 +884,15 @@ namespace AzStorage.Repositories
 
         #region QueryByPartitionKey
 
+        /// <summary>
+        /// Queries items of type <typeparamref name="T"/> with the specified partition key value under a container in an Azure Cosmos database.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="partitionKey">The partition key value of the item.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<List<T>> QueryByPartitionKey<T>(
             string partitionKey,
             string databaseId = null,
@@ -760,6 +906,17 @@ namespace AzStorage.Repositories
                 partitionKeyPropName);
         }
 
+        /// <summary>
+        /// Queries items of type <typeparamref name="T"/> with the specified partition key value under a container in an Azure Cosmos database.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{List{T}}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{List{T}}" />.</typeparam>
+        /// <param name="partitionKey">The partition key value of the item.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual TOut QueryByPartitionKey<T, TOut>(
             string partitionKey,
             string databaseId = null,
@@ -778,6 +935,18 @@ namespace AzStorage.Repositories
 
         #region LazyQueryByPartitionKey
 
+        /// <summary>
+        /// Query allowing to iterate on demand over items of type <typeparamref name="T"/> 
+        /// with the specified partition key value, under a container in an Azure Cosmos database
+        /// using a SQL statement with parameterized values.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="partitionKey">The partition key value of the item.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="AzCosmosResponse{IEnumerable{T}}"/> containing a collection 
+        /// that allows to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<IEnumerable<T>> LazyQueryByPartitionKey<T>(
             string partitionKey,
             string databaseId = null,
@@ -791,6 +960,20 @@ namespace AzStorage.Repositories
                 partitionKeyPropName);
         }
 
+        /// <summary>
+        /// Query allowing to iterate on demand over items of type <typeparamref name="T"/> 
+        /// with the specified partition key value, under a container in an Azure Cosmos database
+        /// using a SQL statement with parameterized values.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{IEnumerable{T}}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{IEnumerable{T}}" />.</typeparam>
+        /// <param name="partitionKey">The partition key value of the item.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="TOut"/> containing a collection that allows 
+        /// to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual TOut LazyQueryByPartitionKey<T, TOut>(
             string partitionKey,
             string databaseId = null,
@@ -809,6 +992,17 @@ namespace AzStorage.Repositories
 
         #region QueryWithOr
 
+        /// <summary>
+        /// Queries items of type <typeparamref name="T"/>, creating a SQL statement query which compares with logical 'or' 
+        /// using properties (names-values) contained in <paramref name="nameValueProperties"/>, under a container in an Azure Cosmos database.
+        /// Property names must match the properties on type <typeparamref name="T"/> serialized by Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="nameValueProperties">Property names and values to include in SQL query.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<List<T>> QueryWithOr<T>(
             IEnumerable<KeyValuePair<string, string>> nameValueProperties,
             string databaseId = null,
@@ -821,7 +1015,20 @@ namespace AzStorage.Repositories
                 containerId,
                 partitionKeyPropName);
         }
-        
+
+        /// <summary>
+        /// Queries items of type <typeparamref name="T"/>, creating a SQL statement query which compares with logical 'or' 
+        /// using properties (names-values) contained in <paramref name="nameValueProperties"/>, under a container in an Azure Cosmos database.
+        /// Property names must match the properties on type <typeparamref name="T"/> serialized by Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{List{T}}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{List{T}}" />.</typeparam>
+        /// <param name="nameValueProperties">Property names and values to include in SQL query.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual TOut QueryWithOr<T, TOut>(
             IEnumerable<KeyValuePair<string, string>> nameValueProperties,
             string databaseId = null,
@@ -834,6 +1041,17 @@ namespace AzStorage.Repositories
                 databaseId, containerId, partitionKeyPropName);
         }
 
+        /// <summary>
+        /// Queries items of type <typeparamref name="T"/>, creating a SQL statement query which compares with logical 'or' 
+        /// using properties (names-values) of <paramref name="operationTerms"/>, under a container in an Azure Cosmos database.
+        /// Property names must match the properties on type <typeparamref name="T"/> serialized by Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="operationTerms">Contains property names and values to include in SQL query.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<List<T>> QueryWithOr<T>(
             dynamic operationTerms,
             string databaseId = null,
@@ -847,6 +1065,19 @@ namespace AzStorage.Repositories
                 partitionKeyPropName);
         }
 
+        /// <summary>
+        /// Queries items of type <typeparamref name="T"/>, creating a SQL statement query which compares with logical 'or' 
+        /// using properties (names-values) of <paramref name="operationTerms"/>, under a container in an Azure Cosmos database.
+        /// Property names must match the properties on type <typeparamref name="T"/> serialized by Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{List{T}}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{List{T}}" />.</typeparam>
+        /// <param name="operationTerms">Contains property names and values to include in SQL query.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual TOut QueryWithOr<T, TOut>(
             dynamic operationTerms,
             string databaseId = null,
@@ -858,11 +1089,25 @@ namespace AzStorage.Repositories
             return QueryByQueryDefinition<T, TOut>(GenerateQueryDefinition(operationTerms, BooleanOperator.or), 
                 databaseId, containerId, partitionKeyPropName);
         }
-        
+
         #endregion
-        
+
         #region LazyQueryWithOr
 
+        /// <summary>
+        /// Query allowing to iterate on demand over items of type <typeparamref name="T"/>, 
+        /// creating a SQL statement query which compares with logical 'or' 
+        /// using properties (names-values) contained in <paramref name="nameValueProperties"/>,
+        /// under a container in an Azure Cosmos database.
+        /// Property names must match the properties on type <typeparamref name="T"/> serialized by Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="nameValueProperties">Property names and values to include in SQL query.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="AzCosmosResponse{IEnumerable{T}}"/> containing a collection 
+        /// that allows to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<IEnumerable<T>> LazyQueryWithOr<T>(
             IEnumerable<KeyValuePair<string, string>> nameValueProperties,
             string databaseId = null,
@@ -875,7 +1120,23 @@ namespace AzStorage.Repositories
                 containerId,
                 partitionKeyPropName);
         }
-        
+
+        /// <summary>
+        /// Query allowing to iterate on demand over items of type <typeparamref name="T"/>, 
+        /// creating a SQL statement query which compares with logical 'or' 
+        /// using properties (names-values) contained in <paramref name="nameValueProperties"/>,
+        /// under a container in an Azure Cosmos database.
+        /// Property names must match the properties on type <typeparamref name="T"/> serialized by Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{IEnumerable{T}}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{IEnumerable{T}}" />.</typeparam>
+        /// <param name="nameValueProperties">Property names and values to include in SQL query.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="TOut"/> containing a collection that allows 
+        /// to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual TOut LazyQueryWithOr<T, TOut>(
             IEnumerable<KeyValuePair<string, string>> nameValueProperties,
             string databaseId = null,
@@ -888,6 +1149,20 @@ namespace AzStorage.Repositories
                 databaseId, containerId, partitionKeyPropName);
         }
 
+        /// <summary>
+        /// Query allowing to iterate on demand over items of type <typeparamref name="T"/>, 
+        /// creating a SQL statement query which compares with logical 'or' 
+        /// using properties (names-values) of <paramref name="operationTerms"/>,
+        /// under a container in an Azure Cosmos database.
+        /// Property names must match the properties on type <typeparamref name="T"/> serialized by Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="operationTerms">Contains property names and values to include in SQL query.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="AzCosmosResponse{IEnumerable{T}}"/> containing a collection 
+        /// that allows to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<IEnumerable<T>> LazyQueryWithOr<T>(
             dynamic operationTerms,
             string databaseId = null,
@@ -901,6 +1176,22 @@ namespace AzStorage.Repositories
                 partitionKeyPropName);
         }
 
+        /// <summary>
+        /// Query allowing to iterate on demand over items of type <typeparamref name="T"/>, 
+        /// creating a SQL statement query which compares with logical 'or' 
+        /// using properties (names-values) of <paramref name="operationTerms"/>,
+        /// under a container in an Azure Cosmos database.
+        /// Property names must match the properties on type <typeparamref name="T"/> serialized by Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{IEnumerable{T}}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{IEnumerable{T}}" />.</typeparam>
+        /// <param name="operationTerms">Contains property names and values to include in SQL query.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="TOut"/> containing a collection that allows 
+        /// to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual TOut LazyQueryWithOr<T, TOut>(
             dynamic operationTerms,
             string databaseId = null,
@@ -917,6 +1208,17 @@ namespace AzStorage.Repositories
 
         #region QueryWithAnd
 
+        /// <summary>
+        /// Queries items of type <typeparamref name="T"/>, creating a SQL statement query which compares with logical 'and' 
+        /// using properties (names-values) contained in <paramref name="nameValueProperties"/>, under a container in an Azure Cosmos database.
+        /// Property names must match the properties on type <typeparamref name="T"/> serialized by Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="nameValueProperties">Property names and values to include in SQL query.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<List<T>> QueryWithAnd<T>(
             IEnumerable<KeyValuePair<string, string>> nameValueProperties,
             string databaseId = null,
@@ -930,6 +1232,19 @@ namespace AzStorage.Repositories
                 partitionKeyPropName);
         }
 
+        /// <summary>
+        /// Queries items of type <typeparamref name="T"/>, creating a SQL statement query which compares with logical 'and' 
+        /// using properties (names-values) contained in <paramref name="nameValueProperties"/>, under a container in an Azure Cosmos database.
+        /// Property names must match the properties on type <typeparamref name="T"/> serialized by Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{List{T}}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{List{T}}" />.</typeparam>
+        /// <param name="nameValueProperties">Property names and values to include in SQL query.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual TOut QueryWithAnd<T, TOut>(
             IEnumerable<KeyValuePair<string, string>> nameValueProperties,
             string databaseId = null,
@@ -942,6 +1257,17 @@ namespace AzStorage.Repositories
                 databaseId, containerId, partitionKeyPropName);
         }
 
+        /// <summary>
+        /// Queries items of type <typeparamref name="T"/>, creating a SQL statement query which compares with logical 'and' 
+        /// using properties (names-values) of <paramref name="operationTerms"/>, under a container in an Azure Cosmos database.
+        /// Property names must match the properties on type <typeparamref name="T"/> serialized by Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="operationTerms">Contains property names and values to include in SQL query.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<List<T>> QueryWithAnd<T>(
             dynamic operationTerms,
             string databaseId = null,
@@ -955,6 +1281,19 @@ namespace AzStorage.Repositories
                 partitionKeyPropName);
         }
 
+        /// <summary>
+        /// Queries items of type <typeparamref name="T"/>, creating a SQL statement query which compares with logical 'and' 
+        /// using properties (names-values) of <paramref name="operationTerms"/>, under a container in an Azure Cosmos database.
+        /// Property names must match the properties on type <typeparamref name="T"/> serialized by Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{List{T}}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{List{T}}" />.</typeparam>
+        /// <param name="operationTerms">Contains property names and values to include in SQL query.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual TOut QueryWithAnd<T, TOut>(
             dynamic operationTerms,
             string databaseId = null,
@@ -968,9 +1307,23 @@ namespace AzStorage.Repositories
         }
 
         #endregion
-        
+
         #region LazyQueryWithAnd
 
+        /// <summary>
+        /// Query allowing to iterate on demand over items of type <typeparamref name="T"/>, 
+        /// creating a SQL statement query which compares with logical 'and' 
+        /// using properties (names-values) contained in <paramref name="nameValueProperties"/>,
+        /// under a container in an Azure Cosmos database.
+        /// Property names must match the properties on type <typeparamref name="T"/> serialized by Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="nameValueProperties">Property names and values to include in SQL query.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="AzCosmosResponse{IEnumerable{T}}"/> containing a collection 
+        /// that allows to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<IEnumerable<T>> LazyQueryWithAnd<T>(
             IEnumerable<KeyValuePair<string, string>> nameValueProperties,
             string databaseId = null,
@@ -984,6 +1337,22 @@ namespace AzStorage.Repositories
                 partitionKeyPropName);
         }
 
+        /// <summary>
+        /// Query allowing to iterate on demand over items of type <typeparamref name="T"/>, 
+        /// creating a SQL statement query which compares with logical 'and' 
+        /// using properties (names-values) contained in <paramref name="nameValueProperties"/>,
+        /// under a container in an Azure Cosmos database.
+        /// Property names must match the properties on type <typeparamref name="T"/> serialized by Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{IEnumerable{T}}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{IEnumerable{T}}" />.</typeparam>
+        /// <param name="nameValueProperties">Property names and values to include in SQL query.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="TOut"/> containing a collection that allows 
+        /// to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual TOut LazyQueryWithAnd<T, TOut>(
             IEnumerable<KeyValuePair<string, string>> nameValueProperties,
             string databaseId = null,
@@ -996,6 +1365,20 @@ namespace AzStorage.Repositories
                 databaseId, containerId, partitionKeyPropName);
         }
 
+        /// <summary>
+        /// Query allowing to iterate on demand over items of type <typeparamref name="T"/>, 
+        /// creating a SQL statement query which compares with logical 'and' 
+        /// using properties (names-values) of <paramref name="operationTerms"/>,
+        /// under a container in an Azure Cosmos database.
+        /// Property names must match the properties on type <typeparamref name="T"/> serialized by Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="operationTerms">Contains property names and values to include in SQL query.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="AzCosmosResponse{IEnumerable{T}}"/> containing a collection 
+        /// that allows to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<IEnumerable<T>> LazyQueryWithAnd<T>(
             dynamic operationTerms,
             string databaseId = null,
@@ -1009,6 +1392,22 @@ namespace AzStorage.Repositories
                 partitionKeyPropName);
         }
 
+        /// <summary>
+        /// Query allowing to iterate on demand over items of type <typeparamref name="T"/>, 
+        /// creating a SQL statement query which compares with logical 'and' 
+        /// using properties (names-values) of <paramref name="operationTerms"/>,
+        /// under a container in an Azure Cosmos database.
+        /// Property names must match the properties on type <typeparamref name="T"/> serialized by Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{IEnumerable{T}}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{IEnumerable{T}}" />.</typeparam>
+        /// <param name="operationTerms">Contains property names and values to include in SQL query.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="TOut"/> containing a collection that allows 
+        /// to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual TOut LazyQueryWithAnd<T, TOut>(
             dynamic operationTerms,
             string databaseId = null,
@@ -1052,7 +1451,7 @@ namespace AzStorage.Repositories
         /// Updates a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
         /// </summary>
         /// <typeparam name="TIn">A custom model type that inherits from <see cref="BaseCosmosEntity" />.</typeparam>
-        /// <typeparam name="TOut">A custom model type that inherits from <see cref="AzCosmosResponse{TIn}" />.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{TIn}" /> or a custom model type that inherits from <see cref="AzCosmosResponse{TIn}" />.</typeparam>
         /// <param name="entity">The item to update.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="databaseId">The Id of the Cosmos database.</param>
@@ -1078,7 +1477,7 @@ namespace AzStorage.Repositories
         /// <typeparam name="TIn">A custom model type.</typeparam>
         /// <param name="entity">The item to update.</param>
         /// <param name="id">The Cosmos item id.</param>
-        /// <param name="partitionKey">The partition key for the item.</param>
+        /// <param name="partitionKey">The partition key value of the item.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
@@ -1103,7 +1502,7 @@ namespace AzStorage.Repositories
         /// Updates a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
         /// </summary>
         /// <typeparam name="TIn">A custom model type.</typeparam>
-        /// <typeparam name="TOut">A custom model type that inherits from <see cref="AzCosmosResponse{TIn}" />.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{TIn}" /> or a custom model type that inherits from <see cref="AzCosmosResponse{TIn}" />.</typeparam>
         /// <param name="entity">The item to add.</param>
         /// <param name="id">The Cosmos item id.</param>
         /// <param name="partitionKey">The value to use as partition key</param>
@@ -1162,7 +1561,7 @@ namespace AzStorage.Repositories
         /// Upserts a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
         /// </summary>
         /// <typeparam name="TIn">A custom model type that inherits from <see cref="BaseCosmosEntity" />.</typeparam>
-        /// <typeparam name="TOut">A custom model type that inherits from <see cref="AzCosmosResponse{TIn}" />.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{TIn}" /> or a custom model type that inherits from <see cref="AzCosmosResponse{TIn}" />.</typeparam>
         /// <param name="entity">The item to upsert.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="databaseId">The Id of the Cosmos database.</param>
@@ -1187,7 +1586,7 @@ namespace AzStorage.Repositories
         /// </summary>
         /// <typeparam name="TIn">A custom model type.</typeparam>
         /// <param name="entity">The item to upsert.</param>
-        /// <param name="partitionKey">The partition key for the item.</param>
+        /// <param name="partitionKey">The partition key value of the item.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
@@ -1211,7 +1610,7 @@ namespace AzStorage.Repositories
         /// Upserts a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
         /// </summary>
         /// <typeparam name="TIn">A custom model type.</typeparam>
-        /// <typeparam name="TOut">A custom model type that inherits from <see cref="AzCosmosResponse{TIn}" />.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{TIn}" /> or a custom model type that inherits from <see cref="AzCosmosResponse{TIn}" />.</typeparam>
         /// <param name="entity">The item to upsert.</param>
         /// <param name="partitionKey">The value to use as partition key</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
@@ -1243,7 +1642,7 @@ namespace AzStorage.Repositories
         #region Delete async
 
         /// <summary>
-        /// Delete a item of type <typeparamref name="T"/> as an asynchronous operation in the Azure Cosmos service.
+        /// Deletes a item of type <typeparamref name="T"/> as an asynchronous operation in the Azure Cosmos service.
         /// </summary>
         /// <typeparam name="T">A custom model type that inherits from <see cref="BaseCosmosEntity" />.</typeparam>
         /// <param name="entity">The item to delete.</param>
@@ -1264,10 +1663,10 @@ namespace AzStorage.Repositories
         }
 
         /// <summary>
-        /// Delete a item of type <typeparamref name="T"/> as an asynchronous operation in the Azure Cosmos service.
+        /// Deletes a item of type <typeparamref name="T"/> as an asynchronous operation in the Azure Cosmos service.
         /// </summary>
         /// <typeparam name="T">A custom model type that inherits from <see cref="BaseCosmosEntity" />.</typeparam>
-        /// <typeparam name="TOut">A custom model type that inherits from <see cref="AzCosmosResponse{T}" />.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{T}" /> or a custom model type that inherits from <see cref="AzCosmosResponse{T}" />.</typeparam>
         /// <param name="entity">The item to delete.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="databaseId">The Id of the Cosmos database.</param>
@@ -1288,11 +1687,11 @@ namespace AzStorage.Repositories
         }
 
         /// <summary>
-        /// Delete a item of type <typeparamref name="T"/> as an asynchronous operation in the Azure Cosmos service.
+        /// Deletes a item of type <typeparamref name="T"/> as an asynchronous operation in the Azure Cosmos service.
         /// </summary>
         /// <typeparam name="T">A custom model type.</typeparam>
         /// <param name="id">The Cosmos item id.</param>
-        /// <param name="partitionKey">The partition key for the item.</param>
+        /// <param name="partitionKey">The partition key value of the item.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
@@ -1313,12 +1712,12 @@ namespace AzStorage.Repositories
         }
 
         /// <summary>
-        /// Delete a item of type <typeparamref name="T"/> as an asynchronous operation in the Azure Cosmos service.
+        /// Deletes a item of type <typeparamref name="T"/> as an asynchronous operation in the Azure Cosmos service.
         /// </summary>
         /// <typeparam name="T">A custom model type.</typeparam>
-        /// <typeparam name="TOut">A custom model type that inherits from <see cref="AzCosmosResponse{T}" />.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{T}" /> or a custom model type that inherits from <see cref="AzCosmosResponse{T}" />.</typeparam>
         /// <param name="id">The Cosmos item id.</param>
-        /// <param name="partitionKey">The partition key for the item.</param>
+        /// <param name="partitionKey">The partition key value of the item.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
