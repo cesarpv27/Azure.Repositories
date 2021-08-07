@@ -406,9 +406,9 @@ namespace AzStorage.Repositories
         /// <typeparam name="TIn">A custom model type that inherits from <see cref="BaseCosmosEntity" />.</typeparam>
         /// <param name="entity">The item to add.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
-        /// <param name="databaseId">The Id of the Cosmos database</param>
-        /// <param name="containerId">The Id of the Cosmos container</param>
-        /// <returns>The <see cref="AzCosmosResponse<TIn>"/> indicating the result of the operation, that was created 
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <returns>The <see cref="AzCosmosResponse{TIn}"/> indicating the result of the operation, that was created 
         /// contained within a System.Threading.Tasks.Task object representing the service response 
         /// for the asynchronous operation.
         /// </returns>
@@ -425,11 +425,11 @@ namespace AzStorage.Repositories
         /// Adds a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
         /// </summary>
         /// <typeparam name="TIn">A custom model type that inherits from <see cref="BaseCosmosEntity" />.</typeparam>
-        /// <typeparam name="TOut">A custom model type that inherits from <see cref="AzCosmosResponse<TIn>" />.</typeparam>
+        /// <typeparam name="TOut">A custom model type that inherits from <see cref="AzCosmosResponse{TIn}" />.</typeparam>
         /// <param name="entity">The item to add.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
-        /// <param name="databaseId">The Id of the Cosmos database</param>
-        /// <param name="containerId">The Id of the Cosmos container</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <returns>The <see cref="TOut"/> indicating the result of the operation, that was created 
         /// contained within a System.Threading.Tasks.Task object representing the service response 
         /// for the asynchronous operation.
@@ -450,12 +450,12 @@ namespace AzStorage.Repositories
         /// </summary>
         /// <typeparam name="TIn">A custom model type.</typeparam>
         /// <param name="entity">The item to add.</param>
-        /// <param name="partitionKey">The value to use as partition key</param>
+        /// <param name="partitionKey">The value to use as partition key.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
-        /// <param name="databaseId">The Id of the Cosmos database</param>
-        /// <param name="containerId">The Id of the Cosmos container</param>
-        /// <param name="partitionKeyPropName">The path to the partition key. Example: /location</param>
-        /// <returns>The <see cref="AzCosmosResponse<TIn>"/> indicating the result of the operation, that was created 
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>The <see cref="AzCosmosResponse{TIn}"/> indicating the result of the operation, that was created 
         /// contained within a System.Threading.Tasks.Task object representing the service response 
         /// for the asynchronous operation.
         /// </returns>
@@ -474,13 +474,13 @@ namespace AzStorage.Repositories
         /// Adds a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
         /// </summary>
         /// <typeparam name="TIn">A custom model type.</typeparam>
-        /// <typeparam name="TOut">A custom model type that inherits from <see cref="AzCosmosResponse<TIn>" />.</typeparam>
+        /// <typeparam name="TOut">A custom model type that inherits from <see cref="AzCosmosResponse{TIn}" />.</typeparam>
         /// <param name="entity">The item to add.</param>
         /// <param name="partitionKey">The value to use as partition key</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="databaseId">The Id of the Cosmos database</param>
         /// <param name="containerId">The Id of the Cosmos container</param>
-        /// <param name="partitionKeyPropName">The path to the partition key. Example: /location</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
         /// <returns>The <see cref="TOut"/> indicating the result of the operation, that was created 
         /// contained within a System.Threading.Tasks.Task object representing the service response 
         /// for the asynchronous operation.
@@ -505,6 +505,21 @@ namespace AzStorage.Repositories
 
         #region Get async
 
+        /// <summary>
+        /// Reads a item of type <typeparamref name="T"/> from the Azure Cosmos service as an asynchronous operation.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="partitionKey">The partition key for the item.</param>
+        /// <param name="id">The Cosmos item id.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>The <see cref="AzCosmosResponse{T}"/> indicating the result of the operation and containing 
+        /// a item of type <typeparamref name="T"/>. That response was created 
+        /// contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.
+        /// </returns>
         public virtual async Task<AzCosmosResponse<T>> GetEntityByIdAsync<T>(string partitionKey,
             string id,
             CancellationToken cancellationToken = default,
@@ -515,7 +530,23 @@ namespace AzStorage.Repositories
             return await GetEntityByIdAsync<T, AzCosmosResponse<T>>(partitionKey,
                 id, cancellationToken, databaseId, containerId, partitionKeyPropName);
         }
-        
+
+        /// <summary>
+        /// Reads a item of type <typeparamref name="T"/> from the Azure Cosmos service as an asynchronous operation.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A custom model type that inherits from <see cref="AzCosmosResponse{T}" />.</typeparam>
+        /// <param name="partitionKey">The partition key for the item.</param>
+        /// <param name="id">The Cosmos item id.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>The <see cref="TOut"/> indicating the result of the operation and containing 
+        /// a item of type <typeparamref name="T"/>. That response was created 
+        /// contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.
+        /// </returns>
         public virtual async Task<TOut> GetEntityByIdAsync<T, TOut>(string partitionKey, 
             string id,
             CancellationToken cancellationToken = default,
@@ -996,6 +1027,18 @@ namespace AzStorage.Repositories
 
         #region Update async
 
+        /// <summary>
+        /// Updates a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model type that inherits from <see cref="BaseCosmosEntity" />.</typeparam>
+        /// <param name="entity">The item to update.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <returns>The <see cref="AzCosmosResponse{TIn}>"/> indicating the result of the operation, that was created 
+        /// contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.
+        /// </returns>
         public virtual async Task<AzCosmosResponse<TIn>> UpdateEntityAsync<TIn>(TIn entity,
             CancellationToken cancellationToken = default,
             string databaseId = null,
@@ -1005,6 +1048,19 @@ namespace AzStorage.Repositories
                 cancellationToken, databaseId, containerId);
         }
 
+        /// <summary>
+        /// Updates a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model type that inherits from <see cref="BaseCosmosEntity" />.</typeparam>
+        /// <typeparam name="TOut">A custom model type that inherits from <see cref="AzCosmosResponse{TIn}" />.</typeparam>
+        /// <param name="entity">The item to update.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <returns>The <see cref="TOut>"/> indicating the result of the operation, that was created 
+        /// contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.
+        /// </returns>
         public virtual async Task<TOut> UpdateEntityAsync<TIn, TOut>(TIn entity,
             CancellationToken cancellationToken = default,
             string databaseId = null,
@@ -1016,6 +1072,21 @@ namespace AzStorage.Repositories
                 cancellationToken, databaseId, containerId, GetConsolidatedDefaultCosmosPartitionKeyPath(containerId));
         }
 
+        /// <summary>
+        /// Updates a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model type.</typeparam>
+        /// <param name="entity">The item to update.</param>
+        /// <param name="id">The Cosmos item id.</param>
+        /// <param name="partitionKey">The partition key for the item.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>The <see cref="AzCosmosResponse{TIn}>"/> indicating the result of the operation, that was created 
+        /// contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.
+        /// </returns>
         public virtual async Task<AzCosmosResponse<TIn>> UpdateEntityAsync<TIn>(TIn entity,
             string id,
             string partitionKey,
@@ -1028,6 +1099,22 @@ namespace AzStorage.Repositories
                 cancellationToken, databaseId, containerId, partitionKeyPropName);
         }
 
+        /// <summary>        
+        /// Updates a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A custom model type that inherits from <see cref="AzCosmosResponse{TIn}" />.</typeparam>
+        /// <param name="entity">The item to add.</param>
+        /// <param name="id">The Cosmos item id.</param>
+        /// <param name="partitionKey">The value to use as partition key</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database</param>
+        /// <param name="containerId">The Id of the Cosmos container</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>The <see cref="TOut"/> indicating the result of the operation, that was created 
+        /// contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.
+        /// </returns>
         public virtual async Task<TOut> UpdateEntityAsync<TIn, TOut>(TIn entity,
             string id,
             string partitionKey,
@@ -1050,6 +1137,18 @@ namespace AzStorage.Repositories
 
         #region Upsert async
 
+        /// <summary>
+        /// Upserts a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model type that inherits from <see cref="BaseCosmosEntity" />.</typeparam>
+        /// <param name="entity">The item to upsert.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <returns>The <see cref="AzCosmosResponse{TIn}>"/> indicating the result of the operation, that was created 
+        /// contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.
+        /// </returns>
         public virtual async Task<AzCosmosResponse<TIn>> UpsertEntityAsync<TIn>(TIn entity,
             CancellationToken cancellationToken = default,
             string databaseId = null,
@@ -1059,6 +1158,19 @@ namespace AzStorage.Repositories
                 databaseId, containerId);
         }
 
+        /// <summary>
+        /// Upserts a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model type that inherits from <see cref="BaseCosmosEntity" />.</typeparam>
+        /// <typeparam name="TOut">A custom model type that inherits from <see cref="AzCosmosResponse{TIn}" />.</typeparam>
+        /// <param name="entity">The item to upsert.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <returns>The <see cref="TOut>"/> indicating the result of the operation, that was created 
+        /// contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.
+        /// </returns>
         public virtual async Task<TOut> UpsertEntityAsync<TIn, TOut>(TIn entity,
             CancellationToken cancellationToken = default,
             string databaseId = null,
@@ -1070,6 +1182,20 @@ namespace AzStorage.Repositories
                 databaseId, containerId, GetConsolidatedDefaultCosmosPartitionKeyPath(containerId));
         }
 
+        /// <summary>
+        /// Upserts a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model type.</typeparam>
+        /// <param name="entity">The item to upsert.</param>
+        /// <param name="partitionKey">The partition key for the item.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>The <see cref="AzCosmosResponse{TIn}>"/> indicating the result of the operation, that was created 
+        /// contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.
+        /// </returns>
         public virtual async Task<AzCosmosResponse<TIn>> UpsertEntityAsync<TIn>(TIn entity,
             string partitionKey,
             CancellationToken cancellationToken = default,
@@ -1080,7 +1206,22 @@ namespace AzStorage.Repositories
             return await UpsertEntityAsync<TIn, AzCosmosResponse<TIn>>(entity, partitionKey, cancellationToken,
                 databaseId, containerId, partitionKeyPropName);
         }
-        
+
+        /// <summary>
+        /// Upserts a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A custom model type that inherits from <see cref="AzCosmosResponse{TIn}" />.</typeparam>
+        /// <param name="entity">The item to upsert.</param>
+        /// <param name="partitionKey">The value to use as partition key</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database</param>
+        /// <param name="containerId">The Id of the Cosmos container</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>The <see cref="TOut"/> indicating the result of the operation, that was created 
+        /// contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.
+        /// </returns>
         public virtual async Task<TOut> UpsertEntityAsync<TIn, TOut>(TIn entity,
             string partitionKey,
             CancellationToken cancellationToken = default,
@@ -1100,7 +1241,19 @@ namespace AzStorage.Repositories
         #endregion
 
         #region Delete async
-        
+
+        /// <summary>
+        /// Delete a item of type <typeparamref name="T"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type that inherits from <see cref="BaseCosmosEntity" />.</typeparam>
+        /// <param name="entity">The item to delete.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <returns>The <see cref="AzCosmosResponse{T}>"/> indicating the result of the operation, that was created 
+        /// contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.
+        /// </returns>
         public virtual async Task<AzCosmosResponse<T>> DeleteEntityAsync<T>(T entity,
             CancellationToken cancellationToken = default,
             string databaseId = null,
@@ -1109,7 +1262,20 @@ namespace AzStorage.Repositories
             return await DeleteEntityAsync<T, AzCosmosResponse<T>>(entity, cancellationToken,
                 databaseId, containerId);
         }
-        
+
+        /// <summary>
+        /// Delete a item of type <typeparamref name="T"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type that inherits from <see cref="BaseCosmosEntity" />.</typeparam>
+        /// <typeparam name="TOut">A custom model type that inherits from <see cref="AzCosmosResponse{T}" />.</typeparam>
+        /// <param name="entity">The item to delete.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <returns>The <see cref="TOut>"/> indicating the result of the operation, that was created 
+        /// contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.
+        /// </returns>
         public virtual async Task<TOut> DeleteEntityAsync<T, TOut>(T entity,
             CancellationToken cancellationToken = default,
             string databaseId = null,
@@ -1120,7 +1286,21 @@ namespace AzStorage.Repositories
             return await DeleteEntityAsync<T, TOut>(entity.Id, entity.PartitionKey, cancellationToken,
                 databaseId, containerId, GetConsolidatedDefaultCosmosPartitionKeyPath(containerId));
         }
-        
+
+        /// <summary>
+        /// Delete a item of type <typeparamref name="T"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="id">The Cosmos item id.</param>
+        /// <param name="partitionKey">The partition key for the item.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>The <see cref="AzCosmosResponse{T}>"/> indicating the result of the operation, that was created 
+        /// contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.
+        /// </returns>
         public virtual async Task<AzCosmosResponse<T>> DeleteEntityAsync<T>(string id,
             string partitionKey,
             CancellationToken cancellationToken = default,
@@ -1131,7 +1311,22 @@ namespace AzStorage.Repositories
             return await DeleteEntityAsync<T, AzCosmosResponse<T>>(id, partitionKey, cancellationToken,
                 databaseId, containerId, partitionKeyPropName);
         }
-        
+
+        /// <summary>
+        /// Delete a item of type <typeparamref name="T"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A custom model type that inherits from <see cref="AzCosmosResponse{T}" />.</typeparam>
+        /// <param name="id">The Cosmos item id.</param>
+        /// <param name="partitionKey">The partition key for the item.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>The <see cref="AzCosmosResponse{T}>"/> indicating the result of the operation, that was created 
+        /// contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.
+        /// </returns>
         public virtual async Task<TOut> DeleteEntityAsync<T, TOut>(string id,
             string partitionKey,
             CancellationToken cancellationToken = default,
