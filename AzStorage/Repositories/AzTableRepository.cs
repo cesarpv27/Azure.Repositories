@@ -335,7 +335,7 @@ namespace AzStorage.Repositories
         /// <param name="entities">The entities to add.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="TIn"/> will be taken as table name.</param>
-        /// <returns>A collection containing responses of type <see cref="AzStorageResponse"/> with information about each batch execution.</returns>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse{IReadOnlyList{Response}}"/> with information about each batch execution.</returns>
         public virtual async Task<List<AzStorageResponse<IReadOnlyList<Response>>>> AddEntitiesTransactionallyAsync<TIn>(
             IEnumerable<TIn> entities,
             CancellationToken cancellationToken = default,
@@ -362,7 +362,7 @@ namespace AzStorage.Repositories
         /// <param name="rowKey">The row key that identifies the table entity.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="TIn"/> will be taken as table name.</param>
-        /// <returns>A <see cref="AzStorageResponse"/> indicating the result of the operation.</returns>
+        /// <returns>A <see cref="AzStorageResponse{T}"/> indicating the result of the operation.</returns>
         public virtual AzStorageResponse<T> GetEntity<T>(string partitionKey, string rowKey,
             CancellationToken cancellationToken = default,
             string tableName = default) where T : class, ITableEntity, new()
@@ -383,8 +383,8 @@ namespace AzStorage.Repositories
         /// <param name="partitionKey">The partition key that identifies the table entity.</param>
         /// <param name="rowKey">The row key that identifies the table entity.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
-        /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="TIn"/> will be taken as table name.</param>
-        /// <returns>A <see cref="AzStorageResponse"/> indicating the result of the operation.</returns>
+        /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
+        /// <returns>A <see cref="AzStorageResponse{T}"/> indicating the result of the operation.</returns>
         public virtual async Task<AzStorageResponse<T>> GetEntityAsync<T>(string partitionKey, string rowKey,
             CancellationToken cancellationToken = default,
             string tableName = default) where T : class, ITableEntity, new()
@@ -405,7 +405,7 @@ namespace AzStorage.Repositories
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="take">Amount of entities to take in response. This value must be greater than zero.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
-        /// <returns>A <see cref="AzStorageResponse"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
+        /// <returns>A <see cref="AzStorageResponse{List{T}}"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
         public virtual AzStorageResponse<List<T>> QueryAll<T>(
             CancellationToken cancellationToken = default,
             int take = int.MaxValue,
@@ -424,7 +424,7 @@ namespace AzStorage.Repositories
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="take">Amount of entities to take in response. This value must be greater than zero.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
-        /// <returns>A <see cref="AzStorageResponse"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
+        /// <returns>A <see cref="AzStorageResponse{List{T}}"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
         public virtual AzStorageResponse<List<T>> QueryByPartitionKey<T>(
             string partitionKey,
             CancellationToken cancellationToken = default,
@@ -444,7 +444,7 @@ namespace AzStorage.Repositories
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="take">Amount of entities to take in response. This value must be greater than zero.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
-        /// <returns>A <see cref="AzStorageResponse"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
+        /// <returns>A <see cref="AzStorageResponse{List{T}}"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
         public virtual AzStorageResponse<List<T>> QueryByPartitionKeyStartPattern<T>(
             string startPattern,
             CancellationToken cancellationToken = default,
@@ -464,7 +464,7 @@ namespace AzStorage.Repositories
         /// <param name="rowKey">The row key that identifies the table entity.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
-        /// <returns>A <see cref="AzStorageResponse"/> indicating the result of the operation.</returns>
+        /// <returns>A <see cref="AzStorageResponse{T}"/> indicating the result of the operation.</returns>
         public virtual AzStorageResponse<T> QueryByPartitionKeyRowKey<T>(
             string partitionKey,
             string rowKey,
@@ -485,7 +485,7 @@ namespace AzStorage.Repositories
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="take">Amount of entities to take in response. This value must be greater than zero.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
-        /// <returns>A <see cref="AzStorageResponse"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
+        /// <returns>A <see cref="AzStorageResponse{List{T}}"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
         public virtual AzStorageResponse<List<T>> QueryByPartitionKeyRowKeyStartPattern<T>(
             string partitionKey,
             string rowKeyStartPattern,
@@ -507,7 +507,7 @@ namespace AzStorage.Repositories
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="take">Amount of entities to take in response. This value must be greater than zero.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
-        /// <returns>A <see cref="AzStorageResponse"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
+        /// <returns>A <see cref="AzStorageResponse{List{T}}"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
         public virtual AzStorageResponse<List<T>> QueryByPartitionKeyStartPatternRowKeyStartPattern<T>(
             string partitionKeyStartPattern,
             string rowKeyStartPattern,
@@ -529,7 +529,7 @@ namespace AzStorage.Repositories
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="take">Amount of entities to take in response. This value must be greater than zero.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
-        /// <returns>A <see cref="AzStorageResponse"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
+        /// <returns>A <see cref="AzStorageResponse{List{T}}"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
         public virtual AzStorageResponse<List<T>> QueryByTimestamp<T>(
             DateTime timeStampFrom,
             DateTime timeStampTo,
@@ -552,7 +552,7 @@ namespace AzStorage.Repositories
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="take">Amount of entities to take in response. This value must be greater than zero.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
-        /// <returns>A <see cref="AzStorageResponse"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
+        /// <returns>A <see cref="AzStorageResponse{List{T}}"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
         public virtual AzStorageResponse<List<T>> QueryByPartitionKeyTimestamp<T>(
             string partitionKey,
             DateTime timeStampFrom,
@@ -577,7 +577,7 @@ namespace AzStorage.Repositories
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="take">Amount of entities to take in response. This value must be greater than zero.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
-        /// <returns>A <see cref="AzStorageResponse"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
+        /// <returns>A <see cref="AzStorageResponse{List{T}}"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
         public virtual async Task<AzStorageResponse<List<T>>> QueryAllAsync<T>(
             CancellationToken cancellationToken = default,
             int take = int.MaxValue,
@@ -596,7 +596,7 @@ namespace AzStorage.Repositories
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="take">Amount of entities to take in response. This value must be greater than zero.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
-        /// <returns>A <see cref="AzStorageResponse"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
+        /// <returns>A <see cref="AzStorageResponse{List{T}}"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
         public virtual async Task<AzStorageResponse<List<T>>> QueryByPartitionKeyAsync<T>(
             string partitionKey,
             CancellationToken cancellationToken = default,
@@ -616,7 +616,7 @@ namespace AzStorage.Repositories
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="take">Amount of entities to take in response. This value must be greater than zero.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
-        /// <returns>A <see cref="AzStorageResponse"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
+        /// <returns>A <see cref="AzStorageResponse{List{T}}"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
         public virtual async Task<AzStorageResponse<List<T>>> QueryByPartitionKeyStartPatternAsync<T>(
             string startPattern,
             CancellationToken cancellationToken = default,
@@ -636,7 +636,7 @@ namespace AzStorage.Repositories
         /// <param name="rowKey">The row key that identifies the table entity.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
-        /// <returns>A <see cref="AzStorageResponse"/> indicating the result of the operation.</returns>
+        /// <returns>A <see cref="AzStorageResponse{T}"/> indicating the result of the operation.</returns>
         public virtual async Task<AzStorageResponse<T>> QueryByPartitionKeyRowKeyAsync<T>(
             string partitionKey,
             string rowKey,
@@ -657,7 +657,7 @@ namespace AzStorage.Repositories
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="take">Amount of entities to take in response. This value must be greater than zero.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
-        /// <returns>A <see cref="AzStorageResponse"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
+        /// <returns>A <see cref="AzStorageResponse{List{T}}"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
         public virtual async Task<AzStorageResponse<List<T>>> QueryByPartitionKeyRowKeyStartPatternAsync<T>(
             string partitionKey,
             string rowKeyStartPattern,
@@ -679,7 +679,7 @@ namespace AzStorage.Repositories
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="take">Amount of entities to take in response. This value must be greater than zero.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
-        /// <returns>A <see cref="AzStorageResponse"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
+        /// <returns>A <see cref="AzStorageResponse{List{T}}"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
         public virtual async Task<AzStorageResponse<List<T>>> QueryByPartitionKeyStartPatternRowKeyStartPatternAsync<T>(
             string partitionKeyStartPattern,
             string rowKeyStartPattern,
@@ -701,7 +701,7 @@ namespace AzStorage.Repositories
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="take">Amount of entities to take in response. This value must be greater than zero.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
-        /// <returns>A <see cref="AzStorageResponse"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
+        /// <returns>A <see cref="AzStorageResponse{List{T}}"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
         public virtual async Task<AzStorageResponse<List<T>>> QueryByTimestampAsync<T>(
             DateTime timeStampFrom,
             DateTime timeStampTo,
@@ -724,7 +724,7 @@ namespace AzStorage.Repositories
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="take">Amount of entities to take in response. This value must be greater than zero.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
-        /// <returns>A <see cref="AzStorageResponse"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
+        /// <returns>A <see cref="AzStorageResponse{List{T}}"/> containing a collection of entity models serialized as type <typeparamref name="T"/>.</returns>
         public virtual async Task<AzStorageResponse<List<T>>> QueryByPartitionKeyTimestampAsync<T>(
             string partitionKey,
             DateTime timeStampFrom,
@@ -800,7 +800,7 @@ namespace AzStorage.Repositories
         /// <param name="mode">Determines the behavior of the Update operation.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="TIn"/> will be taken as table name.</param>
-        /// <returns>A collection containing responses of type <see cref="AzStorageResponse"/> with information about each batch execution.</returns>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse{IReadOnlyList{Response}}"/> with information about each batch execution.</returns>
         public virtual List<AzStorageResponse<IReadOnlyList<Response>>> UpdateEntitiesTransactionally<TIn>(
             IEnumerable<TIn> entities,
             TableUpdateMode mode = TableUpdateMode.Merge,
@@ -878,7 +878,7 @@ namespace AzStorage.Repositories
         /// <param name="mode">Determines the behavior of the Update operation.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="TIn"/> will be taken as table name.</param>
-        /// <returns>A collection containing responses of type <see cref="AzStorageResponse"/> with information about each batch execution.</returns>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse{IReadOnlyList{Response}}"/> with information about each batch execution.</returns>
         public virtual async Task<List<AzStorageResponse<IReadOnlyList<Response>>>> UpdateEntitiesTransactionallyAsync<TIn>(
             IEnumerable<TIn> entities,
             TableUpdateMode mode = TableUpdateMode.Merge,
@@ -956,7 +956,7 @@ namespace AzStorage.Repositories
         /// <param name="mode">Determines the behavior of the update operation when the entity already exists in the table.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="TIn"/> will be taken as table name.</param>
-        /// <returns>A collection containing responses of type <see cref="AzStorageResponse"/> with information about each batch execution.</returns>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse{IReadOnlyList{Response}}"/> with information about each batch execution.</returns>
         public virtual List<AzStorageResponse<IReadOnlyList<Response>>> UpsertEntitiesTransactionally<TIn>(IEnumerable<TIn> entities,
             TableUpdateMode mode = TableUpdateMode.Merge,
             CancellationToken cancellationToken = default,
@@ -1033,7 +1033,7 @@ namespace AzStorage.Repositories
         /// <param name="mode">Determines the behavior of the update operation when the entity already exists in the table.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="TIn"/> will be taken as table name.</param>
-        /// <returns>A collection containing responses of type <see cref="AzStorageResponse"/> with information about each batch execution.</returns>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse{IReadOnlyList{Response}}"/> with information about each batch execution.</returns>
         public virtual async Task<List<AzStorageResponse<IReadOnlyList<Response>>>> UpsertEntitiesTransactionallyAsync<TIn>(IEnumerable<TIn> entities,
             TableUpdateMode mode = TableUpdateMode.Merge,
             CancellationToken cancellationToken = default,
@@ -1207,7 +1207,7 @@ namespace AzStorage.Repositories
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
         /// <param name="amount">Number of entities to delete</param>
-        /// <returns>A collection containing responses of type <see cref="AzStorageResponse"/> with information about each batch execution.</returns>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse{IReadOnlyList{Response}}"/> with information about each batch execution.</returns>
         public virtual List<AzStorageResponse<IReadOnlyList<Response>>> DeleteEntitiesByPartitionKey<T>(
             string partitionKey,
             CancellationToken cancellationToken = default,
@@ -1227,7 +1227,7 @@ namespace AzStorage.Repositories
         /// <param name="tableName">The table name to execute the operation.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="amount">Number of entities to delete</param>
-        /// <returns>A collection containing responses of type <see cref="AzStorageResponse"/> with information about each batch execution.</returns>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse{IReadOnlyList{Response}}"/> with information about each batch execution.</returns>
         public virtual List<AzStorageResponse<IReadOnlyList<Response>>> DeleteEntitiesByPartitionKey(
             string partitionKey,
             string tableName,
@@ -1250,7 +1250,7 @@ namespace AzStorage.Repositories
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
         /// <param name="amount">Number of entities to delete</param>
-        /// <returns>A collection containing responses of type <see cref="AzStorageResponse"/> with information about each batch execution.</returns>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse{IReadOnlyList{Response}}"/> with information about each batch execution.</returns>
         public virtual List<AzStorageResponse<IReadOnlyList<Response>>> DeleteEntitiesByPartitionKeyStartPattern<T>(
             string partitionKeyStartPattern,
             CancellationToken cancellationToken = default,
@@ -1294,7 +1294,7 @@ namespace AzStorage.Repositories
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
         /// <param name="amount">Number of entities to delete</param>
-        /// <returns>A collection containing responses of type <see cref="AzStorageResponse"/> with information about each batch execution.</returns>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse{IReadOnlyList{Response}}"/> with information about each batch execution.</returns>
         public virtual List<AzStorageResponse<IReadOnlyList<Response>>> DeleteEntitiesByPartitionKeyRowKeyStartPattern<T>(
             string partitionKey,
             string rowKeyStartPattern,
@@ -1316,7 +1316,7 @@ namespace AzStorage.Repositories
         /// <param name="tableName">The table name to execute the operation.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="amount">Number of entities to delete</param>
-        /// <returns>A collection containing responses of type <see cref="AzStorageResponse"/> with information about each batch execution.</returns>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse{IReadOnlyList{Response}}"/> with information about each batch execution.</returns>
         public virtual List<AzStorageResponse<IReadOnlyList<Response>>> DeleteEntitiesByPartitionKeyRowKeyStartPattern(
             string partitionKey,
             string rowKeyStartPattern,
@@ -1339,7 +1339,7 @@ namespace AzStorage.Repositories
         /// <param name="entities">The entities to delete.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
-        /// <returns>A collection containing responses of type <see cref="AzStorageResponse"/> with information about each batch execution.</returns>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse{IReadOnlyList{Response}}"/> with information about each batch execution.</returns>
         public virtual List<AzStorageResponse<IReadOnlyList<Response>>> DeleteEntitiesTransactionally<T>(IEnumerable<T> entities,
             CancellationToken cancellationToken = default,
             string tableName = default) where T : class, ITableEntity, new()
@@ -1360,7 +1360,7 @@ namespace AzStorage.Repositories
         /// <typeparam name="T">A custom model type that implements <see cref="ITableEntity" /> or an instance of <see cref="TableEntity"/>.</typeparam>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
-        /// <returns>A collection containing responses of type <see cref="AzStorageResponse"/> with information about each batch execution.</returns>
+        /// <returns>A collection containing responses of type <see cref="AzStorageRespons{IReadOnlyList{Response}}e"/> with information about each batch execution.</returns>
         public virtual List<AzStorageResponse<IReadOnlyList<Response>>> ClearTable<T>(
             CancellationToken cancellationToken = default,
             string tableName = default) where T : class, ITableEntity, new()
@@ -1376,7 +1376,7 @@ namespace AzStorage.Repositories
         /// </summary>
         /// <param name="tableName">The table name to execute the operation.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
-        /// <returns>A collection containing responses of type <see cref="AzStorageResponse"/> with information about each batch execution.</returns>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse{IReadOnlyList{Response}}"/> with information about each batch execution.</returns>
         public virtual List<AzStorageResponse<IReadOnlyList<Response>>> ClearTable(
             string tableName,
             CancellationToken cancellationToken = default)
@@ -1564,7 +1564,7 @@ namespace AzStorage.Repositories
         /// <param name="entities">The entities to delete.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="tableName">The table name to execute the operation. If <paramref name="tableName"/> is null or empty, the name of type <typeparamref name="T"/> will be taken as table name.</param>
-        /// <returns>A collection containing responses of type <see cref="AzStorageResponse"/> with information about each batch execution.</returns>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse{IReadOnlyList{Response}}"/> with information about each batch execution.</returns>
         public virtual async Task<List<AzStorageResponse<IReadOnlyList<Response>>>> DeleteEntitiesTransactionallyAsync<T>(IEnumerable<T> entities,
             CancellationToken cancellationToken = default,
             string tableName = default) where T : class, ITableEntity, new()
