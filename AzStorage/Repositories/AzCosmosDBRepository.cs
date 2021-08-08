@@ -398,6 +398,101 @@ namespace AzStorage.Repositories
 
         #endregion
 
+        #region Add
+
+        /// <summary>
+        /// Adds a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model type that inherits from <see cref="BaseCosmosEntity" />.</typeparam>
+        /// <param name="entity">The item to add.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <returns>The <see cref="AzCosmosResponse{TIn}"/> indicating the result of the operation.</returns>
+        public virtual AzCosmosResponse<TIn> AddEntity<TIn>(TIn entity,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null) where TIn : BaseCosmosEntity
+        {
+            return AddEntity<TIn, AzCosmosResponse<TIn>>(entity, cancellationToken, databaseId,
+                containerId);
+        }
+
+        /// <summary>
+        /// Adds a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model type that inherits from <see cref="BaseCosmosEntity" />.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{TIn}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{TIn}" />.</typeparam>
+        /// <param name="entity">The item to add.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <returns>The <see cref="TOut"/> indicating the result of the operation.</returns>
+        public virtual TOut AddEntity<TIn, TOut>(TIn entity,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null) where TIn : BaseCosmosEntity where TOut : AzCosmosResponse<TIn>, new()
+        {
+            ThrowIfInvalidEntity(entity);
+
+            return AddEntity<TIn, TOut>(entity, entity.PartitionKey, cancellationToken, databaseId,
+                containerId, GetConsolidatedDefaultCosmosPartitionKeyPath(containerId));
+        }
+
+        /// <summary>
+        /// Adds a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model type.</typeparam>
+        /// <param name="entity">The item to add.</param>
+        /// <param name="partitionKey">The value to use as partition key.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>The <see cref="AzCosmosResponse{TIn}"/> indicating the result of the operation.</returns>
+        public virtual AzCosmosResponse<TIn> AddEntity<TIn>(TIn entity,
+            string partitionKey,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return AddEntity<TIn, AzCosmosResponse<TIn>>(entity, partitionKey, cancellationToken, databaseId,
+                containerId, partitionKeyPropName);
+        }
+
+        /// <summary>
+        /// Adds a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{TIn}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{TIn}" />.</typeparam>
+        /// <param name="entity">The item to add.</param>
+        /// <param name="partitionKey">The value to use as partition key</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database</param>
+        /// <param name="containerId">The Id of the Cosmos container</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>The <see cref="TOut"/> indicating the result of the operation.</returns>
+        public virtual TOut AddEntity<TIn, TOut>(TIn entity,
+            string partitionKey,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<TIn>, new()
+        {
+            return AddEntityAsync<TIn, TOut>(
+                entity,
+                partitionKey,
+                cancellationToken,
+                databaseId,
+                containerId,
+                partitionKeyPropName).WaitAndUnwrapException();
+        }
+
+        #endregion
+
         #region Add async
 
         /// <summary>
@@ -501,6 +596,63 @@ namespace AzStorage.Repositories
             return await CosmosFuncHelper.ExecuteAsync<TIn, PartitionKey?, ItemRequestOptions, CancellationToken, ItemResponse<TIn>, TOut, TIn>(
                 Container.CreateItemAsync,
                 entity, new PartitionKey(partitionKey), default, cancellationToken);
+        }
+
+        #endregion
+
+        #region Get
+
+        /// <summary>
+        /// Reads a item of type <typeparamref name="T"/> from the Azure Cosmos service as an asynchronous operation.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="partitionKey">The partition key value of the item.</param>
+        /// <param name="id">The Cosmos item id.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>The <see cref="AzCosmosResponse{T}"/> indicating the result of the operation and containing 
+        /// a item of type <typeparamref name="T"/>.</returns>
+        public virtual AzCosmosResponse<T> GetEntityById<T>(string partitionKey,
+            string id,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return GetEntityById<T, AzCosmosResponse<T>>(partitionKey,
+                id, cancellationToken, databaseId, containerId, partitionKeyPropName);
+        }
+
+        /// <summary>
+        /// Reads a item of type <typeparamref name="T"/> from the Azure Cosmos service as an asynchronous operation.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{T}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{T}" />.</typeparam>
+        /// <param name="partitionKey">The partition key value of the item.</param>
+        /// <param name="id">The Cosmos item id.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>The <see cref="TOut"/> indicating the result of the operation and containing 
+        /// a item of type <typeparamref name="T"/>.</returns>
+        public virtual TOut GetEntityById<T, TOut>(string partitionKey,
+            string id,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<T>, new()
+        {
+            return GetEntityByIdAsync<T, TOut>(
+                partitionKey,
+                id,
+                cancellationToken,
+                databaseId,
+                containerId,
+                partitionKeyPropName).WaitAndUnwrapException();
         }
 
         #endregion
@@ -1424,6 +1576,104 @@ namespace AzStorage.Repositories
 
         #endregion
 
+        #region Update
+
+        /// <summary>
+        /// Updates a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model type that inherits from <see cref="BaseCosmosEntity" />.</typeparam>
+        /// <param name="entity">The item to update.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <returns>The <see cref="AzCosmosResponse{TIn}>"/> indicating the result of the operation.</returns>
+        public virtual AzCosmosResponse<TIn> UpdateEntity<TIn>(TIn entity,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null) where TIn : BaseCosmosEntity
+        {
+            return UpdateEntity<TIn, AzCosmosResponse<TIn>>(entity,
+                cancellationToken, databaseId, containerId);
+        }
+
+        /// <summary>
+        /// Updates a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model type that inherits from <see cref="BaseCosmosEntity" />.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{TIn}" /> or a custom model type that inherits from <see cref="AzCosmosResponse{TIn}" />.</typeparam>
+        /// <param name="entity">The item to update.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <returns>The <see cref="TOut>"/> indicating the result of the operation.</returns>
+        public virtual TOut UpdateEntity<TIn, TOut>(TIn entity,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null) where TIn : BaseCosmosEntity where TOut : AzCosmosResponse<TIn>, new()
+        {
+            ThrowIfInvalidEntity(entity);
+
+            return UpdateEntity<TIn, TOut>(entity, entity.Id, entity.PartitionKey,
+                cancellationToken, databaseId, containerId, GetConsolidatedDefaultCosmosPartitionKeyPath(containerId));
+        }
+
+        /// <summary>
+        /// Updates a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model type.</typeparam>
+        /// <param name="entity">The item to update.</param>
+        /// <param name="id">The Cosmos item id.</param>
+        /// <param name="partitionKey">The partition key value of the item.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>The <see cref="AzCosmosResponse{TIn}>"/> indicating the result of the operation.</returns>
+        public virtual AzCosmosResponse<TIn> UpdateEntity<TIn>(TIn entity,
+            string id,
+            string partitionKey,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return UpdateEntity<TIn, AzCosmosResponse<TIn>>(entity, id, partitionKey,
+                cancellationToken, databaseId, containerId, partitionKeyPropName);
+        }
+
+        /// <summary>        
+        /// Updates a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{TIn}" /> or a custom model type that inherits from <see cref="AzCosmosResponse{TIn}" />.</typeparam>
+        /// <param name="entity">The item to add.</param>
+        /// <param name="id">The Cosmos item id.</param>
+        /// <param name="partitionKey">The value to use as partition key</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database</param>
+        /// <param name="containerId">The Id of the Cosmos container</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>The <see cref="TOut"/> indicating the result of the operation.</returns>
+        public virtual TOut UpdateEntity<TIn, TOut>(TIn entity,
+            string id,
+            string partitionKey,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<TIn>, new()
+        {
+            return UpdateEntityAsync<TIn, TOut>(
+                entity,
+                id,
+                partitionKey,
+                cancellationToken,
+                databaseId,
+                containerId,
+                partitionKeyPropName).WaitAndUnwrapException();
+        }
+
+        #endregion
+
         #region Update async
 
         /// <summary>
@@ -1534,6 +1784,99 @@ namespace AzStorage.Repositories
 
         #endregion
 
+        #region Upsert
+
+        /// <summary>
+        /// Upserts a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model type that inherits from <see cref="BaseCosmosEntity" />.</typeparam>
+        /// <param name="entity">The item to upsert.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <returns>The <see cref="AzCosmosResponse{TIn}>"/> indicating the result of the operation.</returns>
+        public virtual AzCosmosResponse<TIn> UpsertEntity<TIn>(TIn entity,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null) where TIn : BaseCosmosEntity
+        {
+            return UpsertEntity<TIn, AzCosmosResponse<TIn>>(entity, cancellationToken,
+                databaseId, containerId);
+        }
+
+        /// <summary>
+        /// Upserts a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model type that inherits from <see cref="BaseCosmosEntity" />.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{TIn}" /> or a custom model type that inherits from <see cref="AzCosmosResponse{TIn}" />.</typeparam>
+        /// <param name="entity">The item to upsert.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <returns>The <see cref="TOut>"/> indicating the result of the operation.</returns>
+        public virtual TOut UpsertEntity<TIn, TOut>(TIn entity,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null) where TIn : BaseCosmosEntity where TOut : AzCosmosResponse<TIn>, new()
+        {
+            ThrowIfInvalidEntity(entity);
+
+            return UpsertEntity<TIn, TOut>(entity, entity.PartitionKey, cancellationToken,
+                databaseId, containerId, GetConsolidatedDefaultCosmosPartitionKeyPath(containerId));
+        }
+
+        /// <summary>
+        /// Upserts a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model type.</typeparam>
+        /// <param name="entity">The item to upsert.</param>
+        /// <param name="partitionKey">The partition key value of the item.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>The <see cref="AzCosmosResponse{TIn}>"/> indicating the result of the operation.</returns>
+        public virtual AzCosmosResponse<TIn> UpsertEntity<TIn>(TIn entity,
+            string partitionKey,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return UpsertEntity<TIn, AzCosmosResponse<TIn>>(entity, partitionKey, cancellationToken,
+                databaseId, containerId, partitionKeyPropName);
+        }
+
+        /// <summary>
+        /// Upserts a item of type <typeparamref name="TIn"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{TIn}" /> or a custom model type that inherits from <see cref="AzCosmosResponse{TIn}" />.</typeparam>
+        /// <param name="entity">The item to upsert.</param>
+        /// <param name="partitionKey">The value to use as partition key</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database</param>
+        /// <param name="containerId">The Id of the Cosmos container</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>The <see cref="TOut"/> indicating the result of the operation.</returns>
+        public virtual TOut UpsertEntity<TIn, TOut>(TIn entity,
+            string partitionKey,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<TIn>, new()
+        {
+            return UpsertEntityAsync<TIn, TOut>(
+                entity,
+                partitionKey,
+                cancellationToken,
+                databaseId,
+                containerId,
+                partitionKeyPropName).WaitAndUnwrapException();
+        }
+
+        #endregion
+
         #region Upsert async
 
         /// <summary>
@@ -1635,6 +1978,98 @@ namespace AzStorage.Repositories
             return await CosmosFuncHelper.ExecuteAsync<TIn, PartitionKey?, ItemRequestOptions, CancellationToken, ItemResponse<TIn>, TOut, TIn>(
                 Container.UpsertItemAsync,
                 entity, new PartitionKey(partitionKey), default, cancellationToken);
+        }
+
+        #endregion
+
+        #region Delete
+
+        /// <summary>
+        /// Deletes a item of type <typeparamref name="T"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type that inherits from <see cref="BaseCosmosEntity" />.</typeparam>
+        /// <param name="entity">The item to delete.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <returns>The <see cref="AzCosmosResponse{T}>"/> indicating the result of the operation.</returns>
+        public virtual AzCosmosResponse<T> DeleteEntity<T>(T entity,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null) where T : BaseCosmosEntity
+        {
+            return DeleteEntity<T, AzCosmosResponse<T>>(entity, cancellationToken,
+                databaseId, containerId);
+        }
+
+        /// <summary>
+        /// Deletes a item of type <typeparamref name="T"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type that inherits from <see cref="BaseCosmosEntity" />.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{T}" /> or a custom model type that inherits from <see cref="AzCosmosResponse{T}" />.</typeparam>
+        /// <param name="entity">The item to delete.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <returns>The <see cref="TOut>"/> indicating the result of the operation.</returns>
+        public virtual TOut DeleteEntity<T, TOut>(T entity,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null) where T : BaseCosmosEntity where TOut : AzCosmosResponse<T>, new()
+        {
+            ThrowIfInvalidEntity(entity);
+
+            return DeleteEntity<T, TOut>(entity.Id, entity.PartitionKey, cancellationToken,
+                databaseId, containerId, GetConsolidatedDefaultCosmosPartitionKeyPath(containerId));
+        }
+
+        /// <summary>
+        /// Deletes a item of type <typeparamref name="T"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="id">The Cosmos item id.</param>
+        /// <param name="partitionKey">The partition key value of the item.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>The <see cref="AzCosmosResponse{T}>"/> indicating the result of the operation.</returns>
+        public virtual AzCosmosResponse<T> DeleteEntity<T>(string id,
+            string partitionKey,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return DeleteEntity<T, AzCosmosResponse<T>>(id, partitionKey, cancellationToken,
+                databaseId, containerId, partitionKeyPropName);
+        }
+
+        /// <summary>
+        /// Deletes a item of type <typeparamref name="T"/> as an asynchronous operation in the Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{T}" /> or a custom model type that inherits from <see cref="AzCosmosResponse{T}" />.</typeparam>
+        /// <param name="id">The Cosmos item id.</param>
+        /// <param name="partitionKey">The partition key value of the item.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>The <see cref="AzCosmosResponse{T}>"/> indicating the result of the operation.</returns>
+        public virtual TOut DeleteEntity<T, TOut>(string id,
+            string partitionKey,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<T>, new()
+        {
+            return DeleteEntityAsync<T, TOut>(id,
+                partitionKey,
+                cancellationToken,
+                databaseId,
+                containerId,
+                partitionKeyPropName).WaitAndUnwrapException();
         }
 
         #endregion
