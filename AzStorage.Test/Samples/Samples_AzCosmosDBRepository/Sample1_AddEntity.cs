@@ -9,6 +9,35 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
     public class Sample1_AddEntity
     {
         [Fact, TestPriority(100)]
+        public void AddEntityTest()
+        {
+            // Arrange
+            var entity = AzCosmosUnitTestHelper.CreateSomeEntity();
+
+            // Act
+            var _addEntityAsyncResponseAct = AzCosmosUnitTestHelper.AddEntity(entity);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_addEntityAsyncResponseAct);
+        }
+
+        [Fact, TestPriority(100)]
+        public void AddEntityTest2()
+        {
+            // Arrange
+            var entity = AzCosmosUnitTestHelper.CreateSomeEntity();
+
+            // Act
+            var _addEntityAsyncResponseAct = AzCosmosUnitTestHelper.AddEntity2(entity);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_addEntityAsyncResponseAct);
+        }
+
+
+        #region Async
+
+        [Fact, TestPriority(100)]
         public void AddEntityAsyncTest()
         {
             // Arrange
@@ -20,7 +49,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_addEntityAsyncResponseAct);
         }
-        
+
         [Fact, TestPriority(100)]
         public void AddEntityAsyncTest2()
         {
@@ -33,6 +62,8 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_addEntityAsyncResponseAct);
         }
+
+        #endregion
 
     }
 }

@@ -15,14 +15,14 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
     {
         #region QueryAll
 
-        [Fact, TestPriority(10)]
+        [Fact, TestPriority(220)]
         public void QueryAllTest()
         {
             AzCosmosUnitTestHelper.CommonQueryAllTest<CustomCosmosEntity, List<CustomCosmosEntity>>(
                 AzCosmosUnitTestHelper.QueryAll<CustomCosmosEntity>);
         }
 
-        [Fact, TestPriority(20)]
+        [Fact, TestPriority(230)]
         public void LazyQueryAllTest()
         {
             AzCosmosUnitTestHelper.CommonQueryAllTest<CustomCosmosEntity, IEnumerable<CustomCosmosEntity>>(
