@@ -682,21 +682,34 @@ namespace AzStorage.Test.Helpers
 
         #region Query entities
 
+        #region QueryAll
+
         public static AzCosmosResponse<List<T>> QueryAll<T>(
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : BaseCosmosEntity
         {
             return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryAll<T>();
         }
-        
+
         public static AzCosmosResponse<IEnumerable<T>> LazyQueryAll<T>(
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : BaseCosmosEntity
         {
             return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).LazyQueryAll<T>();
         }
-        
-        public static AzCosmosResponse<List<T>> QueryByFilter<T>(string filter, 
+
+        public static async Task<AzCosmosResponse<List<T>>> QueryAllAsync<T>(
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : BaseCosmosEntity
+        {
+            return await GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryAllAsync<T>();
+        }
+
+        #endregion
+
+        #region QueryByFilter
+
+        public static AzCosmosResponse<List<T>> QueryByFilter<T>(string filter,
             string containerId = null,
             string partitionKeyPropName = null,
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
@@ -705,7 +718,7 @@ namespace AzStorage.Test.Helpers
             return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryByFilter<T>(filter,
                 containerId: containerId, partitionKeyPropName: partitionKeyPropName);
         }
-        
+
         public static AzCosmosResponse<IEnumerable<T>> LazyQueryByFilter<T>(string filter,
             string containerId = null,
             string partitionKeyPropName = null,
@@ -716,19 +729,44 @@ namespace AzStorage.Test.Helpers
                 containerId: containerId, partitionKeyPropName: partitionKeyPropName);
         }
 
+        public static async Task<AzCosmosResponse<List<T>>> QueryByFilterAsync<T>(string filter,
+            string containerId = null,
+            string partitionKeyPropName = null,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : BaseCosmosEntity
+        {
+            return await GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryByFilterAsync<T>(filter,
+                containerId: containerId, partitionKeyPropName: partitionKeyPropName);
+        }
+
+        #endregion
+
+        #region QueryByQueryDefinition
+
         public static AzCosmosResponse<List<T>> QueryByQueryDefinition<T>(QueryDefinition queryDefinition,
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : BaseCosmosEntity
         {
             return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryByQueryDefinition<T>(queryDefinition);
         }
-        
+
         public static AzCosmosResponse<IEnumerable<T>> LazyQueryByQueryDefinition<T>(QueryDefinition queryDefinition,
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : BaseCosmosEntity
         {
             return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).LazyQueryByQueryDefinition<T>(queryDefinition);
         }
+
+        public static async Task<AzCosmosResponse<List<T>>> QueryByQueryDefinitionAsync<T>(QueryDefinition queryDefinition,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : BaseCosmosEntity
+        {
+            return await GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryByQueryDefinitionAsync<T>(queryDefinition);
+        }
+
+        #endregion
+
+        #region QueryByPartitionKey
 
         public static AzCosmosResponse<List<T>> QueryByPartitionKey<T>(string partitionKey,
             string containerId = null,
@@ -739,7 +777,7 @@ namespace AzStorage.Test.Helpers
             return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryByPartitionKey<T>(partitionKey,
                 containerId: containerId, partitionKeyPropName: partitionKeyPropName);
         }
-        
+
         public static AzCosmosResponse<IEnumerable<T>> LazyQueryByPartitionKey<T>(string partitionKey,
             string containerId = null,
             string partitionKeyPropName = null,
@@ -750,6 +788,20 @@ namespace AzStorage.Test.Helpers
                 containerId: containerId, partitionKeyPropName: partitionKeyPropName);
         }
 
+        public static async Task<AzCosmosResponse<List<T>>> QueryByPartitionKeyAsync<T>(string partitionKey,
+            string containerId = null,
+            string partitionKeyPropName = null,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : BaseCosmosEntity
+        {
+            return await GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryByPartitionKeyAsync<T>(partitionKey,
+                containerId: containerId, partitionKeyPropName: partitionKeyPropName);
+        }
+
+        #endregion
+
+        #region QueryWithOr
+
         public static AzCosmosResponse<List<T>> QueryWithOr<T>(dynamic operationTerms,
             string containerId = null,
             string partitionKeyPropName = null,
@@ -759,7 +811,7 @@ namespace AzStorage.Test.Helpers
             return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryWithOr<T>(operationTerms,
                 containerId: containerId, partitionKeyPropName: partitionKeyPropName);
         }
-        
+
         public static AzCosmosResponse<List<T>> QueryWithOr<T>(IEnumerable<KeyValuePair<string, string>> nameValueProperties,
             string containerId = null,
             string partitionKeyPropName = null,
@@ -769,7 +821,7 @@ namespace AzStorage.Test.Helpers
             return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryWithOr<T>(nameValueProperties,
                 containerId: containerId, partitionKeyPropName: partitionKeyPropName);
         }
-        
+
         public static AzCosmosResponse<IEnumerable<T>> LazyQueryWithOr<T>(dynamic operationTerms,
             string containerId = null,
             string partitionKeyPropName = null,
@@ -779,7 +831,7 @@ namespace AzStorage.Test.Helpers
             return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).LazyQueryWithOr<T>(operationTerms,
                 containerId: containerId, partitionKeyPropName: partitionKeyPropName);
         }
-        
+
         public static AzCosmosResponse<IEnumerable<T>> LazyQueryWithOr<T>(IEnumerable<KeyValuePair<string, string>> nameValueProperties,
             string containerId = null,
             string partitionKeyPropName = null,
@@ -789,7 +841,21 @@ namespace AzStorage.Test.Helpers
             return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).LazyQueryWithOr<T>(nameValueProperties,
                 containerId: containerId, partitionKeyPropName: partitionKeyPropName);
         }
-        
+
+        public static async Task<AzCosmosResponse<List<T>>> QueryWithOrAsync<T>(dynamic operationTerms,
+            string containerId = null,
+            string partitionKeyPropName = null,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : BaseCosmosEntity
+        {
+            return await GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryWithOrAsync<T>(operationTerms,
+                containerId: containerId, partitionKeyPropName: partitionKeyPropName);
+        }
+
+        #endregion
+
+        #region LazyQueryWithOr
+
         public static AzCosmosResponse<List<T>> QueryWithAnd<T>(dynamic operationTerms,
             string containerId = null,
             string partitionKeyPropName = null,
@@ -799,7 +865,7 @@ namespace AzStorage.Test.Helpers
             return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryWithAnd<T>(operationTerms,
                 containerId: containerId, partitionKeyPropName: partitionKeyPropName);
         }
-        
+
         public static AzCosmosResponse<List<T>> QueryWithAnd<T>(IEnumerable<KeyValuePair<string, string>> nameValueProperties,
             string containerId = null,
             string partitionKeyPropName = null,
@@ -809,7 +875,7 @@ namespace AzStorage.Test.Helpers
             return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryWithAnd<T>(nameValueProperties,
                 containerId: containerId, partitionKeyPropName: partitionKeyPropName);
         }
-        
+
         public static AzCosmosResponse<IEnumerable<T>> LazyQueryWithAnd<T>(dynamic operationTerms,
             string containerId = null,
             string partitionKeyPropName = null,
@@ -819,7 +885,7 @@ namespace AzStorage.Test.Helpers
             return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).LazyQueryWithAnd<T>(operationTerms,
                 containerId: containerId, partitionKeyPropName: partitionKeyPropName);
         }
-        
+
         public static AzCosmosResponse<IEnumerable<T>> LazyQueryWithAnd<T>(IEnumerable<KeyValuePair<string, string>> nameValueProperties,
             string containerId = null,
             string partitionKeyPropName = null,
@@ -829,6 +895,18 @@ namespace AzStorage.Test.Helpers
             return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).LazyQueryWithAnd<T>(nameValueProperties,
                 containerId: containerId, partitionKeyPropName: partitionKeyPropName);
         }
+
+        public static async Task<AzCosmosResponse<List<T>>> QueryWithAndAsync<T>(dynamic operationTerms,
+            string containerId = null,
+            string partitionKeyPropName = null,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : BaseCosmosEntity
+        {
+            return await GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryWithAndAsync<T>(operationTerms,
+                containerId: containerId, partitionKeyPropName: partitionKeyPropName);
+        }
+
+        #endregion
 
         #endregion
 

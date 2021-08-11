@@ -1576,6 +1576,447 @@ namespace AzStorage.Repositories
 
         #endregion
 
+        #region Query async
+
+        #region QueryAllAsync
+
+        /// <summary>
+        /// Queries all items of type <typeparamref name="T"/> under a container in an Azure Cosmos database.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.
+        /// </returns>
+        public virtual async Task<AzCosmosResponse<List<T>>> QueryAllAsync<T>(
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return await QueryAllAsync<T, AzCosmosResponse<List<T>>>(databaseId,
+                containerId,
+                partitionKeyPropName);
+        }
+
+        /// <summary>
+        /// Queries all items of type <typeparamref name="T"/> under a container in an Azure Cosmos database.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{List{T}}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{List{T}}" />.</typeparam>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.
+        /// </returns>
+        public virtual async Task<TOut> QueryAllAsync<T, TOut>(
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+        {
+            Initialize(databaseId, containerId, partitionKeyPropName, false, false);
+
+            return await CosmosFuncHelper.ExecuteAsync<int, AzCosmosResponse<List<T>>, TOut, List<T>>(
+                Container.QueryAllAsync<T>,
+                int.MaxValue);
+        }
+
+        #endregion
+
+        #region QueryByFilterAsync
+
+        /// <summary>
+        /// Creates a query with the <paramref name="filter"/> for items of type <typeparamref name="T"/> 
+        /// under a container in an Azure Cosmos database, using a SQL statement with parameterized values.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="filter">The Cosmos SQL query text.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.</returns>
+        public virtual async Task<AzCosmosResponse<List<T>>> QueryByFilterAsync<T>(
+            string filter,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return await QueryByFilterAsync<T, AzCosmosResponse<List<T>>>(
+                filter,
+                databaseId,
+                containerId,
+                partitionKeyPropName);
+        }
+
+        /// <summary>
+        /// Creates a query with the <paramref name="filter"/> for items of type <typeparamref name="T"/> 
+        /// under a container in an Azure Cosmos database, using a SQL statement with parameterized values.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{List{T}}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{List{T}}" />.</typeparam>
+        /// <param name="filter">The Cosmos SQL query text.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.</returns>
+        public virtual async Task<TOut> QueryByFilterAsync<T, TOut>(
+            string filter,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+        {
+            Initialize(databaseId, containerId, partitionKeyPropName, false, false);
+
+            return await CosmosFuncHelper.ExecuteAsync<string, int, AzCosmosResponse<List<T>>, TOut, List<T>>(
+                Container.QueryByFilterAsync<T>,
+                filter,
+                int.MaxValue);
+        }
+
+        #endregion
+
+        #region QueryByQueryDefinitionAsync
+
+        /// <summary>
+        /// Creates a query with the <paramref name="queryDefinition"/> for items of type <typeparamref name="T"/> 
+        /// under a container in an Azure Cosmos database, using a SQL statement with parameterized values.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="queryDefinition">The Cosmos SQL query definition.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
+        public virtual async Task<AzCosmosResponse<List<T>>> QueryByQueryDefinitionAsync<T>(
+            QueryDefinition queryDefinition,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return await QueryByQueryDefinitionAsync<T, AzCosmosResponse<List<T>>>(
+                queryDefinition,
+                databaseId,
+                containerId,
+                partitionKeyPropName);
+        }
+
+        /// <summary>
+        /// Creates a query with the <paramref name="queryDefinition"/> for items of type <typeparamref name="T"/> 
+        /// under a container in an Azure Cosmos database, using a SQL statement with parameterized values.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{List{T}}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{List{T}}" />.</typeparam>
+        /// <param name="queryDefinition">The Cosmos SQL query definition.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.</returns>
+        public virtual async Task<TOut> QueryByQueryDefinitionAsync<T, TOut>(
+            QueryDefinition queryDefinition,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+        {
+            Initialize(databaseId, containerId, partitionKeyPropName, false, false);
+
+            return await CosmosFuncHelper.ExecuteAsync<QueryDefinition, int, AzCosmosResponse<List<T>>, TOut, List<T>>(
+                Container.QueryByQueryDefinitionAsync<T>,
+                queryDefinition,
+                int.MaxValue);
+        }
+
+        #endregion
+
+        #region QueryByPartitionKeyAsync
+
+        /// <summary>
+        /// Queries items of type <typeparamref name="T"/> with the specified partition key value under a container in an Azure Cosmos database.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="partitionKey">The partition key value of the item.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.</returns>
+        public virtual async Task<AzCosmosResponse<List<T>>> QueryByPartitionKeyAsync<T>(
+            string partitionKey,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return await QueryByPartitionKeyAsync<T, AzCosmosResponse<List<T>>>(
+                partitionKey,
+                databaseId,
+                containerId,
+                partitionKeyPropName);
+        }
+
+        /// <summary>
+        /// Queries items of type <typeparamref name="T"/> with the specified partition key value under a container in an Azure Cosmos database.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{List{T}}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{List{T}}" />.</typeparam>
+        /// <param name="partitionKey">The partition key value of the item.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.</returns>
+        public virtual async Task<TOut> QueryByPartitionKeyAsync<T, TOut>(
+            string partitionKey,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+        {
+            Initialize(databaseId, containerId, partitionKeyPropName, false, false);
+
+            return await CosmosFuncHelper.ExecuteAsync<string, int, AzCosmosResponse<List<T>>, TOut, List<T>>(
+                Container.QueryByPartitionKeyAsync<T>,
+                partitionKey,
+                int.MaxValue);
+        }
+
+        #endregion
+
+        #region QueryWithOrAsync
+
+        /// <summary>
+        /// Queries items of type <typeparamref name="T"/>, creating a SQL statement query which compares with logical 'or' 
+        /// using properties (names-values) contained in <paramref name="nameValueProperties"/>, under a container in an Azure Cosmos database.
+        /// Property names must match the properties on type <typeparamref name="T"/> serialized by Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="nameValueProperties">Property names and values to include in SQL query.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.</returns>
+        public virtual async Task<AzCosmosResponse<List<T>>> QueryWithOrAsync<T>(
+            IEnumerable<KeyValuePair<string, string>> nameValueProperties,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return await QueryWithOrAsync<T, AzCosmosResponse<List<T>>>(
+                nameValueProperties,
+                databaseId,
+                containerId,
+                partitionKeyPropName);
+        }
+
+        /// <summary>
+        /// Queries items of type <typeparamref name="T"/>, creating a SQL statement query which compares with logical 'or' 
+        /// using properties (names-values) contained in <paramref name="nameValueProperties"/>, under a container in an Azure Cosmos database.
+        /// Property names must match the properties on type <typeparamref name="T"/> serialized by Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{List{T}}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{List{T}}" />.</typeparam>
+        /// <param name="nameValueProperties">Property names and values to include in SQL query.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.</returns>
+        public virtual async Task<TOut> QueryWithOrAsync<T, TOut>(
+            IEnumerable<KeyValuePair<string, string>> nameValueProperties,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+        {
+            ThrowIfInvalidNameValueProperties(nameValueProperties);
+
+            return await QueryByQueryDefinitionAsync<T, TOut>(GenerateQueryDefinition(nameValueProperties, BooleanOperator.or),
+                databaseId, containerId, partitionKeyPropName);
+        }
+
+        /// <summary>
+        /// Queries items of type <typeparamref name="T"/>, creating a SQL statement query which compares with logical 'or' 
+        /// using properties (names-values) of <paramref name="operationTerms"/>, under a container in an Azure Cosmos database.
+        /// Property names must match the properties on type <typeparamref name="T"/> serialized by Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="operationTerms">Contains property names and values to include in SQL query.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.</returns>
+        public virtual async Task<AzCosmosResponse<List<T>>> QueryWithOrAsync<T>(
+            dynamic operationTerms,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return await QueryWithOrAsync<T, AzCosmosResponse<List<T>>>(
+                operationTerms,
+                databaseId,
+                containerId,
+                partitionKeyPropName);
+        }
+
+        /// <summary>
+        /// Queries items of type <typeparamref name="T"/>, creating a SQL statement query which compares with logical 'or' 
+        /// using properties (names-values) of <paramref name="operationTerms"/>, under a container in an Azure Cosmos database.
+        /// Property names must match the properties on type <typeparamref name="T"/> serialized by Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{List{T}}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{List{T}}" />.</typeparam>
+        /// <param name="operationTerms">Contains property names and values to include in SQL query.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.</returns>
+        public virtual async Task<TOut> QueryWithOrAsync<T, TOut>(
+            dynamic operationTerms,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+        {
+            ExThrower.ST_ThrowIfArgumentIsNull(operationTerms, nameof(operationTerms), nameof(operationTerms));
+
+            return await QueryByQueryDefinitionAsync<T, TOut>(GenerateQueryDefinition(operationTerms, BooleanOperator.or),
+                databaseId, containerId, partitionKeyPropName);
+        }
+
+        #endregion
+
+        #region QueryWithAndAsync
+
+        /// <summary>
+        /// Queries items of type <typeparamref name="T"/>, creating a SQL statement query which compares with logical 'and' 
+        /// using properties (names-values) contained in <paramref name="nameValueProperties"/>, under a container in an Azure Cosmos database.
+        /// Property names must match the properties on type <typeparamref name="T"/> serialized by Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="nameValueProperties">Property names and values to include in SQL query.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.</returns>
+        public virtual async Task<AzCosmosResponse<List<T>>> QueryWithAndAsync<T>(
+            IEnumerable<KeyValuePair<string, string>> nameValueProperties,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return await QueryWithAndAsync<T, AzCosmosResponse<List<T>>>(
+                nameValueProperties,
+                databaseId,
+                containerId,
+                partitionKeyPropName);
+        }
+
+        /// <summary>
+        /// Queries items of type <typeparamref name="T"/>, creating a SQL statement query which compares with logical 'and' 
+        /// using properties (names-values) contained in <paramref name="nameValueProperties"/>, under a container in an Azure Cosmos database.
+        /// Property names must match the properties on type <typeparamref name="T"/> serialized by Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{List{T}}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{List{T}}" />.</typeparam>
+        /// <param name="nameValueProperties">Property names and values to include in SQL query.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.</returns>
+        public virtual async Task<TOut> QueryWithAndAsync<T, TOut>(
+            IEnumerable<KeyValuePair<string, string>> nameValueProperties,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+        {
+            ThrowIfInvalidNameValueProperties(nameValueProperties);
+
+            return await QueryByQueryDefinitionAsync<T, TOut>(GenerateQueryDefinition(nameValueProperties, BooleanOperator.and),
+                databaseId, containerId, partitionKeyPropName);
+        }
+
+        /// <summary>
+        /// Queries items of type <typeparamref name="T"/>, creating a SQL statement query which compares with logical 'and' 
+        /// using properties (names-values) of <paramref name="operationTerms"/>, under a container in an Azure Cosmos database.
+        /// Property names must match the properties on type <typeparamref name="T"/> serialized by Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="operationTerms">Contains property names and values to include in SQL query.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.</returns>
+        public virtual async Task<AzCosmosResponse<List<T>>> QueryWithAndAsync<T>(
+            dynamic operationTerms,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return await QueryWithAndAsync<T, AzCosmosResponse<List<T>>>(
+                operationTerms,
+                databaseId,
+                containerId,
+                partitionKeyPropName);
+        }
+
+        /// <summary>
+        /// Queries items of type <typeparamref name="T"/>, creating a SQL statement query which compares with logical 'and' 
+        /// using properties (names-values) of <paramref name="operationTerms"/>, under a container in an Azure Cosmos database.
+        /// Property names must match the properties on type <typeparamref name="T"/> serialized by Azure Cosmos service.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <typeparam name="TOut">A model of type <see cref="AzCosmosResponse{List{T}}" /> 
+        /// or a custom model type that inherits from <see cref="AzCosmosResponse{List{T}}" />.</typeparam>
+        /// <param name="operationTerms">Contains property names and values to include in SQL query.</param>
+        /// <param name="databaseId">The Id of the Cosmos database.</param>
+        /// <param name="containerId">The Id of the Cosmos container.</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
+        /// for the asynchronous operation.</returns>
+        public virtual async Task<TOut> QueryWithAndAsync<T, TOut>(
+            dynamic operationTerms,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+        {
+            ExThrower.ST_ThrowIfArgumentIsNull(operationTerms, nameof(operationTerms), nameof(operationTerms));
+
+            return await QueryByQueryDefinitionAsync<T, TOut>(GenerateQueryDefinition(operationTerms, BooleanOperator.and),
+                databaseId, containerId, partitionKeyPropName);
+        }
+
+        #endregion
+
+        #endregion
+
         #region Update
 
         /// <summary>
