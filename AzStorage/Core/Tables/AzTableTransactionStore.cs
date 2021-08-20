@@ -17,7 +17,6 @@ namespace AzStorage.Core.Tables
     public class AzTableTransactionStore<T> : IEnumerable<TableTransactionAction> where T : ITableEntity
     {
         private int count;
-        private int _version;
         private string dictionaryKey;
         private Dictionary<string, List<TableTransactionAction>> _transactionActions;
         protected virtual Dictionary<string, List<TableTransactionAction>> TransactionActions
@@ -33,7 +32,7 @@ namespace AzStorage.Core.Tables
 
         private string GenerateDictionaryKey(T entity, TableTransactionActionType _tableTransactionActionType)
         {
-            return $"{entity.PartitionKey}";
+            return entity.PartitionKey;
         }
 
         private void CreateStoreAction(T entity, TableTransactionActionType _tableTransactionActionType)
@@ -41,7 +40,6 @@ namespace AzStorage.Core.Tables
             ExThrower.ST_ThrowIfArgumentIsNull(entity, nameof(entity));
 
             count++;
-            _version++;
             dictionaryKey = GenerateDictionaryKey(entity, _tableTransactionActionType);
 
             if (TransactionActions.TryGetValue(dictionaryKey, out List<TableTransactionAction> _tranActions))
@@ -57,16 +55,6 @@ namespace AzStorage.Core.Tables
             CreateOrReplaceNewListTableTransactionAction(dictionaryKey, entity, _tableTransactionActionType);
         }
 
-        private void CreateOrReplaceNewListTableTransactionAction(string dictionaryKey,
-            T entity, 
-            TableTransactionActionType _tableTransactionActionType)
-        {
-            var newList = new List<TableTransactionAction>(100);
-            newList.AddTableTransactionAction(entity, _tableTransactionActionType);
-
-            TransactionActions.AddOrReplace(dictionaryKey, newList);
-        }
-
         private void CreateStoreActions(IEnumerable<T> entities, TableTransactionActionType _tableTransactionActionType)
         {
             ExThrower.ST_ThrowIfArgumentIsNull(entities, nameof(entities));
@@ -75,10 +63,19 @@ namespace AzStorage.Core.Tables
                 CreateStoreAction(ent, _tableTransactionActionType);
         }
 
+        private void CreateOrReplaceNewListTableTransactionAction(string dictionaryKey,
+            T entity,
+            TableTransactionActionType _tableTransactionActionType)
+        {
+            var newList = new List<TableTransactionAction>(100);
+            newList.AddTableTransactionAction(entity, _tableTransactionActionType);
+
+            TransactionActions.AddOrReplace(dictionaryKey, newList);
+        }
+
         public virtual void Clear()
         {
             TransactionActions.Clear();
-            _version++;
         }
 
         public virtual int Count
