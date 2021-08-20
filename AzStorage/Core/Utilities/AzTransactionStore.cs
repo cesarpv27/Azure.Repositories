@@ -35,12 +35,12 @@ namespace AzStorage.Core.Utilities
             }
         }
 
-        private string GenerateDictionaryKey(T entity, TransactionActionType _transactionActionType)
+        protected virtual string GenerateDictionaryKey(T entity, TransactionActionType _transactionActionType)
         {
             return funcGetPartitionKey(entity);
         }
 
-        private void CreateStoreAction(T entity, TransactionActionType _transactionActionType)
+        protected virtual void CreateStoreAction(T entity, TransactionActionType _transactionActionType)
         {
             ExThrower.ST_ThrowIfArgumentIsNull(entity, nameof(entity));
 
@@ -60,7 +60,7 @@ namespace AzStorage.Core.Utilities
             CreateOrReplaceNewListTableTransactionAction(dictionaryKey, entity, _transactionActionType);
         }
 
-        private void CreateStoreActions(IEnumerable<T> entities, TransactionActionType _transactionActionType)
+        protected virtual void CreateStoreActions(IEnumerable<T> entities, TransactionActionType _transactionActionType)
         {
             ExThrower.ST_ThrowIfArgumentIsNull(entities, nameof(entities));
 
@@ -68,7 +68,7 @@ namespace AzStorage.Core.Utilities
                 CreateStoreAction(ent, _transactionActionType);
         }
 
-        private void CreateOrReplaceNewListTableTransactionAction(string dictionaryKey,
+        protected virtual void CreateOrReplaceNewListTableTransactionAction(string dictionaryKey,
             T entity,
             TransactionActionType _tableTransactionActionType)
         {
@@ -91,7 +91,7 @@ namespace AzStorage.Core.Utilities
             }
         }
 
-        private void ApplyActionByMode<TIn>(TIn param, ActionMode mode, Action<TIn> merge, Action<TIn> replace)
+        protected virtual void ApplyActionByMode<TIn>(TIn param, ActionMode mode, Action<TIn> merge, Action<TIn> replace)
         {
             switch (mode)
             {
@@ -129,6 +129,7 @@ namespace AzStorage.Core.Utilities
 
         #region Update
 
+        // v1
         protected virtual void Update(T entity)
         {
             CreateStoreAction(entity, TransactionActionType.Update);
@@ -145,6 +146,7 @@ namespace AzStorage.Core.Utilities
             Update(entities);
         }
 
+        // v2
         protected virtual void Update(T entity, ActionMode mode)
         {
             ApplyActionByMode(entity, mode, UpdateMerge, UpdateReplace);
@@ -193,6 +195,7 @@ namespace AzStorage.Core.Utilities
 
         #region Upsert
 
+        // v1
         protected virtual void Upsert(T entity)
         {
             CreateStoreAction(entity, TransactionActionType.Upsert);
@@ -209,6 +212,7 @@ namespace AzStorage.Core.Utilities
             Upsert(entities);
         }
 
+        // v2
         protected virtual void Upsert(T entity, ActionMode mode)
         {
             ApplyActionByMode(entity, mode, UpsertMerge, UpsertReplace);

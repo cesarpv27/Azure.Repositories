@@ -1,12 +1,7 @@
-﻿using AzCoreTools.Utilities;
+﻿using AzStorage.Core.Utilities;
 using Azure.Data.Tables;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using ExThrower = CoreTools.Throws.ExceptionThrower;
-using CoreTools.Extensions;
-using AzStorage.Core.Texting;
 
 namespace AzStorage.Core.Tables
 {
@@ -14,178 +9,27 @@ namespace AzStorage.Core.Tables
     {
     }
 
-    public class AzTableTransactionStore<T> : IEnumerable<TableTransactionAction> where T : ITableEntity
+    public class AzTableTransactionStore<T> : AzTransactionStore<T, TableTransactionAction> where T : ITableEntity
     {
-        private int count;
-        private string dictionaryKey;
-        private Dictionary<string, List<TableTransactionAction>> _transactionActions;
-        protected virtual Dictionary<string, List<TableTransactionAction>> TransactionActions
-        {
-            get
-            {
-                if (_transactionActions == null)
-                    _transactionActions = new Dictionary<string, List<TableTransactionAction>>();
-
-                return _transactionActions;
-            }
-        }
-
-        private string GenerateDictionaryKey(T entity, TableTransactionActionType _tableTransactionActionType)
-        {
-            return entity.PartitionKey;
-        }
-
-        private void CreateStoreAction(T entity, TableTransactionActionType _tableTransactionActionType)
-        {
-            ExThrower.ST_ThrowIfArgumentIsNull(entity, nameof(entity));
-
-            count++;
-            dictionaryKey = GenerateDictionaryKey(entity, _tableTransactionActionType);
-
-            if (TransactionActions.TryGetValue(dictionaryKey, out List<TableTransactionAction> _tranActions))
-            {
-                if (_tranActions.Count < 100)
-                {
-                    _tranActions.AddTableTransactionAction(entity, _tableTransactionActionType);
-                    return;
-                }
-                TransactionActions.Add($"{dictionaryKey}_{count}", _tranActions);
-            }
-
-            CreateOrReplaceNewListTableTransactionAction(dictionaryKey, entity, _tableTransactionActionType);
-        }
-
-        private void CreateStoreActions(IEnumerable<T> entities, TableTransactionActionType _tableTransactionActionType)
-        {
-            ExThrower.ST_ThrowIfArgumentIsNull(entities, nameof(entities));
-
-            foreach (var ent in entities)
-                CreateStoreAction(ent, _tableTransactionActionType);
-        }
-
-        private void CreateOrReplaceNewListTableTransactionAction(string dictionaryKey,
-            T entity,
-            TableTransactionActionType _tableTransactionActionType)
-        {
-            var newList = new List<TableTransactionAction>(100);
-            newList.AddTableTransactionAction(entity, _tableTransactionActionType);
-
-            TransactionActions.AddOrReplace(dictionaryKey, newList);
-        }
-
-        public virtual void Clear()
-        {
-            TransactionActions.Clear();
-        }
-
-        public virtual int Count
-        {
-            get
-            {
-                return TransactionActions.Count;
-            }
-        }
-
-        private void ActionByModificationMode<TIn>(TIn param, TableUpdateMode mode, Action<TIn> merge, Action<TIn> replace)
-        {
-            switch (mode)
-            {
-                case TableUpdateMode.Merge:
-                    merge(param);
-                    break;
-                case TableUpdateMode.Replace:
-                    replace(param);
-                    break;
-                default:
-                    ExThrower.ST_ThrowArgumentOutOfRangeException(mode);
-                    break;
-            }
-        }
-
-        #region Add
-
-        public virtual void Add(T entity)
-        {
-            CreateStoreAction(entity, TableTransactionActionType.Add);
-        }
-
-        public virtual void Add(IEnumerable<T> entities)
-        {
-            CreateStoreActions(entities, TableTransactionActionType.Add);
-        }
-
-        public virtual void ClearNAdd(IEnumerable<T> entities)
-        {
-            Clear();
-            Add(entities);
-        }
-
-        #endregion
+        public AzTableTransactionStore() : base(entity => entity.PartitionKey,
+            (entity, _transactionActionType) => new TableTransactionAction(_transactionActionType.Transform(), entity, entity.ETag))
+        { }
 
         #region Update
 
         public virtual void Update(T entity, TableUpdateMode mode)
         {
-            ActionByModificationMode(entity, mode, UpdateMerge, UpdateReplace);
+            base.Update(entity, mode.Transform());
         }
 
         public virtual void Update(IEnumerable<T> entities, TableUpdateMode mode)
         {
-            ActionByModificationMode(entities, mode, UpdateMerge, UpdateReplace);
+            base.Update(entities, mode.Transform());
         }
 
         public virtual void ClearNUpdate(IEnumerable<T> entities, TableUpdateMode mode)
         {
-            Clear();
-            Update(entities, mode);
-        }
-
-        #endregion
-
-        #region UpdateMerge
-
-        protected virtual void UpdateMerge(T entity)
-        {
-            CreateStoreAction(entity, TableTransactionActionType.UpdateMerge);
-        }
-
-        protected virtual void UpdateMerge(IEnumerable<T> entities)
-        {
-            CreateStoreActions(entities, TableTransactionActionType.UpdateMerge);
-        }
-
-        #endregion
-
-        #region UpdateReplace
-
-        protected virtual void UpdateReplace(T entity)
-        {
-            CreateStoreAction(entity, TableTransactionActionType.UpdateReplace);
-        }
-
-        protected virtual void UpdateReplace(IEnumerable<T> entities)
-        {
-            CreateStoreActions(entities, TableTransactionActionType.UpdateReplace);
-        }
-
-        #endregion
-
-        #region Delete
-
-        public virtual void Delete(T entity)
-        {
-            CreateStoreAction(entity, TableTransactionActionType.Delete);
-        }
-
-        public virtual void Delete(IEnumerable<T> entities)
-        {
-            CreateStoreActions(entities, TableTransactionActionType.Delete);
-        }
-
-        public virtual void ClearNDelete(IEnumerable<T> entities)
-        {
-            Clear();
-            Delete(entities);
+            base.ClearNUpdate(entities, mode.Transform());
         }
 
         #endregion
@@ -194,69 +38,17 @@ namespace AzStorage.Core.Tables
 
         public virtual void Upsert(T entity, TableUpdateMode mode)
         {
-            ActionByModificationMode(entity, mode, UpsertMerge, UpsertReplace);
+            base.Upsert(entity, mode.Transform());
         }
 
         public virtual void Upsert(IEnumerable<T> entities, TableUpdateMode mode)
         {
-            ActionByModificationMode(entities, mode, UpsertMerge, UpsertReplace);
+            base.Upsert(entities, mode.Transform());
         }
 
         public virtual void ClearNUpsert(IEnumerable<T> entities, TableUpdateMode mode)
         {
-            Clear();
-            Upsert(entities, mode);
-        }
-
-        #endregion
-
-        #region UpsertMerge
-
-        protected virtual void UpsertMerge(T entity)
-        {
-            CreateStoreAction(entity, TableTransactionActionType.UpsertMerge);
-        }
-
-        protected virtual void UpsertMerge(IEnumerable<T> entities)
-        {
-            CreateStoreActions(entities, TableTransactionActionType.UpsertMerge);
-        }
-
-        #endregion
-
-        #region UpsertReplace
-
-        protected virtual void UpsertReplace(T entity)
-        {
-            CreateStoreAction(entity, TableTransactionActionType.UpsertReplace);
-        }
-
-        protected virtual void UpsertReplace(IEnumerable<T> entities)
-        {
-            CreateStoreActions(entities, TableTransactionActionType.UpsertReplace);
-        }
-
-        #endregion
-
-        #region IEnumerable
-
-        public IEnumerator<TableTransactionAction> GetEnumerator()
-        {
-            return TransactionActions.GetEnumerable().GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return TransactionActions.GetEnumerable().GetEnumerator();
-        }
-
-        #endregion
-
-        #region GetRangeEnumerable
-
-        public IEnumerable<List<TableTransactionAction>> GetRangeEnumerable()
-        {
-            return TransactionActions.Values;
+            base.ClearNUpsert(entities, mode.Transform());
         }
 
         #endregion
@@ -264,21 +56,63 @@ namespace AzStorage.Core.Tables
 
     static class Extensions
     {
-        public static void AddTableTransactionAction<T>(
-            this List<TableTransactionAction> @this,
-            T entity, 
-            TableTransactionActionType _tableTransactionActionType)
-            where T : ITableEntity
+        public static TableTransactionActionType Transform(this TransactionActionType tableTransactionActionType)
         {
-            @this.Add(new TableTransactionAction(_tableTransactionActionType, entity, entity.ETag));
+            switch (tableTransactionActionType)
+            {
+                case TransactionActionType.Add:
+                    return TableTransactionActionType.Add;
+                case TransactionActionType.UpdateMerge:
+                    return TableTransactionActionType.UpdateMerge;
+                case TransactionActionType.UpdateReplace:
+                    return TableTransactionActionType.UpdateReplace;
+                case TransactionActionType.Delete:
+                    return TableTransactionActionType.Delete;
+                case TransactionActionType.UpsertMerge:
+                    return TableTransactionActionType.UpsertMerge;
+                case TransactionActionType.UpsertReplace:
+                    return TableTransactionActionType.UpsertReplace;
+                default:
+                    ExThrower.ST_ThrowArgumentOutOfRangeException(tableTransactionActionType);
+                    return TableTransactionActionType.Add;// Mock return
+            }
+        }
+        
+        public static TransactionActionType Transform(this TableTransactionActionType tableTransactionActionType)
+        {
+            switch (tableTransactionActionType)
+            {
+                case TableTransactionActionType.Add:
+                    return TransactionActionType.Add;
+                case TableTransactionActionType.UpdateMerge:
+                    return TransactionActionType.UpdateMerge;
+                case TableTransactionActionType.UpdateReplace:
+                    return TransactionActionType.UpdateReplace;
+                case TableTransactionActionType.Delete:
+                    return TransactionActionType.Delete;
+                case TableTransactionActionType.UpsertMerge:
+                    return TransactionActionType.UpsertMerge;
+                case TableTransactionActionType.UpsertReplace:
+                    return TransactionActionType.UpsertReplace;
+                default:
+                    ExThrower.ST_ThrowArgumentOutOfRangeException(tableTransactionActionType);
+                    return TransactionActionType.Add;// Mock return
+            }
         }
 
-        public static IEnumerable<TableTransactionAction> GetEnumerable(
-            this Dictionary<string, List<TableTransactionAction>> @this)
+        public static ActionMode Transform(this TableUpdateMode tableUpdateMode)
         {
-            foreach (var _list in @this.Values)
-                foreach (var _tranAction in _list)
-                    yield return _tranAction;
+            switch (tableUpdateMode)
+            {
+                case TableUpdateMode.Merge:
+                    return ActionMode.Merge;
+                case TableUpdateMode.Replace:
+                    return ActionMode.Replace;
+                default:
+                    ExThrower.ST_ThrowArgumentOutOfRangeException(tableUpdateMode);
+                    return ActionMode.Merge;// Mock return
+            }
         }
     }
 }
+
