@@ -8,7 +8,7 @@ namespace AzStorage.Core.Utilities
 {
     public abstract class AzTransactionStore<T, TranAct> : IEnumerable<TranAct>
     {
-        public AzTransactionStore() { }
+        protected AzTransactionStore() { }
         public AzTransactionStore(Func<T, string> funcGetPartitionKey, 
             Func<T, TransactionActionType, TranAct> funcCreateTransactionAction)
         {
@@ -123,6 +123,26 @@ namespace AzStorage.Core.Utilities
         {
             Clear();
             Add(entities);
+        }
+
+        #endregion
+        
+        #region Get
+
+        public virtual void Get(T entity)
+        {
+            CreateStoreAction(entity, TransactionActionType.Get);
+        }
+
+        public virtual void Get(IEnumerable<T> entities)
+        {
+            CreateStoreActions(entities, TransactionActionType.Get);
+        }
+
+        public virtual void ClearNGet(IEnumerable<T> entities)
+        {
+            Clear();
+            Get(entities);
         }
 
         #endregion

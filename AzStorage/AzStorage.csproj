@@ -26,7 +26,7 @@ TargetFrameworks: netstandard2.0; net461</Description>
   <ItemGroup>
     <PackageReference Include="Azure.Data.Tables" Version="12.1.0" />
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.20.1" />
-    <PackageReference Include="Miscellaneous.AzCoreTools" Version="2.1.0-beta" />
+    <PackageReference Include="Miscellaneous.AzCoreTools" Version="2.2.1-beta" />
     <PackageReference Include="Miscellaneous.CoreTools" Version="1.0.1" />
   </ItemGroup>
 

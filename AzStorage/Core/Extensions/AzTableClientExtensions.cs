@@ -12,11 +12,11 @@ namespace AzStorage.Core.Extensions
 {
     public static class AzTableClientExtensions
     {
-        private static AzStorageResponse<IReadOnlyList<Response>> LimitedSubmitTransaction<TTAct>(
+        private static AzStorageResponse<IReadOnlyList<Response>> LimitedSubmitTransaction<TRange>(
             this TableClient tableClient,
-            TTAct azTableTransactionStore,
+            TRange azTableTransactionStore,
             CancellationToken cancellationToken = default)
-            where TTAct : IEnumerable<TableTransactionAction>
+            where TRange : IEnumerable<TableTransactionAction>
         {
             return FuncHelper.Execute<IEnumerable<TableTransactionAction>, CancellationToken, Response<IReadOnlyList<Response>>,
                 AzStorageResponse<IReadOnlyList<Response>>, IReadOnlyList<Response>>(

@@ -167,18 +167,6 @@ namespace AzStorage.Test.Helpers
             return string.Format(testPropValue, number);
         }
 
-        public static int GetUnderOneHundredRandomValue()
-        {
-            return new Random().Next(Utilities.ConstProvider.RandomMinValue,
-                Utilities.ConstProvider.RandomMaxValue);
-        }
-
-        public static int GetOverOneHundredRandomValue()
-        {
-            return new Random().Next(Utilities.ConstProvider.Hundreds_RandomMinValue,
-                Utilities.ConstProvider.Hundreds_RandomMaxValue);
-        }
-
         public static string GetTableEntityName()
         {
             return typeof(TableEntity).Name;

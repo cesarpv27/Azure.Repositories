@@ -1,6 +1,7 @@
 ﻿using AzStorage.Test.Helpers;
 using AzStorage.Test.Utilities;
 using CoreTools.Extensions;
+using System;
 using Xunit;
 
 namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
@@ -34,6 +35,31 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_addEntityAsyncResponseAct);
         }
 
+        [Fact, TestPriority(100)]
+        public void AddEntityTest3()
+        {
+            // Arrange
+            var entity = AzCosmosUnitTestHelper.CreateSomeEntity();
+            entity.PartitionKey = default;
+
+            // Act
+
+            // Assert
+            Assert.Throws<ArgumentNullException>(() => AzCosmosUnitTestHelper.AddEntity(entity));
+        }
+
+        [Fact, TestPriority(100)]
+        public void AddEntityTest4()
+        {
+            // Arrange
+            var entity = AzCosmosUnitTestHelper.CreateSomeEntity();
+            entity.Id = default;
+
+            // Act
+
+            // Assert
+            Assert.Throws<ArgumentNullException>(() => AzCosmosUnitTestHelper.AddEntity(entity));
+        }
 
         #region Async
 
@@ -64,6 +90,5 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
         }
 
         #endregion
-
     }
 }

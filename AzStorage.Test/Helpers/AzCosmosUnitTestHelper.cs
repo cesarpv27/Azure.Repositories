@@ -12,6 +12,7 @@ using System.Threading;
 using Microsoft.Azure.Cosmos;
 using System.Linq;
 using ExThrower = CoreTools.Throws.ExceptionThrower;
+using AzCoreTools.Core.Validators;
 
 namespace AzStorage.Test.Helpers
 {
@@ -156,6 +157,19 @@ namespace AzStorage.Test.Helpers
             return entities;
         }
 
+        public static List<CustomCosmosEntity> CreateSomeEntities(int amount, bool scatterPartitionKeys, bool fillProps)
+        {
+            var entities = CreateSomeEntities(amount, scatterPartitionKeys);
+            if (fillProps)
+                entities.ForEach(entt =>
+                {
+                    entt.Prop1 = GenerateProp(1, "Cosmos_");
+                    entt.Prop2 = GenerateProp(2, "Cosmos_");
+                });
+
+            return entities;
+        }
+
         public static List<CustomCosmosEntity> CreateSomeEntities(int amount, bool scatterPartitionKeys)
         {
             if (!scatterPartitionKeys)
@@ -296,6 +310,76 @@ namespace AzStorage.Test.Helpers
             var resultingEntity = response.Value;
             Assert.Equal(sourceEntity.PartitionKey, resultingEntity.PartitionKey);
             Assert.Equal(sourceEntity.Id, resultingEntity.Id);
+        }
+
+        #endregion
+
+        #region Assert responses
+
+        public static void AssertSucceededResponses(
+            List<AzCosmosResponse<List<string>>> azCosmosResponse)
+        {
+            foreach (var _response in azCosmosResponse)
+                AssertSucceededResponses(_response);
+        }
+
+        public static void AssertSucceededResponses(
+            AzCosmosResponse<List<string>> azCosmosResponse)
+        {
+            AssertResponses(azCosmosResponse, true);
+        }
+
+        private static void AssertResponses(
+            AzCosmosResponse<List<string>> azCosmosResponse,
+            bool succeeded,
+            string errorMessage = null)
+        {
+            if (succeeded)
+                Assert.True(azCosmosResponse.Succeeded);
+            else
+                AssertExpectedFailedGenResponse(azCosmosResponse, errorMessage);
+
+            if (azCosmosResponse.Value != default)
+                foreach (var _str in azCosmosResponse.Value)
+                {
+                    if (succeeded)
+                        Assert.True(!string.IsNullOrEmpty(_str));
+                    else
+                        Assert.False(string.IsNullOrEmpty(_str));
+                }
+        }
+
+        public static void AssertSucceededResponses(
+            List<AzCosmosResponse<TransactionalBatchResponse>> azCosmosResponse)
+        {
+            foreach (var _response in azCosmosResponse)
+                AssertSucceededResponses(_response);
+        }
+
+        public static void AssertSucceededResponses(
+            AzCosmosResponse<TransactionalBatchResponse> azCosmosResponse)
+        {
+            AssertResponses(azCosmosResponse, true);
+        }
+
+        private static void AssertResponses(
+            AzCosmosResponse<TransactionalBatchResponse> azCosmosResponse,
+            bool succeeded,
+            string errorMessage = null)
+        {
+            if (succeeded)
+                Assert.True(azCosmosResponse.Succeeded);
+            else
+                AssertExpectedFailedGenResponse(azCosmosResponse, errorMessage);
+
+            if (azCosmosResponse.Value != default)
+                foreach (var _response in azCosmosResponse.Value)
+                {
+                    if (succeeded)
+                        Assert.True(ResponseValidator.StatusSucceeded(_response.StatusCode));
+                    else
+                        Assert.False(ResponseValidator.StatusSucceeded(_response.StatusCode));
+                }
         }
 
         #endregion
@@ -654,6 +738,28 @@ namespace AzStorage.Test.Helpers
 
         #endregion
 
+        #region Add transactionally entities (sync & async)
+
+        public static List<AzCosmosResponse<TransactionalBatchResponse>> AddEntitiesTransactionally<TIn>(
+            IEnumerable<TIn> entities,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where TIn : BaseCosmosEntity
+        {
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).AddEntitiesTransactionally(entities,
+                cancellationToken: default, databaseId: default, containerId: default, partitionKeyPropName: default);
+        }
+        
+        public static Task<List<AzCosmosResponse<TransactionalBatchResponse>>> AddEntitiesTransactionallyAsync<TIn>(
+            IEnumerable<TIn> entities,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where TIn : BaseCosmosEntity
+        {
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).AddEntitiesTransactionallyAsync(entities,
+                cancellationToken: default, databaseId: default, containerId: default, partitionKeyPropName: default);
+        }
+
+        #endregion
+
         #region Get entities
 
         public static AzCosmosResponse<T> GetEntityById<T>(string partitionKey,
@@ -676,6 +782,46 @@ namespace AzStorage.Test.Helpers
         {
             return await GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).GetEntityByIdAsync<T>(partitionKey,
                 id, cancellationToken: default, databaseId: default, containerId: default);
+        }
+
+        #endregion
+
+        #region Get transactionally entities (sync & async)
+
+        public static List<AzCosmosResponse<List<string>>> GetEntitiesAsStringTransactionally<TIn>(
+            IEnumerable<TIn> entities,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where TIn : BaseCosmosEntity
+        {
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).GetEntitiesAsStringTransactionally(entities,
+                cancellationToken: default, databaseId: default, containerId: default, partitionKeyPropName: default);
+        }
+        
+        public static Task<List<AzCosmosResponse<List<string>>>> GetEntitiesAsStringTransactionallyAsync<TIn>(
+            IEnumerable<TIn> entities,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where TIn : BaseCosmosEntity
+        {
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).GetEntitiesAsStringTransactionallyAsync(entities,
+                cancellationToken: default, databaseId: default, containerId: default, partitionKeyPropName: default);
+        }
+        
+        public static List<AzCosmosResponse<TransactionalBatchResponse>> GetEntitiesResponsesTransactionally<TIn>(
+            IEnumerable<TIn> entities,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where TIn : BaseCosmosEntity
+        {
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).GetEntitiesResponsesTransactionally(entities,
+                cancellationToken: default, databaseId: default, containerId: default, partitionKeyPropName: default);
+        }
+        
+        public static Task<List<AzCosmosResponse<TransactionalBatchResponse>>> GetEntityResponsesTransactionallyAsync<TIn>(
+            IEnumerable<TIn> entities,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where TIn : BaseCosmosEntity
+        {
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).GetEntityResponsesTransactionallyAsync(entities,
+                cancellationToken: default, databaseId: default, containerId: default, partitionKeyPropName: default);
         }
 
         #endregion
@@ -946,6 +1092,19 @@ namespace AzStorage.Test.Helpers
         {
             return await GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).UpdateEntityAsync(entity,
                 entity.Id, entity.PartitionKey, cancellationToken: default, databaseId: default, containerId: default);
+        }
+
+        #endregion
+
+        #region Update transactionally async entities
+
+        public static Task<List<AzCosmosResponse<TransactionalBatchResponse>>> UpdateEntitiesTransactionallyAsync<TIn>(
+            IEnumerable<TIn> entities,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where TIn : BaseCosmosEntity
+        {
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).UpdateEntitiesTransactionallyAsync(entities,
+                cancellationToken: default, databaseId: default, containerId: default, partitionKeyPropName: default);
         }
 
         #endregion
