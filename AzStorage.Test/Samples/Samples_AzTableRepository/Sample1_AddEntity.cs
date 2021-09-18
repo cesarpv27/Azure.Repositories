@@ -57,35 +57,6 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             UnitTestHelper.AssertExpectedFailedResponse(_addEntityResponseAct, ConstProvider.The_specified_entity_already_exists);
         }
 
-        [Fact, TestPriority(300)]
-        public void AddEntitiesTransactionallyTest()
-        {
-            // Arrange
-            var entities = AzTableUnitTestHelper.CreateSomeEntities(AzTableUnitTestHelper.GetOverOneHundredRandomValue(), true);
-
-            // Act
-            var _addEntitiesTransactionallyResponsesAct = AzTableUnitTestHelper.AddEntitiesTransactionally(entities);
-
-            // Assert
-            AzTableUnitTestHelper.AssertSucceededResponses(_addEntitiesTransactionallyResponsesAct);
-
-            AzTableUnitTestHelper.AssertByGetEntity(entities);
-        }
-
-        [Fact, TestPriority(300)]
-        public void AddExistingEntitiesTransactionallyTest()
-        {
-            // Arrange
-            var entities = AzTableUnitTestHelper.CreateAddAssertSomeEntities(true,
-                ConstProvider.Hundreds_RandomMinValue, ConstProvider.Hundreds_RandomMaxValue);
-
-            // Act
-            var _addEntitiesTransactionallyResponsesAct = AzTableUnitTestHelper.AddEntitiesTransactionally(entities);
-
-            // Assert
-            AzTableUnitTestHelper.AssertExpectedFailedResponses(_addEntitiesTransactionallyResponsesAct, ConstProvider.The_specified_entity_already_exists);
-        }
-
         #region Async, parallel tests
 
         [Fact, TestPriority(100)]
@@ -114,21 +85,6 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
 
             // Assert
             Assert.Equal(_addEntitiesParallelForEachResponseAct, entities.Count());
-
-            AzTableUnitTestHelper.AssertByGetEntity(entities);
-        }
-
-        [Fact, TestPriority(300)]
-        public void AddEntitiesTransactionallyAsyncTest()
-        {
-            // Arrange
-            var entities = AzTableUnitTestHelper.CreateSomeEntities(AzTableUnitTestHelper.GetOverOneHundredRandomValue(), true);
-
-            // Act
-            var _addEntitiesTransactionallyAsyncResponseAct = Helper.RunAsSync(entities, AzTableUnitTestHelper.AddEntitiesTransactionallyAsync);
-
-            // Assert
-            AzTableUnitTestHelper.AssertSucceededResponses(_addEntitiesTransactionallyAsyncResponseAct);
 
             AzTableUnitTestHelper.AssertByGetEntity(entities);
         }

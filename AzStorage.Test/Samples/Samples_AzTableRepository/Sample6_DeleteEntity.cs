@@ -214,22 +214,6 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             AzTableUnitTestHelper.AssertByExpectedFailedGetEntity(entities, ConstProvider.The_specified_resource_does_not_exist);
         }
 
-        [Fact, TestPriority(300)]
-        public void DeleteEntitiesTransactionallyTest()
-        {
-            // Arrange
-            var entities = AzTableUnitTestHelper.CreateAddAssertSomeEntities(true,
-                ConstProvider.RandomMinValue, ConstProvider.RandomMaxValue);
-
-            // Act
-            var _deleteEntitiesTransactionallyResponsesAct = AzTableUnitTestHelper.DeleteEntitiesTransactionally(entities);
-
-            // Assert
-            AzTableUnitTestHelper.AssertSucceededResponses(_deleteEntitiesTransactionallyResponsesAct);
-
-            AzTableUnitTestHelper.AssertByExpectedFailedGetEntity(entities, ConstProvider.The_specified_resource_does_not_exist);
-        }
-
         #region Async
 
         [Fact, TestPriority(100)]
@@ -275,22 +259,6 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             UnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
 
             AzTableUnitTestHelper.AssertByExpectedFailedGetEntity(entity, ConstProvider.The_specified_resource_does_not_exist);
-        }
-
-        [Fact, TestPriority(300)]
-        public void DeleteEntitiesTransactionallyAsyncTest()
-        {
-            // Arrange
-            var entities = AzTableUnitTestHelper.CreateAddAssertSomeEntities(true,
-                ConstProvider.RandomMinValue, ConstProvider.RandomMaxValue);
-
-            // Act
-            var _deleteEntitiesTransactionallyAsyncResponsesAct = Helper.RunAsSync(entities, AzTableUnitTestHelper.DeleteEntitiesTransactionallyAsync);
-
-            // Assert
-            AzTableUnitTestHelper.AssertSucceededResponses(_deleteEntitiesTransactionallyAsyncResponsesAct);
-
-            AzTableUnitTestHelper.AssertByExpectedFailedGetEntity(entities, ConstProvider.The_specified_resource_does_not_exist);
         }
 
         #endregion

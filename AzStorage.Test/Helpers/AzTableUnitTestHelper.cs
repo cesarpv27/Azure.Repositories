@@ -362,10 +362,9 @@ namespace AzStorage.Test.Helpers
             // Assert
             AssertSucceededResponses(_updateEntitiesTransactionallyResponse);
 
-            var recoveredEntities = AssertByGetEntity(entities);
-
-            foreach (var recEntt in recoveredEntities)
-                actionAssertRecoveredEntity(recEntt);
+            //var recoveredEntities = AssertByGetEntity(entities);
+            //foreach (var recEntt in recoveredEntities)
+            //    actionAssertRecoveredEntity(recEntt);
         }
 
         #endregion

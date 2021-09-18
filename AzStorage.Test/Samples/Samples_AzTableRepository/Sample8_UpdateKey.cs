@@ -8,7 +8,7 @@ using Xunit;
 namespace AzStorage.Test.Samples.Samples_AzTableRepository
 {
     [TestCaseOrderer("AzStorage.Test.Utilities.PriorityOrderer", "AzStorage.Test")]
-    public class Sample7_UpdateKey
+    public class Sample8_UpdateKey
     {
         [Fact, TestPriority(100)]
         public void UpdateKeysTest1()

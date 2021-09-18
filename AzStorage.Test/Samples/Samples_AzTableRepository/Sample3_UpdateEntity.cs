@@ -29,28 +29,6 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
                 });
         }
 
-        [Fact, TestPriority(300)]
-        public void UpdateMergeEntitiesTransactionallyTest()
-        {
-            AzTableUnitTestHelper.AssertUpdateOrUpsertExistingEntitiesTransactionally(
-                AzTableUnitTestHelper.UpdateMergeEntitiesTransactionally,
-                recEntt => {
-                    Assert.Equal(recEntt.GetString(AzTableUnitTestHelper.GenerateTestPropKey(1)), AzTableUnitTestHelper.GenerateTestPropValue(1));
-                    Assert.Equal(recEntt.GetString(AzTableUnitTestHelper.GenerateTestPropKey(2)), AzTableUnitTestHelper.GenerateTestPropValue(2));
-                });
-        }
-
-        [Fact, TestPriority(300)]
-        public void UpdateReplaceEntitiesTransactionallyTest()
-        {
-            AzTableUnitTestHelper.AssertUpdateOrUpsertExistingEntitiesTransactionally(
-                AzTableUnitTestHelper.UpdateReplaceEntitiesTransactionally,
-                recEntt => {
-                    Assert.Null(recEntt.GetString(AzTableUnitTestHelper.GenerateTestPropKey(1)));
-                    Assert.Equal(recEntt.GetString(AzTableUnitTestHelper.GenerateTestPropKey(2)), AzTableUnitTestHelper.GenerateTestPropValue(2));
-                });
-        }
-
         #region Async
 
         [Fact, TestPriority(100)]
@@ -69,28 +47,6 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
         {
             AzTableUnitTestHelper.AssertUpdateOrUpsertExistingEntity(
                 AzTableUnitTestHelper.UpdateReplaceEntityAsync,
-                recEntt => {
-                    Assert.Null(recEntt.GetString(AzTableUnitTestHelper.GenerateTestPropKey(1)));
-                    Assert.Equal(recEntt.GetString(AzTableUnitTestHelper.GenerateTestPropKey(2)), AzTableUnitTestHelper.GenerateTestPropValue(2));
-                });
-        }
-
-        [Fact, TestPriority(300)]
-        public void UpdateMergeEntitiesTransactionallyAsyncTest()
-        {
-            AzTableUnitTestHelper.AssertUpdateOrUpsertExistingEntitiesTransactionally(
-                AzTableUnitTestHelper.UpdateMergeEntitiesTransactionallyAsync,
-                recEntt => {
-                    Assert.Equal(recEntt.GetString(AzTableUnitTestHelper.GenerateTestPropKey(1)), AzTableUnitTestHelper.GenerateTestPropValue(1));
-                    Assert.Equal(recEntt.GetString(AzTableUnitTestHelper.GenerateTestPropKey(2)), AzTableUnitTestHelper.GenerateTestPropValue(2));
-                });
-        }
-
-        [Fact, TestPriority(300)]
-        public void UpdateReplaceEntitiesTransactionallyAsyncTest()
-        {
-            AzTableUnitTestHelper.AssertUpdateOrUpsertExistingEntitiesTransactionally(
-                AzTableUnitTestHelper.UpdateReplaceEntitiesTransactionallyAsync,
                 recEntt => {
                     Assert.Null(recEntt.GetString(AzTableUnitTestHelper.GenerateTestPropKey(1)));
                     Assert.Equal(recEntt.GetString(AzTableUnitTestHelper.GenerateTestPropKey(2)), AzTableUnitTestHelper.GenerateTestPropValue(2));

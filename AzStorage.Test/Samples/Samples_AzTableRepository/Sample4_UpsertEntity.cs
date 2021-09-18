@@ -124,25 +124,6 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             AzTableUnitTestHelper.AssertByGetEntity(entityB);
         }
 
-        [Fact, TestPriority(300)]
-        public void UpsertNewEntitiesTransactionallyTest()
-        {
-            // Arrange
-            var entitiesA = AzTableUnitTestHelper.CreateSomeEntities(AzTableUnitTestHelper.GetUnderOneHundredRandomValue());
-            var entitiesB = AzTableUnitTestHelper.CreateSomeEntities(AzTableUnitTestHelper.GetUnderOneHundredRandomValue());
-
-            // Act
-            var _updateMergeEntitiesResponseTransactionally = AzTableUnitTestHelper.UpsertMergeEntitiesTransactionally(entitiesA);
-            var _updateReplaceEntitiesResponseTransactionally = AzTableUnitTestHelper.UpsertReplaceEntitiesTransactionally(entitiesB);
-
-            // Assert
-            AzTableUnitTestHelper.AssertSucceededResponses(_updateMergeEntitiesResponseTransactionally);
-            AzTableUnitTestHelper.AssertByGetEntity(entitiesA);
-
-            AzTableUnitTestHelper.AssertSucceededResponses(_updateReplaceEntitiesResponseTransactionally);
-            AzTableUnitTestHelper.AssertByGetEntity(entitiesB);
-        }
-
         #endregion
 
         #region New entities async
@@ -164,25 +145,6 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
 
             UnitTestHelper.AssertExpectedSuccessfulResponse(_upsertReplaceEntityResponseAct);
             AzTableUnitTestHelper.AssertByGetEntity(entityB);
-        }
-
-        [Fact, TestPriority(300)]
-        public void UpsertNewEntitiesTransactionallyAsyncTest()
-        {
-            // Arrange
-            var entitiesA = AzTableUnitTestHelper.CreateSomeEntities(AzTableUnitTestHelper.GetUnderOneHundredRandomValue());
-            var entitiesB = AzTableUnitTestHelper.CreateSomeEntities(AzTableUnitTestHelper.GetUnderOneHundredRandomValue());
-
-            // Act
-            var _updateMergeEntitiesResponseTransactionally = AzTableUnitTestHelper.UpsertMergeEntitiesTransactionallyAsync(entitiesA);
-            var _updateReplaceEntitiesResponseTransactionally = AzTableUnitTestHelper.UpsertReplaceEntitiesTransactionallyAsync(entitiesB);
-
-            // Assert
-            AzTableUnitTestHelper.AssertSucceededResponses(_updateMergeEntitiesResponseTransactionally);
-            AzTableUnitTestHelper.AssertByGetEntity(entitiesA);
-
-            AzTableUnitTestHelper.AssertSucceededResponses(_updateReplaceEntitiesResponseTransactionally);
-            AzTableUnitTestHelper.AssertByGetEntity(entitiesB);
         }
 
         #endregion
