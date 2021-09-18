@@ -56,38 +56,82 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
 
         #region Get entities transactionally (sync & async)
 
-        [Fact, TestPriority(330)]
-        public void GetEntitiesAsStringTransactionallyAsyncTest()
+        [Fact, TestPriority(326)]
+        public void GetEntitiesTransactionallyTest()
         {
             // Arrange
-            var entities = AzCosmosUnitTestHelper.CreateSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true, true);
-
-            var _addEntitiesTransactionallyResponseArr = AzCosmosUnitTestHelper.AddEntitiesTransactionally(entities);
-            AzCosmosUnitTestHelper.AssertSucceededResponses(_addEntitiesTransactionallyResponseArr);
+            var entities = AzCosmosUnitTestHelper.CreateAssertSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true, true);
 
             var partialEntities = entities.Select(entt => new CustomCosmosEntity(entt.PartitionKey, entt.Id)).ToList();
 
             // Act
+            var _getEntitiesTransactionallyResponseAct = AzCosmosUnitTestHelper
+                .GetEntitiesTransactionally(partialEntities);
+
+            // Assert
+            AzCosmosUnitTestHelper.AssertSucceededResponses(_getEntitiesTransactionallyResponseAct);
+        }
+        
+        [Fact, TestPriority(326)]
+        public void GetEntitiesTransactionallyAsyncTest()
+        {
+            // Arrange
+            var entities = AzCosmosUnitTestHelper.CreateAssertSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true, true);
+
+            var partialEntities = entities.Select(entt => new CustomCosmosEntity(entt.PartitionKey, entt.Id)).ToList();
+
+            // Act
+            var _getEntitiesTransactionallyAsyncResponseAct = AzCosmosUnitTestHelper
+                .GetEntitiesTransactionallyAsync(partialEntities);
+
+            // Assert
+            AzCosmosUnitTestHelper.AssertSucceededResponses(
+                _getEntitiesTransactionallyAsyncResponseAct.WaitAndUnwrapException());
+        }
+        
+        [Fact, TestPriority(326)]
+        public void GetEntitiesAsStringTransactionallyTest()
+        {
+            // Arrange
+            var entities = AzCosmosUnitTestHelper.CreateAssertSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true, true);
+            
+            var partialEntities = entities.Select(entt => new CustomCosmosEntity(entt.PartitionKey, entt.Id)).ToList();
+
+            // Act
             var _getEntitiesAsStringTransactionallyResponseAct = AzCosmosUnitTestHelper
-                .GetEntitiesAsStringTransactionallyAsync(partialEntities).WaitAndUnwrapException();
+                .GetEntitiesAsStringTransactionally(partialEntities);
 
             // Assert
             AzCosmosUnitTestHelper.AssertSucceededResponses(_getEntitiesAsStringTransactionallyResponseAct);
+        }
+        
+        [Fact, TestPriority(328)]
+        public void GetEntitiesAsStringTransactionallyAsyncTest()
+        {
+            // Arrange
+            var entities = AzCosmosUnitTestHelper.CreateAssertSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true, true);
+            
+            var partialEntities = entities.Select(entt => new CustomCosmosEntity(entt.PartitionKey, entt.Id)).ToList();
+
+            // Act
+            var _getEntitiesAsStringTransactionallyAsyncResponseAct = AzCosmosUnitTestHelper
+                .GetEntitiesAsStringTransactionallyAsync(partialEntities).WaitAndUnwrapException();
+
+            // Assert
+            AzCosmosUnitTestHelper.AssertSucceededResponses(_getEntitiesAsStringTransactionallyAsyncResponseAct);
         }
 
         [Fact, TestPriority(330)]
         public void GetEntitiesResponsesTransactionallyTest()
         {
             // Arrange
-            var entities = AzCosmosUnitTestHelper.CreateSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true, true);
+            var entities = AzCosmosUnitTestHelper.CreateAssertSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true, true);
             
-            var _addEntitiesTransactionallyResponseArr = AzCosmosUnitTestHelper.AddEntitiesTransactionally(entities);
-            AzCosmosUnitTestHelper.AssertSucceededResponses(_addEntitiesTransactionallyResponseArr);
-
             var partialEntities = entities.Select(entt => new CustomCosmosEntity(entt.PartitionKey, entt.Id)).ToList();
 
             // Act
-            var _getEntitiesResponsesTransactionallyResponseAct = AzCosmosUnitTestHelper.GetEntitiesResponsesTransactionally(partialEntities);
+            var _getEntitiesResponsesTransactionallyResponseAct = AzCosmosUnitTestHelper
+                .GetEntitiesResponsesTransactionally(partialEntities);
 
             // Assert
             AzCosmosUnitTestHelper.AssertSucceededResponses(_getEntitiesResponsesTransactionallyResponseAct);
@@ -97,11 +141,8 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
         public void GetEntitiesResponsesTransactionallyAsyncTest()
         {
             // Arrange
-            var entities = AzCosmosUnitTestHelper.CreateSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true, true);
+            var entities = AzCosmosUnitTestHelper.CreateAssertSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true, true);
             
-            var _addEntitiesTransactionallyResponseArr = AzCosmosUnitTestHelper.AddEntitiesTransactionallyAsync(entities).WaitAndUnwrapException();
-            AzCosmosUnitTestHelper.AssertSucceededResponses(_addEntitiesTransactionallyResponseArr);
-
             var partialEntities = entities.Select(entt => new CustomCosmosEntity(entt.PartitionKey, entt.Id)).ToList();
 
             // Act
