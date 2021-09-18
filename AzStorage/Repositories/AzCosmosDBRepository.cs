@@ -3058,6 +3058,124 @@ namespace AzStorage.Repositories
 
         #endregion
 
+        #region Upsert transactionally
+
+        /// <summary>
+        /// Upserts entities in one or more batch transactions into the Azure Cosmos service.
+        /// The sub-operations contained in one batch will either succeed or fail together as a transaction.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model type that inherits from <see cref="BaseCosmosEntity" />.</typeparam>
+        /// <param name="entities">The items to add.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database</param>
+        /// <param name="containerId">The Id of the Cosmos container</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A collection containing responses of type <see cref="AzCosmosResponse{TransactionalBatchResponse}"/>
+        /// with information about each batch execution.</returns>
+        public virtual List<AzCosmosResponse<TransactionalBatchResponse>> UpsertEntitiesTransactionally<TIn>(
+            IEnumerable<TIn> entities,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+            where TIn : BaseCosmosEntity
+        {
+            return UpsertEntitiesTransactionally(entities, entt => entt.PartitionKey, entt => entt.Id,
+                cancellationToken, databaseId, containerId, partitionKeyPropName);
+        }
+
+        /// <summary>
+        /// Upserts entities in one or more batch transactions into the Azure Cosmos service.
+        /// The sub-operations contained in one batch will either succeed or fail together as a transaction.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model type.</typeparam>
+        /// <param name="entities">The items to add.</param>
+        /// <param name="funcGetPartitionKey">Delegate that returns the entity partition key.</param>
+        /// <param name="funcGetId">Delegate that returns the entity id.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database</param>
+        /// <param name="containerId">The Id of the Cosmos container</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A collection containing responses of type <see cref="AzCosmosResponse{TransactionalBatchResponse}"/>
+        /// with information about each batch execution.</returns>
+        public virtual List<AzCosmosResponse<TransactionalBatchResponse>> UpsertEntitiesTransactionally<TIn>(
+            IEnumerable<TIn> entities,
+            Func<TIn, string> funcGetPartitionKey,
+            Func<TIn, string> funcGetId,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return UpsertEntitiesTransactionallyAsync(entities, funcGetPartitionKey, funcGetId,
+                cancellationToken, databaseId, containerId, partitionKeyPropName).WaitAndUnwrapException();
+        }
+
+        #endregion
+
+        #region Upsert transactionally async
+
+        /// <summary>
+        /// Upserts entities in one or more batch transactions into the Azure Cosmos service.
+        /// The sub-operations contained in one batch will either succeed or fail together as a transaction.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model type that inherits from <see cref="BaseCosmosEntity" />.</typeparam>
+        /// <param name="entities">The items to add.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database</param>
+        /// <param name="containerId">The Id of the Cosmos container</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A collection containing responses of type <see cref="AzCosmosResponse{TransactionalBatchResponse}"/>
+        /// with information about each batch execution, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        public virtual async Task<List<AzCosmosResponse<TransactionalBatchResponse>>> UpsertEntitiesTransactionallyAsync<TIn>(
+            IEnumerable<TIn> entities,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+            where TIn : BaseCosmosEntity
+        {
+            return await UpsertEntitiesTransactionallyAsync(entities, entt => entt.PartitionKey, entt => entt.Id,
+                cancellationToken, databaseId, containerId, partitionKeyPropName);
+        }
+
+        /// <summary>
+        /// Upserts entities in one or more batch transactions into the Azure Cosmos service.
+        /// The sub-operations contained in one batch will either succeed or fail together as a transaction.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model type.</typeparam>
+        /// <param name="entities">The items to add.</param>
+        /// <param name="funcGetPartitionKey">Delegate that returns the entity partition key.</param>
+        /// <param name="funcGetId">Delegate that returns the entity id.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database</param>
+        /// <param name="containerId">The Id of the Cosmos container</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A collection containing responses of type <see cref="AzCosmosResponse{TransactionalBatchResponse}"/>
+        /// with information about each batch execution, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        public virtual async Task<List<AzCosmosResponse<TransactionalBatchResponse>>> UpsertEntitiesTransactionallyAsync<TIn>(
+            IEnumerable<TIn> entities,
+            Func<TIn, string> funcGetPartitionKey,
+            Func<TIn, string> funcGetId,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNull(funcGetId, nameof(funcGetId));
+
+            return await ExecuteOperationTransactionallyAsync(entities,
+                (azTableTransactionStore, entts) => azTableTransactionStore.ClearNUpsert(entts),
+                funcGetPartitionKey, funcGetId, cancellationToken,
+                databaseId, containerId, partitionKeyPropName);
+        }
+
+        #endregion
+
         #region Delete
 
         /// <summary>
@@ -3252,6 +3370,124 @@ namespace AzStorage.Repositories
             return await CosmosFuncHelper.ExecuteAsync<string, PartitionKey, ItemRequestOptions, CancellationToken, ItemResponse<T>, TOut, T>(
                 Container.DeleteItemAsync<T>,
                 id, new PartitionKey(partitionKey), default, cancellationToken);
+        }
+
+        #endregion
+
+        #region Delete transactionally
+
+        /// <summary>
+        /// Deletes entities in one or more batch transactions into the Azure Cosmos service.
+        /// The sub-operations contained in one batch will either succeed or fail together as a transaction.
+        /// </summary>
+        /// <typeparam name="T">A custom model type that inherits from <see cref="BaseCosmosEntity" />.</typeparam>
+        /// <param name="entities">The items to add.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database</param>
+        /// <param name="containerId">The Id of the Cosmos container</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A collection containing responses of type <see cref="AzCosmosResponse{TransactionalBatchResponse}"/>
+        /// with information about each batch execution.</returns>
+        public virtual List<AzCosmosResponse<TransactionalBatchResponse>> DeleteEntitiesTransactionally<T>(
+            IEnumerable<T> entities,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+            where T : BaseCosmosEntity
+        {
+            return DeleteEntitiesTransactionally(entities, entt => entt.PartitionKey, entt => entt.Id,
+                cancellationToken, databaseId, containerId, partitionKeyPropName);
+        }
+
+        /// <summary>
+        /// Deletes entities in one or more batch transactions into the Azure Cosmos service.
+        /// The sub-operations contained in one batch will either succeed or fail together as a transaction.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="entities">The items to add.</param>
+        /// <param name="funcGetPartitionKey">Delegate that returns the entity partition key.</param>
+        /// <param name="funcGetId">Delegate that returns the entity id.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database</param>
+        /// <param name="containerId">The Id of the Cosmos container</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A collection containing responses of type <see cref="AzCosmosResponse{TransactionalBatchResponse}"/>
+        /// with information about each batch execution.</returns>
+        public virtual List<AzCosmosResponse<TransactionalBatchResponse>> DeleteEntitiesTransactionally<T>(
+            IEnumerable<T> entities,
+            Func<T, string> funcGetPartitionKey,
+            Func<T, string> funcGetId,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            return DeleteEntitiesTransactionallyAsync(entities, funcGetPartitionKey, funcGetId,
+                cancellationToken, databaseId, containerId, partitionKeyPropName).WaitAndUnwrapException();
+        }
+
+        #endregion
+
+        #region Delete transactionally async
+
+        /// <summary>
+        /// Deletes entities in one or more batch transactions into the Azure Cosmos service.
+        /// The sub-operations contained in one batch will either succeed or fail together as a transaction.
+        /// </summary>
+        /// <typeparam name="T">A custom model type that inherits from <see cref="BaseCosmosEntity" />.</typeparam>
+        /// <param name="entities">The items to add.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database</param>
+        /// <param name="containerId">The Id of the Cosmos container</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A collection containing responses of type <see cref="AzCosmosResponse{TransactionalBatchResponse}"/>
+        /// with information about each batch execution, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        public virtual async Task<List<AzCosmosResponse<TransactionalBatchResponse>>> DeleteEntitiesTransactionallyAsync<T>(
+            IEnumerable<T> entities,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+            where T : BaseCosmosEntity
+        {
+            return await DeleteEntitiesTransactionallyAsync(entities, entt => entt.PartitionKey, entt => entt.Id,
+                cancellationToken, databaseId, containerId, partitionKeyPropName);
+        }
+
+        /// <summary>
+        /// Deletes entities in one or more batch transactions into the Azure Cosmos service.
+        /// The sub-operations contained in one batch will either succeed or fail together as a transaction.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="entities">The items to add.</param>
+        /// <param name="funcGetPartitionKey">Delegate that returns the entity partition key.</param>
+        /// <param name="funcGetId">Delegate that returns the entity id.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="databaseId">The Id of the Cosmos database</param>
+        /// <param name="containerId">The Id of the Cosmos container</param>
+        /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <returns>A collection containing responses of type <see cref="AzCosmosResponse{TransactionalBatchResponse}"/>
+        /// with information about each batch execution, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        public virtual async Task<List<AzCosmosResponse<TransactionalBatchResponse>>> DeleteEntitiesTransactionallyAsync<T>(
+            IEnumerable<T> entities,
+            Func<T, string> funcGetPartitionKey,
+            Func<T, string> funcGetId,
+            CancellationToken cancellationToken = default,
+            string databaseId = null,
+            string containerId = null,
+            string partitionKeyPropName = null)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNull(funcGetId, nameof(funcGetId));
+
+            return await ExecuteOperationTransactionallyAsync(entities,
+                (azTableTransactionStore, entts) => azTableTransactionStore.ClearNDelete(entts),
+                funcGetPartitionKey, funcGetId, cancellationToken,
+                databaseId, containerId, partitionKeyPropName);
         }
 
         #endregion

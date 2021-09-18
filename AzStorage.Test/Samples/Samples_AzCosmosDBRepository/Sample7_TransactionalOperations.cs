@@ -60,7 +60,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
         public void GetEntitiesTransactionallyTest()
         {
             // Arrange
-            var entities = AzCosmosUnitTestHelper.CreateAssertSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true, true);
+            var entities = AzCosmosUnitTestHelper.CreateAddAssertSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true, true);
 
             var partialEntities = entities.Select(entt => new CustomCosmosEntity(entt.PartitionKey, entt.Id)).ToList();
 
@@ -76,7 +76,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
         public void GetEntitiesTransactionallyAsyncTest()
         {
             // Arrange
-            var entities = AzCosmosUnitTestHelper.CreateAssertSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true, true);
+            var entities = AzCosmosUnitTestHelper.CreateAddAssertSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true, true);
 
             var partialEntities = entities.Select(entt => new CustomCosmosEntity(entt.PartitionKey, entt.Id)).ToList();
 
@@ -93,7 +93,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
         public void GetEntitiesAsStringTransactionallyTest()
         {
             // Arrange
-            var entities = AzCosmosUnitTestHelper.CreateAssertSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true, true);
+            var entities = AzCosmosUnitTestHelper.CreateAddAssertSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true, true);
             
             var partialEntities = entities.Select(entt => new CustomCosmosEntity(entt.PartitionKey, entt.Id)).ToList();
 
@@ -109,7 +109,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
         public void GetEntitiesAsStringTransactionallyAsyncTest()
         {
             // Arrange
-            var entities = AzCosmosUnitTestHelper.CreateAssertSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true, true);
+            var entities = AzCosmosUnitTestHelper.CreateAddAssertSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true, true);
             
             var partialEntities = entities.Select(entt => new CustomCosmosEntity(entt.PartitionKey, entt.Id)).ToList();
 
@@ -121,11 +121,11 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             AzCosmosUnitTestHelper.AssertSucceededResponses(_getEntitiesAsStringTransactionallyAsyncResponseAct);
         }
 
-        [Fact, TestPriority(330)]
+        [Fact, TestPriority(328)]
         public void GetEntitiesResponsesTransactionallyTest()
         {
             // Arrange
-            var entities = AzCosmosUnitTestHelper.CreateAssertSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true, true);
+            var entities = AzCosmosUnitTestHelper.CreateAddAssertSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true, true);
             
             var partialEntities = entities.Select(entt => new CustomCosmosEntity(entt.PartitionKey, entt.Id)).ToList();
 
@@ -137,11 +137,11 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             AzCosmosUnitTestHelper.AssertSucceededResponses(_getEntitiesResponsesTransactionallyResponseAct);
         }
         
-        [Fact, TestPriority(332)]
+        [Fact, TestPriority(328)]
         public void GetEntitiesResponsesTransactionallyAsyncTest()
         {
             // Arrange
-            var entities = AzCosmosUnitTestHelper.CreateAssertSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true, true);
+            var entities = AzCosmosUnitTestHelper.CreateAddAssertSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true, true);
             
             var partialEntities = entities.Select(entt => new CustomCosmosEntity(entt.PartitionKey, entt.Id)).ToList();
 
@@ -154,34 +154,156 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
 
         #endregion
 
-        #region Update entities transactionally
+        #region Update entities transactionally (sync & async)
 
+        [Fact, TestPriority(330)]
+        public void UpdateEntitiesTransactionallyTest()
+        {
+            // Arrange
+            var entities = AzCosmosUnitTestHelper.CreateSetPropsAddAssertSetPropsSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true);
+            
+            // Act
+            var _updateEntitiesTransactionallyResponseAct = AzCosmosUnitTestHelper
+                .UpdateEntitiesTransactionally(entities);
+            
+            // Assert
+            AzCosmosUnitTestHelper.AssertSucceededResponses(_updateEntitiesTransactionallyResponseAct);
+        }
+        
         [Fact, TestPriority(330)]
         public void UpdateEntitiesTransactionallyAsyncTest()
         {
             // Arrange
-            var entities = AzCosmosUnitTestHelper.CreateSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true);
-            entities.ForEach(entt =>
-            {
-                entt.Prop1 = AzCosmosUnitTestHelper.GenerateProp(1, "Cosmos_");
-                entt.Prop2 = null;
-            });
-
-            var _addEntitiesTransactionallyAsyncResponseAct = AzCosmosUnitTestHelper.AddEntitiesTransactionallyAsync(entities).WaitAndUnwrapException();
-            AzCosmosUnitTestHelper.AssertSucceededResponses(_addEntitiesTransactionallyAsyncResponseAct);
-
-            entities.ForEach(entt => 
-            { 
-                entt.Prop1 = null;
-                entt.Prop2 = AzCosmosUnitTestHelper.GenerateProp(2, "Cosmos_"); 
-            });
-
+            var entities = AzCosmosUnitTestHelper.CreateSetPropsAddAssertSetPropsSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true);
+            
             // Act
-            var _getEntitiesTransactionallyAsyncResponseAct = AzCosmosUnitTestHelper
+            var _updateEntitiesTransactionallyAsyncResponseAct = AzCosmosUnitTestHelper
                 .UpdateEntitiesTransactionallyAsync(entities).WaitAndUnwrapException();
             
             // Assert
-            AzCosmosUnitTestHelper.AssertSucceededResponses(_getEntitiesTransactionallyAsyncResponseAct);
+            AzCosmosUnitTestHelper.AssertSucceededResponses(_updateEntitiesTransactionallyAsyncResponseAct);
+        }
+
+        #endregion
+
+        #region Upsert entities transactionally (sync & async)
+
+        [Fact, TestPriority(340)]
+        public void UpsertEntitiesTransactionallyTest1()// adds
+        {
+            // Arrange
+            var entities = AzCosmosUnitTestHelper.CreateSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), false);
+
+            // Act
+            var _upsertEntitiesTransactionallyResponseAct = AzCosmosUnitTestHelper
+                .UpsertEntitiesTransactionally(entities);
+
+            // Assert
+            AzCosmosUnitTestHelper.AssertSucceededResponses(_upsertEntitiesTransactionallyResponseAct);
+        }
+
+        [Fact, TestPriority(340)]
+        public void UpsertEntitiesTransactionallyAsyncTest1()// adds
+        {
+            // Arrange
+            var entities = AzCosmosUnitTestHelper.CreateSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), false);
+
+            // Act
+            var _upsertEntitiesTransactionallyAsyncResponseAct = AzCosmosUnitTestHelper
+                .UpsertEntitiesTransactionallyAsync(entities).WaitAndUnwrapException();
+
+            // Assert
+            AzCosmosUnitTestHelper.AssertSucceededResponses(_upsertEntitiesTransactionallyAsyncResponseAct);
+        }
+        
+        [Fact, TestPriority(340)]
+        public void UpsertEntitiesTransactionallyTest2()// updates
+        {
+            // Arrange
+            var entities = AzCosmosUnitTestHelper.CreateSetPropsAddAssertSetPropsSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true);
+
+            // Act
+            var _upsertEntitiesTransactionallyResponseAct = AzCosmosUnitTestHelper
+                .UpsertEntitiesTransactionally(entities);
+
+            // Assert
+            AzCosmosUnitTestHelper.AssertSucceededResponses(_upsertEntitiesTransactionallyResponseAct);
+        }
+
+        [Fact, TestPriority(340)]
+        public void UpsertEntitiesTransactionallyAsyncTest2()// updates
+        {
+            // Arrange
+            var entities = AzCosmosUnitTestHelper.CreateSetPropsAddAssertSetPropsSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true);
+
+            // Act
+            var _upsertEntitiesTransactionallyAsyncResponseAct = AzCosmosUnitTestHelper
+                .UpsertEntitiesTransactionallyAsync(entities).WaitAndUnwrapException();
+
+            // Assert
+            AzCosmosUnitTestHelper.AssertSucceededResponses(_upsertEntitiesTransactionallyAsyncResponseAct);
+        }
+
+        #endregion
+
+        #region Delete entities transactionally (sync & async)
+
+        [Fact, TestPriority(350)]
+        public void DeleteEntitiesTransactionallyTest1()
+        {
+            // Arrange
+            var entities = AzCosmosUnitTestHelper.CreateAddAssertSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true, true);
+
+            // Act
+            var _deleteEntitiesTransactionallyResponseAct = AzCosmosUnitTestHelper
+                .DeleteEntitiesTransactionally(entities);
+
+            // Assert
+            AzCosmosUnitTestHelper.AssertSucceededResponses(_deleteEntitiesTransactionallyResponseAct);
+        }
+
+        [Fact, TestPriority(350)]
+        public void DeleteEntitiesTransactionallyAsyncTest1()
+        {
+            // Arrange
+            var entities = AzCosmosUnitTestHelper.CreateAddAssertSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true, true);
+
+            // Act
+            var _deleteEntitiesTransactionallyAsyncResponseAct = AzCosmosUnitTestHelper
+                .DeleteEntitiesTransactionallyAsync(entities).WaitAndUnwrapException();
+
+            // Assert
+            AzCosmosUnitTestHelper.AssertSucceededResponses(_deleteEntitiesTransactionallyAsyncResponseAct);
+        }
+        
+        [Fact, TestPriority(350)]
+        public void DeleteEntitiesTransactionallyTest2()
+        {
+            // Arrange
+            var entities = AzCosmosUnitTestHelper.CreateAddAssertSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true, true);
+            var entitiesToDelete = entities.Select(ent => new CustomCosmosEntity(ent.PartitionKey, ent.Id));
+
+            // Act
+            var _deleteEntitiesTransactionallyResponseAct = AzCosmosUnitTestHelper
+                .DeleteEntitiesTransactionally(entitiesToDelete);
+
+            // Assert
+            AzCosmosUnitTestHelper.AssertSucceededResponses(_deleteEntitiesTransactionallyResponseAct);
+        }
+
+        [Fact, TestPriority(350)]
+        public void DeleteEntitiesTransactionallyAsyncTest2()
+        {
+            // Arrange
+            var entities = AzCosmosUnitTestHelper.CreateAddAssertSomeEntities(UnitTestHelper.GetOverOneHundredRandomValue(), true, true);
+            var entitiesToDelete = entities.Select(ent => new CustomCosmosEntity(ent.PartitionKey, ent.Id));
+
+            // Act
+            var _deleteEntitiesTransactionallyAsyncResponseAct = AzCosmosUnitTestHelper
+                .DeleteEntitiesTransactionallyAsync(entitiesToDelete).WaitAndUnwrapException();
+
+            // Assert
+            AzCosmosUnitTestHelper.AssertSucceededResponses(_deleteEntitiesTransactionallyAsyncResponseAct);
         }
 
         #endregion
