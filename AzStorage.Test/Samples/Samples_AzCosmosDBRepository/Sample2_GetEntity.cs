@@ -8,7 +8,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
     [TestCaseOrderer("AzStorage.Test.Utilities.PriorityOrderer", "AzStorage.Test")]
     public class Sample2_GetEntity
     {
-        [Fact, TestPriority(90)]
+        [Fact, TestPriority(200)]
         public void GetEntityTest()
         {
             // Arrange
@@ -25,7 +25,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
 
         #region Async
 
-        [Fact, TestPriority(90)]
+        [Fact, TestPriority(200)]
         public void GetEntityAsyncTest()
         {
             // Arrange
@@ -42,6 +42,5 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
         }
 
         #endregion
-
     }
 }

@@ -7,8 +7,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
     [TestCaseOrderer("AzStorage.Test.Utilities.PriorityOrderer", "AzStorage.Test")]
     public class Sample3_UpdateEntity
     {
-
-        [Fact, TestPriority(100)]
+        [Fact, TestPriority(300)]
         public void UpdateEntityTest()
         {
             AzCosmosUnitTestHelper.AssertUpdateOrUpsertExistingEntity(true,
@@ -19,7 +18,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
                 });
         }
 
-        [Fact, TestPriority(100)]
+        [Fact, TestPriority(300)]
         public void UpdateEntityTest2()
         {
             AzCosmosUnitTestHelper.AssertUpdateOrUpsertExistingEntity(true,
@@ -32,7 +31,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
 
         #region Async
 
-        [Fact, TestPriority(100)]
+        [Fact, TestPriority(300)]
         public void UpdateEntityAsyncTest()
         {
             AzCosmosUnitTestHelper.AssertUpdateOrUpsertExistingEntity(true,
@@ -43,7 +42,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
                 });
         }
 
-        [Fact, TestPriority(100)]
+        [Fact, TestPriority(300)]
         public void UpdateEntityAsyncTest2()
         {
             AzCosmosUnitTestHelper.AssertUpdateOrUpsertExistingEntity(true,
@@ -55,6 +54,5 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
         }
 
         #endregion
-
     }
 }

@@ -7,7 +7,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
     [TestCaseOrderer("AzStorage.Test.Utilities.PriorityOrderer", "AzStorage.Test")]
     public class Sample4_UpsertEntity
     {
-        [Fact, TestPriority(100)]
+        [Fact, TestPriority(400)]
         public void UpsertEntity_UpdateTest()
         {
             AzCosmosUnitTestHelper.AssertUpdateOrUpsertExistingEntity(true,
@@ -18,7 +18,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
                 });
         }
 
-        [Fact, TestPriority(100)]
+        [Fact, TestPriority(400)]
         public void UpsertEntity_UpdateTest2()
         {
             AzCosmosUnitTestHelper.AssertUpdateOrUpsertExistingEntity(true,
@@ -29,7 +29,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
                 });
         }
 
-        [Fact, TestPriority(100)]
+        [Fact, TestPriority(400)]
         public void UpsertEntity_AddTest()
         {
             AzCosmosUnitTestHelper.AssertUpdateOrUpsertExistingEntity(false,
@@ -42,7 +42,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
 
         #region Async
 
-        [Fact, TestPriority(100)]
+        [Fact, TestPriority(400)]
         public void UpsertEntityAsync_UpdateTest()
         {
             AzCosmosUnitTestHelper.AssertUpdateOrUpsertExistingEntity(true,
@@ -53,7 +53,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
                 });
         }
 
-        [Fact, TestPriority(100)]
+        [Fact, TestPriority(400)]
         public void UpsertEntityAsync_UpdateTest2()
         {
             AzCosmosUnitTestHelper.AssertUpdateOrUpsertExistingEntity(true,
@@ -64,7 +64,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
                 });
         }
 
-        [Fact, TestPriority(100)]
+        [Fact, TestPriority(400)]
         public void UpsertEntityAsync_AddTest()
         {
             AzCosmosUnitTestHelper.AssertUpdateOrUpsertExistingEntity(false,
@@ -76,6 +76,5 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
         }
 
         #endregion
-
     }
 }

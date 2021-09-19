@@ -16,22 +16,22 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
     {
         #region QueryAll
 
-        [Fact, TestPriority(220)]
+        [Fact, TestPriority(50)]
         public void QueryAllTest()
         {
             AzCosmosUnitTestHelper.CommonQueryAllTest<CustomCosmosEntity, List<CustomCosmosEntity>>(
                 AzCosmosUnitTestHelper.QueryAll<CustomCosmosEntity>);
         }
 
-        [Fact, TestPriority(230)]
+        [Fact, TestPriority(60)]
         public void LazyQueryAllTest()
         {
             AzCosmosUnitTestHelper.CommonQueryAllTest<CustomCosmosEntity, IEnumerable<CustomCosmosEntity>>(
                 AzCosmosUnitTestHelper.LazyQueryAll<CustomCosmosEntity>);
         }
 
-        [Fact, TestPriority(220)]
-        public static void QueryAllAsyncTest()
+        [Fact, TestPriority(70)]
+        public void QueryAllAsyncTest()
         {
             // Arrange
             var entities = AzCosmosUnitTestHelper.CreateAddAssertSomeEntities(true,
@@ -53,21 +53,21 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
 
         #region QueryByPartitionKey
 
-        [Fact, TestPriority(210)]
+        [Fact, TestPriority(500)]
         public void QueryByPartitionKeyTest()
         {
             AzCosmosUnitTestHelper.CommonQueryByPartitionKeyTest<CustomCosmosEntity, List<CustomCosmosEntity>>(
                 AzCosmosUnitTestHelper.QueryByPartitionKey<CustomCosmosEntity>);
         }
 
-        [Fact, TestPriority(210)]
+        [Fact, TestPriority(500)]
         public void LazyQueryByPartitionKeyTest()
         {
             AzCosmosUnitTestHelper.CommonQueryByPartitionKeyTest<CustomCosmosEntity, IEnumerable<CustomCosmosEntity>>(
                 AzCosmosUnitTestHelper.LazyQueryByPartitionKey<CustomCosmosEntity>);
         }
 
-        [Fact, TestPriority(210)]
+        [Fact, TestPriority(500)]
         public void QueryByPartitionKeyTest2()
         {
             // Arrange
@@ -79,8 +79,8 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
                 .QueryByPartitionKey<CustomCosmosEntity>(partitionKey, "Container2"));
         }
 
-        [Fact, TestPriority(210)]
-        public static void QueryByPartitionKeyAsyncTest()
+        [Fact, TestPriority(500)]
+        public void QueryByPartitionKeyAsyncTest()
         {
             // Arrange
             var entities = AzCosmosUnitTestHelper.CreateAddAssertSomeEntities(true,
@@ -106,21 +106,21 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
 
         #region QueryByFilter
 
-        [Fact, TestPriority(210)]
+        [Fact, TestPriority(510)]
         public void QueryByFilterTest()
         {
             AzCosmosUnitTestHelper.CommonQueryByFilterTest<CustomCosmosEntity, List<CustomCosmosEntity>>(
                 AzCosmosUnitTestHelper.QueryByFilter<CustomCosmosEntity>);
         }
 
-        [Fact, TestPriority(210)]
+        [Fact, TestPriority(510)]
         public void LazyQueryByFilter()
         {
             AzCosmosUnitTestHelper.CommonQueryByFilterTest<CustomCosmosEntity, IEnumerable<CustomCosmosEntity>>(
                 AzCosmosUnitTestHelper.LazyQueryByFilter<CustomCosmosEntity>);
         }
 
-        [Fact, TestPriority(210)]
+        [Fact, TestPriority(510)]
         public void QueryByFilterTest2()
         {
             // Arrange
@@ -147,7 +147,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             AzCosmosUnitTestHelper.AssertEnumerableBContainsEnumerableAEntities(responseEntities, entities);
         }
 
-        //[Fact, TestPriority(210)]
+        //[Fact, TestPriority(510)]
         //public void LazyQueryByFilterTest2()
         //{
         //    // Arrange
@@ -169,8 +169,8 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
         //    AzCosmosUnitTestHelper.AssertEnumerableBContainsEnumerableAEntities(responseEntities, entities);
         //}
 
-        [Fact, TestPriority(210)]
-        public static void QueryByFilterAsyncTest()
+        [Fact, TestPriority(510)]
+        public void QueryByFilterAsyncTest()
         {
             // Arrange
             var entities = AzCosmosUnitTestHelper.CreateAddAssertSomeEntities(true,
@@ -198,22 +198,22 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
 
         #region QueryByQueryDefinition
 
-        [Fact, TestPriority(210)]
+        [Fact, TestPriority(520)]
         public void QueryByQueryDefinitionTest()
         {
             AzCosmosUnitTestHelper.CommonQueryByQueryDefinitionTest<CustomCosmosEntity, List<CustomCosmosEntity>>(
                 AzCosmosUnitTestHelper.QueryByQueryDefinition<CustomCosmosEntity>);
         }
         
-        [Fact, TestPriority(210)]
+        [Fact, TestPriority(520)]
         public void LazyQueryByQueryDefinitionTest()
         {
             AzCosmosUnitTestHelper.CommonQueryByQueryDefinitionTest<CustomCosmosEntity, IEnumerable<CustomCosmosEntity>>(
                 AzCosmosUnitTestHelper.LazyQueryByQueryDefinition<CustomCosmosEntity>);
         }
 
-        [Fact, TestPriority(210)]
-        public static void QueryByQueryDefinitionAsyncTest()
+        [Fact, TestPriority(520)]
+        public void QueryByQueryDefinitionAsyncTest()
         {
             // Arrange
             var entities = AzCosmosUnitTestHelper.CreateAddAssertSomeEntities(true,
@@ -242,36 +242,36 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
 
         #region QueryWithOr & Lazy
 
-        [Fact, TestPriority(210)]
+        [Fact, TestPriority(530)]
         public void QueryWithOrTest()
         {
             AzCosmosUnitTestHelper.CommonQueryWithAndOrTest<CustomCosmosEntity, List<CustomCosmosEntity>>(
                 AzCosmosUnitTestHelper.QueryWithOr<CustomCosmosEntity>, CoreTools.Utilities.BooleanOperator.or);
         }
         
-        [Fact, TestPriority(210)]
+        [Fact, TestPriority(530)]
         public void LazyQueryWithOrTest()
         {
             AzCosmosUnitTestHelper.CommonQueryWithAndOrTest<CustomCosmosEntity, IEnumerable<CustomCosmosEntity>>(
                 AzCosmosUnitTestHelper.LazyQueryWithOr<CustomCosmosEntity>, CoreTools.Utilities.BooleanOperator.or);
         }
         
-        [Fact, TestPriority(210)]
+        [Fact, TestPriority(530)]
         public void QueryWithOrTest2()
         {
             AzCosmosUnitTestHelper.CommonQueryWithAndOrTest2<CustomCosmosEntity, List<CustomCosmosEntity>>(
                 AzCosmosUnitTestHelper.QueryWithOr<CustomCosmosEntity>, CoreTools.Utilities.BooleanOperator.or);
         }
 
-        [Fact, TestPriority(210)]
+        [Fact, TestPriority(530)]
         public void LazyQueryWithOrTest2()
         {
             AzCosmosUnitTestHelper.CommonQueryWithAndOrTest2<CustomCosmosEntity, IEnumerable<CustomCosmosEntity>>(
                 AzCosmosUnitTestHelper.LazyQueryWithOr<CustomCosmosEntity>, CoreTools.Utilities.BooleanOperator.or);
         }
 
-        [Fact, TestPriority(210)]
-        public static void QueryWithOrAsyncTest()
+        [Fact, TestPriority(530)]
+        public void QueryWithOrAsyncTest()
         {
             // Arrange
             var r = new Random();
@@ -315,36 +315,36 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
 
         #region QueryWithAnd & Lazy
 
-        [Fact, TestPriority(210)]
+        [Fact, TestPriority(540)]
         public void QueryWithAndTest()
         {
             AzCosmosUnitTestHelper.CommonQueryWithAndOrTest<CustomCosmosEntity, List<CustomCosmosEntity>>(
                 AzCosmosUnitTestHelper.QueryWithAnd<CustomCosmosEntity>, CoreTools.Utilities.BooleanOperator.and);
         }
         
-        [Fact, TestPriority(210)]
+        [Fact, TestPriority(540)]
         public void LazyQueryWithAndTest()
         {
             AzCosmosUnitTestHelper.CommonQueryWithAndOrTest<CustomCosmosEntity, IEnumerable<CustomCosmosEntity>>(
                 AzCosmosUnitTestHelper.LazyQueryWithAnd<CustomCosmosEntity>, CoreTools.Utilities.BooleanOperator.and);
         }
         
-        [Fact, TestPriority(210)]
+        [Fact, TestPriority(500)]
         public void QueryWithAndTest2()
         {
             AzCosmosUnitTestHelper.CommonQueryWithAndOrTest2<CustomCosmosEntity, List<CustomCosmosEntity>>(
                 AzCosmosUnitTestHelper.QueryWithAnd<CustomCosmosEntity>, CoreTools.Utilities.BooleanOperator.and);
         }
         
-        [Fact, TestPriority(210)]
+        [Fact, TestPriority(540)]
         public void LazyQueryWithAndTest2()
         {
             AzCosmosUnitTestHelper.CommonQueryWithAndOrTest2<CustomCosmosEntity, IEnumerable<CustomCosmosEntity>>(
                 AzCosmosUnitTestHelper.LazyQueryWithAnd<CustomCosmosEntity>, CoreTools.Utilities.BooleanOperator.and);
         }
 
-        [Fact, TestPriority(210)]
-        public static void QueryWithAndAsyncTest()
+        [Fact, TestPriority(540)]
+        public void QueryWithAndAsyncTest()
         {
             // Arrange
             var r = new Random();

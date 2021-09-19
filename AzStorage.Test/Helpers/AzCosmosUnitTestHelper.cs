@@ -187,8 +187,7 @@ namespace AzStorage.Test.Helpers
         {
             var entities = CreateSomeEntities(amount, scatterPartitionKeys, fillProps);
 
-            var _addEntitiesTransactionallyResponseArr = AddEntitiesTransactionally(entities);
-            AssertSucceededResponses(_addEntitiesTransactionallyResponseArr);
+            AddAssertSomeEntities(entities);
 
             return entities;
         }
@@ -236,14 +235,8 @@ namespace AzStorage.Test.Helpers
 
         public static IEnumerable<CustomCosmosEntity> AddAssertSomeEntities(IEnumerable<CustomCosmosEntity> entities)
         {
-            AzCosmosResponse<CustomCosmosEntity> _addEntityAsyncResponseAct;
-            foreach (var entt in entities)
-            {
-                _addEntityAsyncResponseAct = AddEntityAsync(entt).WaitAndUnwrapException();
-
-                // Assert
-                AssertExpectedSuccessfulGenResponse(_addEntityAsyncResponseAct);
-            }
+            var _addEntitiesTransactionallyResponseArr = AddEntitiesTransactionally(entities);
+            AssertSucceededResponses(_addEntitiesTransactionallyResponseArr);
 
             return entities;
         }

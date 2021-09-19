@@ -13,7 +13,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
     {
         #region Add entities transactionally (sync & async)
 
-        [Fact, TestPriority(300)]
+        [Fact, TestPriority(700)]
         public void AddEntitiesTransactionallyTest()
         {
             // Arrange
@@ -26,7 +26,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             AzCosmosUnitTestHelper.AssertSucceededResponses(_addEntitiesTransactionallyResponseAct);
         }
 
-        [Fact, TestPriority(302)]
+        [Fact, TestPriority(700)]
         public void AddEntitiesTransactionallyTest2()
         {
             // Arrange
@@ -39,7 +39,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             AzCosmosUnitTestHelper.AssertSucceededResponses(_addEntitiesTransactionallyResponseAct);
         }
         
-        [Fact, TestPriority(304)]
+        [Fact, TestPriority(700)]
         public void AddEntitiesTransactionallyAsyncTest()
         {
             // Arrange
@@ -56,7 +56,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
 
         #region Get entities transactionally (sync & async)
 
-        [Fact, TestPriority(326)]
+        [Fact, TestPriority(710)]
         public void GetEntitiesTransactionallyTest()
         {
             // Arrange
@@ -72,7 +72,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             AzCosmosUnitTestHelper.AssertSucceededResponses(_getEntitiesTransactionallyResponseAct);
         }
         
-        [Fact, TestPriority(326)]
+        [Fact, TestPriority(710)]
         public void GetEntitiesTransactionallyAsyncTest()
         {
             // Arrange
@@ -89,7 +89,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
                 _getEntitiesTransactionallyAsyncResponseAct.WaitAndUnwrapException());
         }
         
-        [Fact, TestPriority(326)]
+        [Fact, TestPriority(710)]
         public void GetEntitiesAsStringTransactionallyTest()
         {
             // Arrange
@@ -105,7 +105,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             AzCosmosUnitTestHelper.AssertSucceededResponses(_getEntitiesAsStringTransactionallyResponseAct);
         }
         
-        [Fact, TestPriority(328)]
+        [Fact, TestPriority(710)]
         public void GetEntitiesAsStringTransactionallyAsyncTest()
         {
             // Arrange
@@ -121,7 +121,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             AzCosmosUnitTestHelper.AssertSucceededResponses(_getEntitiesAsStringTransactionallyAsyncResponseAct);
         }
 
-        [Fact, TestPriority(328)]
+        [Fact, TestPriority(710)]
         public void GetEntitiesResponsesTransactionallyTest()
         {
             // Arrange
@@ -137,7 +137,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             AzCosmosUnitTestHelper.AssertSucceededResponses(_getEntitiesResponsesTransactionallyResponseAct);
         }
         
-        [Fact, TestPriority(328)]
+        [Fact, TestPriority(710)]
         public void GetEntitiesResponsesTransactionallyAsyncTest()
         {
             // Arrange
@@ -156,7 +156,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
 
         #region Update entities transactionally (sync & async)
 
-        [Fact, TestPriority(330)]
+        [Fact, TestPriority(720)]
         public void UpdateEntitiesTransactionallyTest()
         {
             // Arrange
@@ -170,7 +170,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             AzCosmosUnitTestHelper.AssertSucceededResponses(_updateEntitiesTransactionallyResponseAct);
         }
         
-        [Fact, TestPriority(330)]
+        [Fact, TestPriority(720)]
         public void UpdateEntitiesTransactionallyAsyncTest()
         {
             // Arrange
@@ -188,7 +188,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
 
         #region Upsert entities transactionally (sync & async)
 
-        [Fact, TestPriority(340)]
+        [Fact, TestPriority(730)]
         public void UpsertEntitiesTransactionallyTest1()// adds
         {
             // Arrange
@@ -202,7 +202,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             AzCosmosUnitTestHelper.AssertSucceededResponses(_upsertEntitiesTransactionallyResponseAct);
         }
 
-        [Fact, TestPriority(340)]
+        [Fact, TestPriority(730)]
         public void UpsertEntitiesTransactionallyAsyncTest1()// adds
         {
             // Arrange
@@ -216,7 +216,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             AzCosmosUnitTestHelper.AssertSucceededResponses(_upsertEntitiesTransactionallyAsyncResponseAct);
         }
         
-        [Fact, TestPriority(340)]
+        [Fact, TestPriority(730)]
         public void UpsertEntitiesTransactionallyTest2()// updates
         {
             // Arrange
@@ -230,7 +230,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             AzCosmosUnitTestHelper.AssertSucceededResponses(_upsertEntitiesTransactionallyResponseAct);
         }
 
-        [Fact, TestPriority(340)]
+        [Fact, TestPriority(730)]
         public void UpsertEntitiesTransactionallyAsyncTest2()// updates
         {
             // Arrange
@@ -248,7 +248,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
 
         #region Delete entities transactionally (sync & async)
 
-        [Fact, TestPriority(350)]
+        [Fact, TestPriority(740)]
         public void DeleteEntitiesTransactionallyTest1()
         {
             // Arrange
@@ -262,7 +262,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             AzCosmosUnitTestHelper.AssertSucceededResponses(_deleteEntitiesTransactionallyResponseAct);
         }
 
-        [Fact, TestPriority(350)]
+        [Fact, TestPriority(740)]
         public void DeleteEntitiesTransactionallyAsyncTest1()
         {
             // Arrange
@@ -276,7 +276,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             AzCosmosUnitTestHelper.AssertSucceededResponses(_deleteEntitiesTransactionallyAsyncResponseAct);
         }
         
-        [Fact, TestPriority(350)]
+        [Fact, TestPriority(740)]
         public void DeleteEntitiesTransactionallyTest2()
         {
             // Arrange
@@ -291,7 +291,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             AzCosmosUnitTestHelper.AssertSucceededResponses(_deleteEntitiesTransactionallyResponseAct);
         }
 
-        [Fact, TestPriority(350)]
+        [Fact, TestPriority(740)]
         public void DeleteEntitiesTransactionallyAsyncTest2()
         {
             // Arrange

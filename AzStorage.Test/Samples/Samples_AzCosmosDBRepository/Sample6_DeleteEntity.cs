@@ -6,9 +6,10 @@ using Xunit;
 namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
 {
     [TestCaseOrderer("AzStorage.Test.Utilities.PriorityOrderer", "AzStorage.Test")]
+    [Collection(nameof(DisableParallelizationCollection))]
     public class Sample6_DeleteEntity
     {
-        [Fact, TestPriority(100)]
+        [Fact, TestPriority(600)]
         public void DeleteEntityTest()
         {
             // Arrange
@@ -23,7 +24,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             UnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
         }
 
-        [Fact, TestPriority(100)]
+        [Fact, TestPriority(600)]
         public void DeleteEntityTest2()
         {
             // Arrange
@@ -40,7 +41,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
 
         #region Async
 
-        [Fact, TestPriority(100)]
+        [Fact, TestPriority(600)]
         public void DeleteEntityAsyncTest()
         {
             // Arrange
@@ -55,7 +56,7 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             UnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
         }
 
-        [Fact, TestPriority(100)]
+        [Fact, TestPriority(600)]
         public void DeleteEntityAsyncTest2()
         {
             // Arrange
@@ -70,6 +71,5 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
             UnitTestHelper.AssertExpectedSuccessfulResponse(_deleteEntityResponseAct);
         }
         #endregion
-
     }
 }
