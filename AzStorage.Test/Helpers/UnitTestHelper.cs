@@ -8,7 +8,7 @@ namespace AzStorage.Test.Helpers
 {
     internal class UnitTestHelper
     {
-        #region Assert response
+        #region Assert successful response
 
         public static void AssertExpectedSuccessfulResponse(IAzDetailedResponse response)
         {
@@ -25,13 +25,10 @@ namespace AzStorage.Test.Helpers
             Assert.NotNull(response.Value);
         }
 
-        public static void AssertExpectedFailedResponseWithException(IAzDetailedResponse failedResponse, string errorMessage)
-        {
-            Assert.NotNull(failedResponse.Exception);
+        #endregion
 
-            AssertExpectedFailedResponse(failedResponse, errorMessage);
-        }
-        
+        #region Assert failed response
+
         public static void AssertExpectedFailedResponse(IAzDetailedResponse failedResponse, string errorMessage)
         {
             Assert.False(failedResponse.Succeeded);
@@ -40,7 +37,25 @@ namespace AzStorage.Test.Helpers
             Assert.Contains(errorMessage, failedResponse.Message);
         }
 
+        public static void AssertExpectedFailedResponseWithException(IAzDetailedResponse failedResponse, string errorMessage)
+        {
+            Assert.NotNull(failedResponse.Exception);
+
+            AssertExpectedFailedResponse(failedResponse, errorMessage);
+        }
+        
         public static void AssertExpectedFailedGenResponse<T>(
+            IAzDetailedResponse<T> failedResponse,
+            string errorMessage,
+            bool assertValue = true)
+        {
+            AssertExpectedFailedResponse(failedResponse, errorMessage);
+
+            if (assertValue)
+                Assert.Null(failedResponse.Value);
+        }
+        
+        public static void AssertExpectedFailedGenResponseWithException<T>(
             IAzDetailedResponse<T> failedResponse,
             string errorMessage,
             bool assertValue = true)

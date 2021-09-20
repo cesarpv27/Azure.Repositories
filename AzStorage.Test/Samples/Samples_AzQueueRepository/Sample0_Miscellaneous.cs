@@ -21,8 +21,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         {
             // Arrange
             string messageContent = "create queue test";
-            var rdm = new Random();
-            string queueName = AzQueueUnitTestHelper.GetDefaultQueueName + rdm.Next(1, int.MaxValue);
+            string queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
 
             // Arr
             var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessage(messageContent, queueName);

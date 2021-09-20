@@ -12,6 +12,7 @@ using System.Threading;
 using AzCoreTools.Helpers;
 using Azure.Storage.Queues.Models;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace AzStorage.Repositories
 {
@@ -82,6 +83,15 @@ namespace AzStorage.Repositories
         //    return queueName;
         //}
 
+        protected virtual string GetRawMessageContent<GenTIn>(AzStorageResponse<GenTIn> azStorageResponse,
+            Func<GenTIn, BinaryData> getBody)
+        {
+            if (azStorageResponse.Value == null)
+                return default;
+            
+            return getBody(azStorageResponse.Value).ToString();
+        }
+
         #endregion
 
         #region QueueClient creator
@@ -118,20 +128,20 @@ namespace AzStorage.Repositories
 
         private Response<QueueClient> CreateQueueIfNotExists(dynamic[] @params)
         {
-            return CreateQueueIfNotExists(@params[0], @params[1]);
+            return CreateQueueFromQueueServiceClient(@params[0], @params[1]);
         }
 
-        private Response<QueueClient> CreateQueueIfNotExists(string queueName, CancellationToken cancellationToken)
+        private Response<QueueClient> CreateQueueFromQueueServiceClient(string queueName, CancellationToken cancellationToken)
         {
             return QueueServiceClient.CreateQueue(queueName, cancellationToken: cancellationToken);
         }
 
-        //protected virtual QueueClient CreateQueueClient(string queueName)
-        //{
-        //    ThrowIfConnectionStringIsInvalid();
+        protected virtual QueueClient CreateQueueClient(string queueName)
+        {
+            ThrowIfConnectionStringIsInvalid();
 
-        //    return new QueueClient(ConnectionString, queueName, CreateClientOptions<AzQueueClientOptions>());
-        //}
+            return new QueueClient(ConnectionString, queueName, CreateClientOptions<AzQueueClientOptions>());
+        }
 
         protected virtual AzStorageResponse<string> SerializeObject<T>(
             T messageToSerialize,
@@ -166,6 +176,9 @@ namespace AzStorage.Repositories
             AzStorageResponse<string> _strAzStorageResponse,
             Func<string, T> deserializer)
         {
+            if (_strAzStorageResponse.Value == default)
+                return _strAzStorageResponse.InduceResponse(default(T));
+
             T entity;
             try
             {
@@ -232,16 +245,15 @@ namespace AzStorage.Repositories
 
         protected virtual AzStorageResponse<string> InduceVerifiedQueueResponse<GenTIn>(
             AzStorageResponse<GenTIn> azStorageResponse,
-            Func<AzStorageResponse<GenTIn>, string> getValueFunc)
+            Func<GenTIn, BinaryData> getBodyFunc)
             where GenTIn : class
         {
-            if (azStorageResponse.Succeeded)
-                azStorageResponse.Succeeded = azStorageResponse.Value != default;
-
             if (!azStorageResponse.Succeeded)
                 return azStorageResponse.InduceResponse(default(string));
 
-            return azStorageResponse.InduceResponse(getValueFunc(azStorageResponse));
+            var strContent = GetRawMessageContent(azStorageResponse, getBodyFunc);
+
+            return azStorageResponse.InduceResponse(strContent);
         }
 
         #endregion
@@ -266,6 +278,18 @@ namespace AzStorage.Repositories
 
         #region Put
 
+        public virtual AzStorageResponse<SendReceipt> SendMessageJsonSerializer<T>(
+            T messageToSerialize,
+            string queueName = null,
+            TimeSpan? visibilityTimeout = default,
+            TimeSpan? timeToLive = default,
+            CancellationToken cancellationToken = default)
+            where T : class
+        {
+            return SendMessage(messageToSerialize, JsonConvert.SerializeObject, queueName,
+                visibilityTimeout, timeToLive, cancellationToken);
+        }
+        
         public virtual AzStorageResponse<SendReceipt> SendMessage<T>(
             T messageToSerialize,
             Func<T, string> serializer,
@@ -302,6 +326,14 @@ namespace AzStorage.Repositories
 
         #region Get
 
+        public virtual AzStorageResponse<T> ReceiveMessageJsonDeserializer<T>(
+            string queueName = null,
+            TimeSpan? visibilityTimeout = default,
+            CancellationToken cancellationToken = default)
+        {
+            return ReceiveMessage(JsonConvert.DeserializeObject<T>, queueName, visibilityTimeout, cancellationToken);
+        }
+        
         public virtual AzStorageResponse<T> ReceiveMessage<T>(
             Func<string, T> deserializer,
             string queueName = null,
@@ -324,8 +356,7 @@ namespace AzStorage.Repositories
         {
             var _msgAzStorageResponse = ReceiveRawMessage(queueName, visibilityTimeout, cancellationToken);
 
-            return InduceVerifiedQueueResponse(_msgAzStorageResponse,
-                azStorageResponse => azStorageResponse.Value.Body.ToString());
+            return InduceVerifiedQueueResponse(_msgAzStorageResponse, queueMsg => queueMsg.Body);
         }
 
         public virtual AzStorageResponse<QueueMessage> ReceiveRawMessage(
@@ -342,7 +373,14 @@ namespace AzStorage.Repositories
         #endregion
 
         #region Peek
-
+        
+        public virtual AzStorageResponse<T> PeekMessageJsonDeserializer<T>(
+            string queueName = null,
+            CancellationToken cancellationToken = default)
+        {
+            return PeekMessage(JsonConvert.DeserializeObject<T>, queueName, cancellationToken);
+        }
+        
         public virtual AzStorageResponse<T> PeekMessage<T>(
             Func<string, T> deserializer,
             string queueName = null,
@@ -361,12 +399,9 @@ namespace AzStorage.Repositories
             string queueName = null,
             CancellationToken cancellationToken = default)
         {
-            queueName = GetValidQueueNameOrThrowIfInvalid(queueName);
-
             var _msgAzStorageResponse = PeekRawMessage(queueName, cancellationToken);
 
-            return InduceVerifiedQueueResponse(_msgAzStorageResponse,
-                azStorageResponse => azStorageResponse.Value.Body.ToString());
+            return InduceVerifiedQueueResponse(_msgAzStorageResponse, peekedMsg => peekedMsg.Body);
         }
         
         public virtual AzStorageResponse<PeekedMessage> PeekRawMessage(
@@ -381,7 +416,37 @@ namespace AzStorage.Repositories
 
         #endregion
 
-        #region Delete queue
+        #region Create queue if not exists
+
+        public virtual AzStorageResponse CreateQueueIfNotExists(
+            string queueName,
+            IDictionary<string, string> metadata = null,
+            CancellationToken cancellationToken = default)
+        {
+            ThrowIfInvalidQueueName(queueName, nameof(queueName), nameof(queueName));
+
+            return FuncHelper.Execute< IDictionary<string, string>, CancellationToken, Response, AzStorageResponse>(
+                CreateQueueClient(queueName).CreateIfNotExists, metadata, cancellationToken);
+        }
+
+        #endregion
+        
+        #region Create queue async if not exists
+
+        public virtual async Task<AzStorageResponse> CreateQueueIfNotExistsAsync(
+            string queueName,
+            IDictionary<string, string> metadata = null,
+            CancellationToken cancellationToken = default)
+        {
+            ThrowIfInvalidQueueName(queueName, nameof(queueName), nameof(queueName));
+
+            return await FuncHelper.ExecuteAsync< IDictionary<string, string>, CancellationToken, Response, AzStorageResponse>(
+                CreateQueueClient(queueName).CreateIfNotExistsAsync, metadata, cancellationToken);
+        }
+
+        #endregion
+
+        #region Delete queue if exists
 
         public virtual AzStorageResponse DeleteQueueIfExists(
             string queueName,
@@ -390,21 +455,21 @@ namespace AzStorage.Repositories
             ThrowIfInvalidQueueName(queueName, nameof(queueName), nameof(queueName));
 
             return FuncHelper.Execute<CancellationToken, Response<bool>, AzStorageResponse<bool>, bool>(
-                GetQueueClient(queueName).DeleteIfExists, cancellationToken).InduceGenericLessResponse();
+                CreateQueueClient(queueName).DeleteIfExists, cancellationToken).InduceGenericLessResponse();
         }
 
         #endregion
 
-        #region Delete queue async
+        #region Delete queue async if exists
 
-        public virtual async Task<AzStorageResponse> DeleteQueueAsync(
+        public virtual async Task<AzStorageResponse> DeleteQueueIfExistsAsync(
             string queueName,
             CancellationToken cancellationToken = default)
         {
             ThrowIfInvalidQueueName(queueName, nameof(queueName), nameof(queueName));
 
             return (await FuncHelper.ExecuteAsync<CancellationToken, Response<bool>, AzStorageResponse<bool>, bool>(
-                GetQueueClient(queueName).DeleteIfExistsAsync, cancellationToken)).InduceGenericLessResponse();
+                CreateQueueClient(queueName).DeleteIfExistsAsync, cancellationToken)).InduceGenericLessResponse();
         }
 
         #endregion

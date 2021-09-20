@@ -32,7 +32,7 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_getEntityResponse);
 
             _getEntityResponse = AzTableUnitTestHelper.GetEntity<TableEntity>(partitionKey, rowKey);
-            UnitTestHelper.AssertExpectedFailedGenResponse(_getEntityResponse, ConstProvider.The_specified_resource_does_not_exist);
+            UnitTestHelper.AssertExpectedFailedGenResponseWithException(_getEntityResponse, ConstProvider.The_specified_resource_does_not_exist);
         }
 
         [Fact, TestPriority(100)]
@@ -57,7 +57,7 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_getEntityResponse);
 
             _getEntityResponse = AzTableUnitTestHelper.GetEntity<TableEntity>(partitionKey, rowKey);
-            UnitTestHelper.AssertExpectedFailedGenResponse(_getEntityResponse, ConstProvider.The_specified_resource_does_not_exist);
+            UnitTestHelper.AssertExpectedFailedGenResponseWithException(_getEntityResponse, ConstProvider.The_specified_resource_does_not_exist);
         }
 
         [Fact, TestPriority(100)]
@@ -95,7 +95,7 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_getEntityResponse);
 
             _getEntityResponse = AzTableUnitTestHelper.GetEntity<TableEntity>(partitionKey, rowKey);
-            UnitTestHelper.AssertExpectedFailedGenResponse(_getEntityResponse, ConstProvider.The_specified_resource_does_not_exist);
+            UnitTestHelper.AssertExpectedFailedGenResponseWithException(_getEntityResponse, ConstProvider.The_specified_resource_does_not_exist);
         }
 
         [Fact, TestPriority(100)]
@@ -120,7 +120,7 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_getEntityResponse);
 
             _getEntityResponse = AzTableUnitTestHelper.GetEntity<TableEntity>(partitionKey, rowKey);
-            UnitTestHelper.AssertExpectedFailedGenResponse(_getEntityResponse, ConstProvider.The_specified_resource_does_not_exist);
+            UnitTestHelper.AssertExpectedFailedGenResponseWithException(_getEntityResponse, ConstProvider.The_specified_resource_does_not_exist);
         }
     }
 }

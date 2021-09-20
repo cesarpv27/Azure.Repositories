@@ -71,10 +71,57 @@ namespace AzStorage.Test.Helpers
             var _sendMessageResponseAct = SendMessage(messageToSerialize, JsonConvert.SerializeObject, queueName);
             UnitTestHelper.AssertExpectedSuccessfulResponse(_sendMessageResponseAct);
         }
+        
+        public static string SendAssertMessageRandomQueueName(string messageContent, bool appendId = true)
+        {
+            var rdm = new Random();
+            var id = rdm.Next(1, int.MaxValue);
+            string queueName = GetRandomQueueNameFromDefault(id);
+
+            if (appendId)
+                messageContent += $" - { id}";
+
+            var _sendMessageResponseAct = SendMessage(messageContent, queueName);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_sendMessageResponseAct);
+
+            return queueName;
+        }
+        
+        public static string SendAssertMessageRandomQueueName(SampleQueueEntity messageToSerialize)
+        {
+            string queueName = GetRandomQueueNameFromDefault();
+
+            var _sendMessageResponseAct = SendMessage(messageToSerialize, JsonConvert.SerializeObject, queueName);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_sendMessageResponseAct);
+
+            return queueName;
+        }
+
+        public static void AssertSampleQueueEntityFromResponse(
+            AzStorageResponse<SampleQueueEntity> azStorageResponse,
+            SampleQueueEntity sampleQueueEntity)
+        {
+            Assert.NotNull(azStorageResponse.Value);
+
+            var responseEntity = azStorageResponse.Value;
+            Assert.Equal(sampleQueueEntity.Prop1, responseEntity.Prop1);
+            Assert.Equal(sampleQueueEntity.Prop2, responseEntity.Prop2);
+        }
 
         public static SampleQueueEntity GenerateDefaultSampleQueueEntity()
         {
             return new SampleQueueEntity { Prop1 = "Queue_Prop1", Prop2 = 2 };
+        }
+
+        public static string GetRandomQueueNameFromDefault(int randomValue = -1)
+        {
+            int id = randomValue;
+            if (randomValue < 0)
+            {
+                var rdm = new Random();
+                id = rdm.Next(1, int.MaxValue);
+            }
+            return GetDefaultQueueName + id;
         }
 
         #endregion
@@ -83,6 +130,15 @@ namespace AzStorage.Test.Helpers
 
         #region Put
 
+        public static AzStorageResponse<SendReceipt> SendMessageJsonSerializer(
+            SampleQueueEntity sampleQueueEntity,
+            string queueName,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return GetOrCreateAzQueueRepository(optionCreateIfNotExist).SendMessageJsonSerializer(sampleQueueEntity,
+                queueName);
+        }
+        
         public static AzStorageResponse<SendReceipt> SendMessage(
             SampleQueueEntity sampleQueueEntity,
             Func<SampleQueueEntity, string> serializer,
@@ -105,6 +161,15 @@ namespace AzStorage.Test.Helpers
 
         #region Get
 
+        public static AzStorageResponse<SampleQueueEntity> ReceiveMessageJsonDeserializer(
+            string queueName,
+            TimeSpan? visibilityTimeout = default,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return GetOrCreateAzQueueRepository(optionCreateIfNotExist)
+                .ReceiveMessageJsonDeserializer<SampleQueueEntity>(queueName, visibilityTimeout);
+        }
+        
         public static AzStorageResponse<SampleQueueEntity> ReceiveMessage(
             Func<string, SampleQueueEntity> deserializer,
             string queueName,
@@ -127,16 +192,35 @@ namespace AzStorage.Test.Helpers
 
         #region Peek
 
-        public static AzStorageResponse<string> PeekMessage(
+        public static AzStorageResponse<SampleQueueEntity> PeekMessageJsonDeserializer(
             string queueName = null,
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
         {
-            return GetOrCreateAzQueueRepository(optionCreateIfNotExist).PeekMessage(queueName);
+            return GetOrCreateAzQueueRepository(optionCreateIfNotExist)
+                .PeekMessageJsonDeserializer<SampleQueueEntity>(queueName);
+        }
+        
+        public static AzStorageResponse<PeekedMessage> PeekRawMessage(
+            string queueName = null,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return GetOrCreateAzQueueRepository(optionCreateIfNotExist).PeekRawMessage(queueName);
         }
 
         #endregion
 
-        #region Delete queue
+        #region Create queue
+
+        public static AzStorageResponse CreateQueueIfNotExists(
+            string queueName,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return GetOrCreateAzQueueRepository(optionCreateIfNotExist).CreateQueueIfNotExists(queueName);
+        }
+
+        #endregion
+
+        #region DeleteQueueIfExists
 
         public static AzStorageResponse DeleteQueueIfExists(
             string queueName,

@@ -34,7 +34,7 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             var _getEntityResponseAct = AzTableUnitTestHelper.GetEntity<TableEntity>(Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
 
             // Assert
-            UnitTestHelper.AssertExpectedFailedGenResponse(_getEntityResponseAct, ConstProvider.The_specified_resource_does_not_exist);
+            UnitTestHelper.AssertExpectedFailedGenResponseWithException(_getEntityResponseAct, ConstProvider.The_specified_resource_does_not_exist);
         }
 
         #region Async

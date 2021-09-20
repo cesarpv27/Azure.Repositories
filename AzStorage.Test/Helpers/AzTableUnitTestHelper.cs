@@ -259,7 +259,7 @@ namespace AzStorage.Test.Helpers
                 return _getEntityResponseAct.Value;
             }
                 
-            AssertExpectedFailedGenResponse(_getEntityResponseAct, failedErrorMessage);
+            AssertExpectedFailedGenResponseWithException(_getEntityResponseAct, failedErrorMessage);
 
             return default;
         }
@@ -300,7 +300,7 @@ namespace AzStorage.Test.Helpers
             if (succeeded)
                 Assert.True(azStorageResponse.Succeeded);
             else
-                AssertExpectedFailedGenResponse(azStorageResponse, errorMessage);
+                AssertExpectedFailedGenResponseWithException(azStorageResponse, errorMessage);
 
             if (azStorageResponse.Value != default)
                 foreach (var _response in azStorageResponse.Value)

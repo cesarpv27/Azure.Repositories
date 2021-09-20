@@ -361,7 +361,7 @@ namespace AzStorage.Test.Helpers
             if (succeeded)
                 Assert.True(azCosmosResponse.Succeeded);
             else
-                AssertExpectedFailedGenResponse(azCosmosResponse, errorMessage);
+                AssertExpectedFailedGenResponseWithException(azCosmosResponse, errorMessage);
 
             if (azCosmosResponse.Value != default)
                 foreach (var val in azCosmosResponse.Value)
@@ -404,7 +404,7 @@ namespace AzStorage.Test.Helpers
             if (succeeded)
                 Assert.True(azCosmosResponse.Succeeded);
             else
-                AssertExpectedFailedGenResponse(azCosmosResponse, errorMessage);
+                AssertExpectedFailedGenResponseWithException(azCosmosResponse, errorMessage);
 
             if (azCosmosResponse.Value != default)
                 foreach (var _response in azCosmosResponse.Value)
@@ -438,7 +438,7 @@ namespace AzStorage.Test.Helpers
                 return _getEntityResponseAct.Value;
             }
 
-            AssertExpectedFailedGenResponse(_getEntityResponseAct, failedErrorMessage);
+            AssertExpectedFailedGenResponseWithException(_getEntityResponseAct, failedErrorMessage);
 
             return default;
         }
