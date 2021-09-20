@@ -42,7 +42,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         }
         
         [Fact, TestPriority(100)]
-        public void SendMessageTest3()// Failed
+        public void SendMessageTest3()// Failed test
         {
             // Arrange
             var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
@@ -56,7 +56,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         }
         
         [Fact, TestPriority(100)]
-        public void SendMessageTest4()// Failed
+        public void SendMessageTest4()// Failed test
         {
             // Arrange
             var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
