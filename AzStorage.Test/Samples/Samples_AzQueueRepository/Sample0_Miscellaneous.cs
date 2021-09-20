@@ -1,5 +1,6 @@
 ﻿using AzStorage.Test.Helpers;
 using AzStorage.Test.Utilities;
+using CoreTools.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -56,5 +57,153 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 
             // Assert
         }
+
+        #region GetAccountName
+
+        [Fact, TestPriority(50)]
+        public void GetAccountNameTest()
+        {
+            // Arrange
+            var queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
+            var _createQueueIfNotExistsResponseArr = AzQueueUnitTestHelper.CreateQueueIfNotExists(queueName);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_createQueueIfNotExistsResponseArr);
+
+            // Arr
+            var _getAccountNameResponseAct = AzQueueUnitTestHelper.GetAccountName(queueName);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_getAccountNameResponseAct);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
+        }
+
+        #endregion
+        
+        #region GetMaxPeekableMessages
+
+        [Fact, TestPriority(50)]
+        public void GetMaxPeekableMessagesTest()
+        {
+            // Arrange
+            var queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
+            var _createQueueIfNotExistsResponseArr = AzQueueUnitTestHelper.CreateQueueIfNotExists(queueName);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_createQueueIfNotExistsResponseArr);
+
+            // Arr
+            var _getMaxPeekableMessagesResponseAct = AzQueueUnitTestHelper.GetMaxPeekableMessages(queueName);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_getMaxPeekableMessagesResponseAct);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
+        }
+
+        #endregion
+
+        #region GetMessageMaxBytes
+
+        [Fact, TestPriority(50)]
+        public void GetMessageMaxBytes()
+        {
+            // Arrange
+            var queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
+            var _createQueueIfNotExistsResponseArr = AzQueueUnitTestHelper.CreateQueueIfNotExists(queueName);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_createQueueIfNotExistsResponseArr);
+
+            // Arr
+            var _getMessageMaxBytesResponseAct = AzQueueUnitTestHelper.GetMessageMaxBytes(queueName);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_getMessageMaxBytesResponseAct);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
+        }
+
+        #endregion
+
+        #region Delete queue
+
+        [Fact, TestPriority(50)]
+        public void DeleteQueueIfExistsTest()
+        {
+            // Arrange
+            var queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
+            var _createQueueIfNotExistsResponseArr = AzQueueUnitTestHelper.CreateQueueIfNotExists(queueName);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_createQueueIfNotExistsResponseArr);
+
+            // Arr
+            var _deleteQueueIfExistsResponseAct = AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_deleteQueueIfExistsResponseAct);
+        }
+        
+        [Fact, TestPriority(50)]
+        public void DeleteQueueIfExistsTest2()// Queue does not exist
+        {
+            // Arrange
+            var queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
+
+            // Arr
+            var _deleteQueueIfExistsResponseAct = AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
+
+            // Assert
+            Assert.False(_deleteQueueIfExistsResponseAct.Succeeded);
+        }
+
+        #endregion
+
+        #region Exists queue 
+
+        [Fact, TestPriority(50)]
+        public void ExistsTest()
+        {
+            // Arrange
+            var queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
+            var _createQueueIfNotExistsResponseArr = AzQueueUnitTestHelper.CreateQueueIfNotExists(queueName);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_createQueueIfNotExistsResponseArr);
+
+            // Arr
+            var _existsResponseAct = AzQueueUnitTestHelper.Exists(queueName);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_existsResponseAct);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
+        }
+        
+        [Fact, TestPriority(50)]
+        public void ExistsTest2()// Queue does not exist
+        {
+            // Arrange
+            var queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
+
+            // Arr
+            var _existsResponseAct = AzQueueUnitTestHelper.Exists(queueName);
+
+            // Assert
+            Assert.False(_existsResponseAct.Succeeded);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
+        }
+        
+        [Fact, TestPriority(50)]
+        public void ExistsAsyncTest()
+        {
+            // Arrange
+            var queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
+            var _createQueueIfNotExistsResponseArr = AzQueueUnitTestHelper.CreateQueueIfNotExists(queueName);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_createQueueIfNotExistsResponseArr);
+
+            // Arr
+            var _existsResponseAct = AzQueueUnitTestHelper.ExistsAsync(queueName).WaitAndUnwrapException();
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_existsResponseAct);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
+        }
+
+        #endregion
     }
 }

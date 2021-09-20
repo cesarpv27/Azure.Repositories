@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Text;
 using AzStorage.Test.Helpers;
 using AzStorage.Test.Utilities;
+using CoreTools.Extensions;
 using Newtonsoft.Json;
 using Xunit;
 
 namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 {
     [TestCaseOrderer("AzStorage.Test.Utilities.PriorityOrderer", "AzStorage.Test")]
-    public class Sample3_DeleteMessage
+    public class Sample3_DeleteMessages
     {
         #region DeleteMessage
 
@@ -27,10 +28,10 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             string popReceipt = _sendMessageResponseAct.Value.PopReceipt;
 
             // Arr
-            var _receiveRawMessageResponseAct = AzQueueUnitTestHelper.DeleteMessage(messageId, popReceipt, queueName);
+            var _deleteMessageResponseAct = AzQueueUnitTestHelper.DeleteMessage(messageId, popReceipt, queueName);
 
             // Assert
-            UnitTestHelper.AssertExpectedSuccessfulResponse(_receiveRawMessageResponseAct);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_deleteMessageResponseAct);
 
             AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }
@@ -48,10 +49,10 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             string popReceipt = "AgAAAAMAAAAAAAAAFoHaalyu1wE=";
 
             // Arr
-            var _receiveRawMessageResponseAct = AzQueueUnitTestHelper.DeleteMessage(messageId, popReceipt, queueName);
+            var _deleteMessageResponseAct = AzQueueUnitTestHelper.DeleteMessage(messageId, popReceipt, queueName);
 
             // Assert
-            UnitTestHelper.AssertExpectedFailedResponse(_receiveRawMessageResponseAct, "The specified message does not exist");
+            UnitTestHelper.AssertExpectedFailedResponse(_deleteMessageResponseAct, "The specified message does not exist");
 
             AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }
@@ -84,6 +85,33 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             // Assert
             Assert.Throws<ArgumentNullException>("popReceipt",
                 () => AzQueueUnitTestHelper.DeleteMessage(messageId, popReceipt, queueName));
+        }
+
+        #endregion
+
+        #region DeleteMessageAsync
+
+        [Fact, TestPriority(300)]
+        public void DeleteMessageAsyncTest()
+        {
+            // Arrange
+            string messageContent = "create queue test";
+
+            var queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
+
+            var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessage(messageContent, queueName);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_sendMessageResponseAct);
+            string messageId = _sendMessageResponseAct.Value.MessageId;
+            string popReceipt = _sendMessageResponseAct.Value.PopReceipt;
+
+            // Arr
+            var _deleteMessageAsyncResponseAct = AzQueueUnitTestHelper
+                .DeleteMessageAsync(messageId, popReceipt, queueName).WaitAndUnwrapException();
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_deleteMessageAsyncResponseAct);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }
 
         #endregion

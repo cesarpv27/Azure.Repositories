@@ -276,6 +276,75 @@ namespace AzStorage.Repositories
 
         #endregion
 
+        #region AccountName
+
+        /// <summary>
+        /// Gets the Storage account name corresponding to the queue client.
+        /// </summary>
+        /// <param name="queueName">The queue name to execute the operation.</param>
+        /// <returns>The <see cref="AzStorageResponse{int}"/> indicating the result of the operation.</returns>
+        public virtual AzStorageResponse<string> GetAccountName(string queueName)
+        {
+            ThrowIfInvalidQueueName(queueName, nameof(queueName), nameof(queueName));
+
+            try
+            {
+                return AzStorageResponse<string>.Create(CreateQueueClient(queueName).AccountName, true);
+            }
+            catch (Exception e)
+            {
+                return AzStorageResponse<string>.Create(e);
+            }
+        }
+
+        #endregion
+        
+        #region MaxPeekableMessages
+
+        /// <summary>
+        /// Indicates the maximum number of messages you can retrieve with each call to peek message methods.
+        /// </summary>
+        /// <param name="queueName">The queue name to execute the operation.</param>
+        /// <returns>The <see cref="AzStorageResponse{int}"/> indicating the result of the operation.</returns>
+        public virtual AzStorageResponse<int> GetMaxPeekableMessages(string queueName)
+        {
+            ThrowIfInvalidQueueName(queueName, nameof(queueName), nameof(queueName));
+
+            try
+            {
+                return AzStorageResponse<int>.Create(CreateQueueClient(queueName).MaxPeekableMessages, true);
+            }
+            catch (Exception e)
+            {
+                return AzStorageResponse<int>.Create(e);
+            }
+        }
+
+        #endregion
+
+        #region MessageMaxBytes
+
+        /// <summary>
+        /// Gets the maximum number of bytes allowed for a message's UTF-8 text.
+        /// </summary>
+        /// <param name="queueName">The queue name to execute the operation.</param>
+        /// <returns>The <see cref="AzStorageResponse{int}"/> indicating the result of the operation.</returns>
+        public virtual AzStorageResponse<int> GetMessageMaxBytes(string queueName)
+        {
+            ThrowIfInvalidQueueName(queueName, nameof(queueName), nameof(queueName));
+
+            try
+            {
+                return AzStorageResponse<int>.Create(CreateQueueClient(queueName).MessageMaxBytes, true);
+            }
+            catch (Exception e)
+            {
+                return AzStorageResponse<int>.Create(e);
+            }
+        }
+
+        #endregion
+
         #region Put
 
         public virtual AzStorageResponse<SendReceipt> SendMessageJsonSerializer<T>(
@@ -416,12 +485,12 @@ namespace AzStorage.Repositories
 
         #endregion
 
-        #region Delete
+        #region Delete message
 
         /// <summary>
         /// Permanently removes the specified message from its queue.
         /// </summary>
-        /// <param name="messageId">ID of the message to delete</param>
+        /// <param name="messageId">ID of the message to delete.</param>
         /// <param name="popReceipt">A valid pop receipt value returned from an earlier call to the 
         /// Get Messages or Update Message operation.</param>
         /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
@@ -445,8 +514,90 @@ namespace AzStorage.Repositories
 
         #endregion
 
+        #region Delete message async
+
+        /// <summary>
+        /// Permanently removes the specified message from its queue.
+        /// </summary>
+        /// <param name="messageId">ID of the message to delete.</param>
+        /// <param name="popReceipt">A valid pop receipt value returned from an earlier call to the 
+        /// Get Messages or Update Message operation.</param>
+        /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
+        /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <returns>The <see cref="AzStorageResponse"/> indicating the result of the operation, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        public virtual async Task<AzStorageResponse> DeleteMessageAsync(
+            string messageId,
+            string popReceipt,
+            string queueName = null,
+            CancellationToken cancellationToken = default)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(messageId, nameof(messageId), nameof(messageId));
+            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(popReceipt, nameof(popReceipt), nameof(popReceipt));
+
+            queueName = GetValidQueueNameOrThrowIfInvalid(queueName);
+
+            return await FuncHelper.ExecuteAsync<string, string, CancellationToken, Response, AzStorageResponse>(
+                GetQueueClient(queueName).DeleteMessageAsync, messageId, popReceipt, cancellationToken);
+        }
+
+        #endregion
+
+        #region Clear messages
+
+        /// <summary>
+        /// Deletes all messages from a queue.
+        /// </summary>
+        /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
+        /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <returns>The <see cref="AzStorageResponse"/> indicating the result of the operation.</returns>
+        public virtual AzStorageResponse ClearMessages(
+            string queueName = null,
+            CancellationToken cancellationToken = default)
+        {
+            queueName = GetValidQueueNameOrThrowIfInvalid(queueName);
+
+            return FuncHelper.Execute<CancellationToken, Response, AzStorageResponse>(
+                GetQueueClient(queueName).ClearMessages, cancellationToken);
+        }
+
+        #endregion
+
+        #region Clear messages async
+
+        /// <summary>
+        /// Deletes all messages from a queue.
+        /// </summary>
+        /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
+        /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <returns>The <see cref="AzStorageResponse"/> indicating the result of the operation, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        public virtual async Task<AzStorageResponse> ClearMessagesAsync(
+            string queueName = null,
+            CancellationToken cancellationToken = default)
+        {
+            queueName = GetValidQueueNameOrThrowIfInvalid(queueName);
+
+            return await FuncHelper.ExecuteAsync<CancellationToken, Response, AzStorageResponse>(
+                GetQueueClient(queueName).ClearMessagesAsync, cancellationToken);
+        }
+
+        #endregion
+
         #region Create queue if not exists
 
+        /// <summary>
+        /// Creates a new queue under the specified account. If the queue already exists, it is not changed.
+        /// </summary>
+        /// <param name="queueName">The queue name to execute the operation.</param>
+        /// <param name="metadata">Optional custom metadata to set for this queue.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <returns>The <see cref="AzStorageResponse"/> indicating the result of the operation.</returns>
         public virtual AzStorageResponse CreateQueueIfNotExists(
             string queueName,
             IDictionary<string, string> metadata = null,
@@ -459,9 +610,18 @@ namespace AzStorage.Repositories
         }
 
         #endregion
-        
+
         #region Create queue async if not exists
 
+        /// <summary>
+        /// Creates a new queue under the specified account. If the queue already exists, it is not changed.
+        /// </summary>
+        /// <param name="queueName">The queue name to execute the operation.</param>
+        /// <param name="metadata">Optional custom metadata to set for this queue.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <returns>The <see cref="AzStorageResponse"/> indicating the result of the operation, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
         public virtual async Task<AzStorageResponse> CreateQueueIfNotExistsAsync(
             string queueName,
             IDictionary<string, string> metadata = null,
@@ -475,8 +635,60 @@ namespace AzStorage.Repositories
 
         #endregion
 
+        #region Exists queue
+
+        /// <summary>
+        /// Verify if a queue with specified <paramref name="queueName"/> exists on the storage account 
+        /// in the storage service.
+        /// </summary>
+        /// <param name="queueName">The queue name to execute the operation.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <returns>The <see cref="AzStorageResponse"/> indicating the result of the operation
+        /// with value of property <c>Succeeded</c> true if the queue exists.</returns>
+        public virtual AzStorageResponse Exists(
+            string queueName,
+            CancellationToken cancellationToken = default)
+        {
+            ThrowIfInvalidQueueName(queueName, nameof(queueName), nameof(queueName));
+
+            return FuncHelper.Execute<CancellationToken, Response<bool>, AzStorageResponse<bool>, bool>(
+                CreateQueueClient(queueName).Exists, cancellationToken).InduceGenericLessResponse();
+        }
+
+        #endregion
+
+        #region Exists queue async
+
+        /// <summary>
+        /// Verify if a queue with specified <paramref name="queueName"/> exists on the storage account 
+        /// in the storage service.
+        /// </summary>
+        /// <param name="queueName">The queue name to execute the operation.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <returns>The <see cref="AzStorageResponse"/> indicating the result of the operation
+        /// with value of property <c>Succeeded</c> true if the queue exists, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        public virtual async Task<AzStorageResponse> ExistsAsync(
+            string queueName,
+            CancellationToken cancellationToken = default)
+        {
+            ThrowIfInvalidQueueName(queueName, nameof(queueName), nameof(queueName));
+
+            return (await FuncHelper.ExecuteAsync<CancellationToken, Response<bool>, AzStorageResponse<bool>, bool>(
+                CreateQueueClient(queueName).ExistsAsync, cancellationToken)).InduceGenericLessResponse();
+        }
+
+        #endregion
+
         #region Delete queue if exists
 
+        /// <summary>
+        /// Deletes the specified queue if it exists.
+        /// </summary>
+        /// <param name="queueName">The queue name to execute the operation.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <returns>The <see cref="AzStorageResponse"/> indicating the result of the operation.</returns>
         public virtual AzStorageResponse DeleteQueueIfExists(
             string queueName,
             CancellationToken cancellationToken = default)
@@ -491,6 +703,14 @@ namespace AzStorage.Repositories
 
         #region Delete queue async if exists
 
+        /// <summary>
+        /// Deletes the specified queue if it exists.
+        /// </summary>
+        /// <param name="queueName">The queue name to execute the operation.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <returns>The <see cref="AzStorageResponse"/> indicating the result of the operation, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
         public virtual async Task<AzStorageResponse> DeleteQueueIfExistsAsync(
             string queueName,
             CancellationToken cancellationToken = default)

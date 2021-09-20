@@ -68,7 +68,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         }
 
         [Fact, TestPriority(220)]
-        public void ReceiveMessageJsonDeserializer2()// Receive from empty queue
+        public void ReceiveMessageJsonDeserializerTest2()// Receive from empty queue
         {
             // Arrange
             var queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();

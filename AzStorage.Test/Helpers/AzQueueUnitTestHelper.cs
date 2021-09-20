@@ -209,7 +209,7 @@ namespace AzStorage.Test.Helpers
 
         #endregion
 
-        #region Delete message
+        #region Delete message (sync & async)
 
         public static AzStorageResponse DeleteMessage(
             string messageId,
@@ -220,9 +220,70 @@ namespace AzStorage.Test.Helpers
             return GetOrCreateAzQueueRepository(optionCreateIfNotExist)
                 .DeleteMessage(messageId, popReceipt, queueName);
         }
+        
+        public static async Task<AzStorageResponse> DeleteMessageAsync(
+            string messageId,
+            string popReceipt,
+            string queueName,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return await GetOrCreateAzQueueRepository(optionCreateIfNotExist)
+                .DeleteMessageAsync(messageId, popReceipt, queueName);
+        }
 
         #endregion
 
+        #region Clear messages (sync & async)
+
+        public static AzStorageResponse ClearMessages(
+            string queueName,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return GetOrCreateAzQueueRepository(optionCreateIfNotExist).ClearMessages(queueName);
+        }
+
+        public static async Task<AzStorageResponse> ClearMessagesAsync(
+            string queueName,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return await GetOrCreateAzQueueRepository(optionCreateIfNotExist).ClearMessagesAsync(queueName);
+        }
+
+        #endregion
+
+        #region GetAccountName
+
+        public static AzStorageResponse<string> GetAccountName(
+            string queueName,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return GetOrCreateAzQueueRepository(optionCreateIfNotExist).GetAccountName(queueName);
+        }
+
+        #endregion
+        
+        #region GetMaxPeekableMessages
+
+        public static AzStorageResponse<int> GetMaxPeekableMessages(
+            string queueName,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return GetOrCreateAzQueueRepository(optionCreateIfNotExist).GetMaxPeekableMessages(queueName);
+        }
+
+        #endregion
+
+        #region GetMessageMaxBytes
+
+        public static AzStorageResponse<int> GetMessageMaxBytes(
+            string queueName,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return GetOrCreateAzQueueRepository(optionCreateIfNotExist).GetMessageMaxBytes(queueName);
+        }
+
+        #endregion
+        
         #region CreateQueueIfNotExists
 
         public static AzStorageResponse CreateQueueIfNotExists(
@@ -230,6 +291,24 @@ namespace AzStorage.Test.Helpers
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
         {
             return GetOrCreateAzQueueRepository(optionCreateIfNotExist).CreateQueueIfNotExists(queueName);
+        }
+
+        #endregion
+
+        #region Exists queue (sync & async)
+
+        public static AzStorageResponse Exists(
+            string queueName,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return GetOrCreateAzQueueRepository(optionCreateIfNotExist).Exists(queueName);
+        }
+        
+        public static async Task<AzStorageResponse> ExistsAsync(
+            string queueName,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return await GetOrCreateAzQueueRepository(optionCreateIfNotExist).ExistsAsync(queueName);
         }
 
         #endregion
