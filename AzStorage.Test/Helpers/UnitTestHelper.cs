@@ -10,12 +10,12 @@ namespace AzStorage.Test.Helpers
     {
         #region Assert response
 
-        public static void AssertExpectedSuccessfulResponse(IAzDetailedResponse failedResponse)
+        public static void AssertExpectedSuccessfulResponse(IAzDetailedResponse response)
         {
-            Assert.True(failedResponse.Succeeded);
+            Assert.True(response.Succeeded);
 
-            Assert.Null(failedResponse.Exception);
-            Assert.Null(failedResponse.Message);
+            Assert.Null(response.Exception);
+            Assert.Null(response.Message);
         }
 
         public static void AssertExpectedSuccessfulGenResponse<T>(IAzDetailedResponse<T> response)
@@ -25,11 +25,17 @@ namespace AzStorage.Test.Helpers
             Assert.NotNull(response.Value);
         }
 
+        public static void AssertExpectedFailedResponseWithException(IAzDetailedResponse failedResponse, string errorMessage)
+        {
+            Assert.NotNull(failedResponse.Exception);
+
+            AssertExpectedFailedResponse(failedResponse, errorMessage);
+        }
+        
         public static void AssertExpectedFailedResponse(IAzDetailedResponse failedResponse, string errorMessage)
         {
             Assert.False(failedResponse.Succeeded);
 
-            Assert.NotNull(failedResponse.Exception);
             Assert.NotNull(failedResponse.Message);
             Assert.Contains(errorMessage, failedResponse.Message);
         }
@@ -39,7 +45,7 @@ namespace AzStorage.Test.Helpers
             string errorMessage,
             bool assertValue = true)
         {
-            AssertExpectedFailedResponse(failedResponse, errorMessage);
+            AssertExpectedFailedResponseWithException(failedResponse, errorMessage);
 
             if (assertValue)
                 Assert.Null(failedResponse.Value);

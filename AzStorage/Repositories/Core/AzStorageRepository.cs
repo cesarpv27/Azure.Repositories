@@ -1,14 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using Azure.Core;
-using Azure;
-using System.Net;
-using AzCoreTools.Core.Validators;
-using Azure.Data.Tables.Models;
-using AzStorage.Core.Tables;
-using ExThrower = CoreTools.Throws.ExceptionThrower;
+﻿using ExThrower = CoreTools.Throws.ExceptionThrower;
 using AzCoreTools.Core;
 
 namespace AzStorage.Repositories.Core

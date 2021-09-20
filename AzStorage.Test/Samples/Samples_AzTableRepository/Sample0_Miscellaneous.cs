@@ -104,7 +104,7 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             // Arrange
             var entity = AzTableUnitTestHelper.CreateSomeEntity();
 
-            var tableName = $"{typeof(SampleTableEntity).Name}{AzTableUnitTestHelper.GetOverOneHundredRandomValue()}";
+            var tableName = $"{typeof(SampleTableEntity).Name}{UnitTestHelper.GetOverOneHundredRandomValue()}";
 
             // Arr
             var _addEntityResponseAct = AzTableUnitTestHelper.AddEntity(entity, tableName);

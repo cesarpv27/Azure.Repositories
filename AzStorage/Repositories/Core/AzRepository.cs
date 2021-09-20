@@ -28,6 +28,16 @@ namespace AzStorage.Repositories.Core
 
         #region Protected methods
 
+        protected virtual ClientOpt CreateClientOptions<ClientOpt>()
+            where ClientOpt : Azure.Core.ClientOptions, new()
+        {
+            var _queueClientOptions = new ClientOpt();
+            if (RetryOptions != null)
+                RetryOptions.CopyTo(_queueClientOptions.Retry);
+
+            return _queueClientOptions;
+        }
+
         //protected virtual void SetFalseToIsFirstTime()
         //{
         //    IsFirstTime = false;

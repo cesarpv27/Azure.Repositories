@@ -54,7 +54,7 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
             var _addEntityResponseAct = AzTableUnitTestHelper.AddEntity(entity);
 
             // Assert
-            UnitTestHelper.AssertExpectedFailedResponse(_addEntityResponseAct, ConstProvider.The_specified_entity_already_exists);
+            UnitTestHelper.AssertExpectedFailedResponseWithException(_addEntityResponseAct, ConstProvider.The_specified_entity_already_exists);
         }
 
         #region Async, parallel tests

@@ -53,23 +53,6 @@ namespace AzStorage.Repositories
             }
         }
 
-        //private AzTableTransactionStore _AzTableTransactionStore;
-        //private AzTableTransactionStore AzTableTransactionStore
-        //{
-        //    get
-        //    {
-        //        if (_AzTableTransactionStore == null)
-        //            _AzTableTransactionStore = new AzTableTransactionStore();
-
-        //        return _AzTableTransactionStore;
-        //    }
-        //}
-
-        protected AzTableTransactionStore CreateAzTableTransactionStore()
-        {
-            return new AzTableTransactionStore();
-        }
-
         #endregion
 
         #region Protected methods
@@ -78,16 +61,7 @@ namespace AzStorage.Repositories
         {
             ThrowIfConnectionStringIsInvalid();
 
-            return new TableServiceClient(ConnectionString, CreateTableClientOptions());
-        }
-
-        protected virtual TableClientOptions CreateTableClientOptions()
-        {
-            var _tableClientOptions = new TableClientOptions();
-            if (RetryOptions != null)
-                RetryOptions.CopyTo(_tableClientOptions.Retry);
-
-            return _tableClientOptions;
+            return new TableServiceClient(ConnectionString, CreateClientOptions<AzTableClientOptions>());
         }
 
         protected TableClient _TableClient;
@@ -111,6 +85,11 @@ namespace AzStorage.Repositories
                 tableName = typeof(T).Name;
 
             return tableName;
+        }
+
+        protected AzTableTransactionStore CreateAzTableTransactionStore()
+        {
+            return new AzTableTransactionStore();
         }
 
         protected List<AzStorageResponse<IReadOnlyList<Response>>> DeleteEntities<T>(AzStorageResponse<List<T>> response,
@@ -174,29 +153,8 @@ namespace AzStorage.Repositories
         {
             ThrowIfConnectionStringIsInvalid();
 
-            return new TableClient(ConnectionString, tableName, CreateTableClientOptions());
+            return new TableClient(ConnectionString, tableName, CreateClientOptions<AzTableClientOptions>());
         }
-
-        //protected virtual Response<TableItem> LoadTableClient(string tableName)
-        //{
-        //    ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(tableName, nameof(tableName));
-
-        //    if (_TableClient == null || !tableName.Equals(_TableClient.Name))
-        //        SetTrueToIsFirstTime();
-
-        //    bool _isFirstTime = IsFirstTimeResourceCreation;
-
-        //    Response<TableItem> response;
-        //    var result = TryCreateResource(tableName, default(CancellationToken), ref _isFirstTime, out response,
-        //        TableServiceClient.CreateTableIfNotExists);
-
-        //    IsFirstTimeResourceCreation = _isFirstTime;
-
-        //    if (result && ResponseValidator.CreateResourceResponseSucceeded(response))
-        //        _TableClient = CreateTableClient(tableName);
-
-        //    return response;
-        //}
 
         #endregion
 
