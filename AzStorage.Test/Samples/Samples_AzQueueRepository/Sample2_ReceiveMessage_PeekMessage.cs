@@ -9,85 +9,11 @@ using Xunit;
 namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 {
     [TestCaseOrderer("AzStorage.Test.Utilities.PriorityOrderer", "AzStorage.Test")]
-    public class Sample1_SendMessage_ReceiveMessage_PeekMessage
+    public class Sample2_ReceiveMessage_PeekMessage
     {
-        #region Put - SendMessage
-
-        [Fact, TestPriority(100)]
-        public void SendMessageTest()
-        {
-            // Arrange
-            string messageContent = "create queue test";
-
-            // Arr
-            var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessage(messageContent,
-                AzQueueUnitTestHelper.GetDefaultQueueName);
-
-            // Assert
-            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_sendMessageResponseAct);
-        }
-
-        [Fact, TestPriority(100)]
-        public void SendMessageTest2()
-        {
-            // Arrange
-            var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
-
-            // Arr
-            var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessage(sampleQueueEntity,
-                JsonConvert.SerializeObject, AzQueueUnitTestHelper.GetDefaultQueueName);
-
-            // Assert
-            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_sendMessageResponseAct);
-        }
-        
-        [Fact, TestPriority(100)]
-        public void SendMessageTest3()// Failed test
-        {
-            // Arrange
-            var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
-
-            // Arr
-            var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessage(sampleQueueEntity,
-                ent => throw new Exception(), AzQueueUnitTestHelper.GetDefaultQueueName);
-
-            // Assert
-            UnitTestHelper.AssertExpectedFailedResponseWithException(_sendMessageResponseAct, "throw exception serializing object");
-        }
-        
-        [Fact, TestPriority(100)]
-        public void SendMessageTest4()// Failed test
-        {
-            // Arrange
-            var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
-
-            // Arr
-            var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessage(sampleQueueEntity,
-                ent => null, AzQueueUnitTestHelper.GetDefaultQueueName);
-
-            // Assert
-            UnitTestHelper.AssertExpectedFailedResponse(_sendMessageResponseAct, "returned null by serializing the object");
-        }
-
-        [Fact, TestPriority(100)]
-        public void SendMessageJsonSerializerTest()
-        {
-            // Arrange
-            var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
-
-            // Arr
-            var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessageJsonSerializer(sampleQueueEntity,
-                AzQueueUnitTestHelper.GetDefaultQueueName);
-
-            // Assert
-            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_sendMessageResponseAct);
-        }
-
-        #endregion
-
         #region Get - ReceiveMessage
 
-        [Fact, TestPriority(110)]
+        [Fact, TestPriority(210)]
         public void ReceiveRawMessageTest()
         {
             // Arrange
@@ -104,7 +30,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }
         
-        [Fact, TestPriority(112)]
+        [Fact, TestPriority(212)]
         public void ReceiveMessageTest()
         {
             // Arrange
@@ -123,7 +49,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }
         
-        [Fact, TestPriority(112)]
+        [Fact, TestPriority(212)]
         public void ReceiveMessageJsonDeserializerTest()
         {
             // Arrange
@@ -141,7 +67,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }
 
-        [Fact, TestPriority(120)]
+        [Fact, TestPriority(220)]
         public void ReceiveMessageJsonDeserializer2()// Receive from empty queue
         {
             // Arrange
@@ -163,7 +89,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 
         #region PeekMessage
 
-        [Fact, TestPriority(118)]
+        [Fact, TestPriority(218)]
         public void PeekRawMessageTest()
         {
             // Arrange
@@ -180,7 +106,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }
 
-        [Fact, TestPriority(120)]
+        [Fact, TestPriority(220)]
         public void PeekMessageJsonDeserializerTest()
         {
             // Arrange
@@ -198,7 +124,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }
 
-        [Fact, TestPriority(120)]
+        [Fact, TestPriority(220)]
         public void PeekMessageJsonDeserializerTest2()// Peek from empty queue
         {
             // Arrange
@@ -215,7 +141,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 
             AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }
-        
+
         #endregion
     }
 }

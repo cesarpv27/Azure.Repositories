@@ -209,7 +209,21 @@ namespace AzStorage.Test.Helpers
 
         #endregion
 
-        #region Create queue
+        #region Delete message
+
+        public static AzStorageResponse DeleteMessage(
+            string messageId,
+            string popReceipt,
+            string queueName,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return GetOrCreateAzQueueRepository(optionCreateIfNotExist)
+                .DeleteMessage(messageId, popReceipt, queueName);
+        }
+
+        #endregion
+
+        #region CreateQueueIfNotExists
 
         public static AzStorageResponse CreateQueueIfNotExists(
             string queueName,

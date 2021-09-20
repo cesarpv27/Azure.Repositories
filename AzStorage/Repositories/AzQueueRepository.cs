@@ -416,6 +416,35 @@ namespace AzStorage.Repositories
 
         #endregion
 
+        #region Delete
+
+        /// <summary>
+        /// Permanently removes the specified message from its queue.
+        /// </summary>
+        /// <param name="messageId">ID of the message to delete</param>
+        /// <param name="popReceipt">A valid pop receipt value returned from an earlier call to the 
+        /// Get Messages or Update Message operation.</param>
+        /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
+        /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <returns>The <see cref="AzStorageResponse"/> indicating the result of the operation.</returns>
+        public virtual AzStorageResponse DeleteMessage(
+            string messageId, 
+            string popReceipt,
+            string queueName = null,
+            CancellationToken cancellationToken = default)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(messageId, nameof(messageId), nameof(messageId));
+            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(popReceipt, nameof(popReceipt), nameof(popReceipt));
+
+            queueName = GetValidQueueNameOrThrowIfInvalid(queueName);
+
+            return FuncHelper.Execute<string, string, CancellationToken, Response, AzStorageResponse>(
+                GetQueueClient(queueName).DeleteMessage, messageId, popReceipt, cancellationToken);
+        }
+
+        #endregion
+
         #region Create queue if not exists
 
         public virtual AzStorageResponse CreateQueueIfNotExists(
