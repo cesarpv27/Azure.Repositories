@@ -1,5 +1,6 @@
 ﻿using AzStorage.Test.Helpers;
 using AzStorage.Test.Utilities;
+using CoreTools.Extensions;
 using Newtonsoft.Json;
 using System;
 using Xunit;
@@ -76,6 +77,52 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             // Arr
             var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessageJsonSerializer(sampleQueueEntity,
                 AzQueueUnitTestHelper.GetDefaultQueueName);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_sendMessageResponseAct);
+        }
+        
+        [Fact, TestPriority(100)]
+        public void SendMessageJsonSerializerBase64Test()
+        {
+            // Arrange
+            var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
+
+            // Arr
+            var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessageJsonSerializer(sampleQueueEntity,
+                AzQueueUnitTestHelper.GetDefaultQueueName, true);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_sendMessageResponseAct);
+        }
+        
+        #endregion
+
+        #region Put - SendMessage async
+
+        [Fact, TestPriority(100)]
+        public void SendMessageJsonSerializerAsyncTest()
+        {
+            // Arrange
+            var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
+
+            // Arr
+            var _sendMessageAsyncResponseAct = AzQueueUnitTestHelper.SendMessageJsonSerializerAsync(sampleQueueEntity,
+                AzQueueUnitTestHelper.GetDefaultQueueName).WaitAndUnwrapException();
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_sendMessageAsyncResponseAct);
+        }
+
+        [Fact, TestPriority(100)]
+        public void SendMessageJsonSerializerAsyncBase64Test()
+        {
+            // Arrange
+            var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
+
+            // Arr
+            var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessageJsonSerializerAsync(sampleQueueEntity,
+                AzQueueUnitTestHelper.GetDefaultQueueName, true).WaitAndUnwrapException();
 
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_sendMessageResponseAct);

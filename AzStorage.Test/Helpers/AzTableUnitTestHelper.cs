@@ -38,7 +38,8 @@ namespace AzStorage.Test.Helpers
                 MaxRetries = 5,
             };
 
-            return new AzTableRepository(StorageConnectionString, optionCreateIfNotExist, _azTableRetryOptions);
+            return new AzTableRepository(StorageConnectionString, optionCreateIfNotExist, 
+                new AzTableClientOptions(), _azTableRetryOptions);
         }
 
         public static TableClient GetExistingTableClient(string tableName)

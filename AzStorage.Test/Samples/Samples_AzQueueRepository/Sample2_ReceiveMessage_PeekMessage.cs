@@ -1,5 +1,6 @@
 ﻿using AzStorage.Test.Helpers;
 using AzStorage.Test.Utilities;
+using CoreTools.Extensions;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -85,6 +86,67 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }
 
+        [Fact, TestPriority(222)]
+        public void ReceiveMessageJsonDeserializerBase64Test()
+        {
+            // Arrange
+            var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
+
+            var queueName = AzQueueUnitTestHelper.SendAssertMessageRandomQueueName(sampleQueueEntity, true);
+
+            // Arr
+            var _receiveMessageJsonDeserializerResponseAct = AzQueueUnitTestHelper
+                .ReceiveMessageJsonDeserializer(queueName, true);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_receiveMessageJsonDeserializerResponseAct);
+            AzQueueUnitTestHelper.AssertSampleQueueEntityFromResponse(_receiveMessageJsonDeserializerResponseAct, sampleQueueEntity);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
+        }
+
+        #endregion
+
+        #region Get - ReceiveMessage async
+
+        [Fact, TestPriority(212)]
+        public void ReceiveMessageJsonDeserializerAsyncTest()
+        {
+            // Arrange
+            var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
+
+            var queueName = AzQueueUnitTestHelper.SendAssertMessageRandomQueueName(sampleQueueEntity);
+
+            // Arr
+            var _receiveMessageJsonDeserializerAsyncResponseAct = AzQueueUnitTestHelper
+                .ReceiveMessageJsonDeserializerAsync(queueName).WaitAndUnwrapException();
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_receiveMessageJsonDeserializerAsyncResponseAct);
+            AzQueueUnitTestHelper.AssertSampleQueueEntityFromResponse(_receiveMessageJsonDeserializerAsyncResponseAct, sampleQueueEntity);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
+        }
+        
+        [Fact, TestPriority(212)]
+        public void ReceiveMessageJsonDeserializerAsyncBase64Test()
+        {
+            // Arrange
+            var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
+
+            var queueName = AzQueueUnitTestHelper.SendAssertMessageRandomQueueName(sampleQueueEntity, true);
+
+            // Arr
+            var _receiveMessageJsonDeserializerAsyncResponseAct = AzQueueUnitTestHelper
+                .ReceiveMessageJsonDeserializerAsync(queueName, true).WaitAndUnwrapException();
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_receiveMessageJsonDeserializerAsyncResponseAct);
+            AzQueueUnitTestHelper.AssertSampleQueueEntityFromResponse(_receiveMessageJsonDeserializerAsyncResponseAct, sampleQueueEntity);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
+        }
+
         #endregion
 
         #region PeekMessage
@@ -142,6 +204,68 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }
 
+        [Fact, TestPriority(220)]
+        public void PeekMessageJsonDeserializerBase64Test()
+        {
+            // Arrange
+            var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
+
+            var queueName = AzQueueUnitTestHelper.SendAssertMessageRandomQueueName(sampleQueueEntity, true);
+
+            // Arr
+            var _peekMessageJsonDeserializerResponseAct = AzQueueUnitTestHelper
+                .PeekMessageJsonDeserializer(queueName, true);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_peekMessageJsonDeserializerResponseAct);
+            AzQueueUnitTestHelper.AssertSampleQueueEntityFromResponse(_peekMessageJsonDeserializerResponseAct, sampleQueueEntity);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
+        }
+
         #endregion
+
+        #region PeekMessage async
+
+        [Fact, TestPriority(220)]
+        public void PeekMessageJsonDeserializerAsyncTest()
+        {
+            // Arrange
+            var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
+
+            var queueName = AzQueueUnitTestHelper.SendAssertMessageRandomQueueName(sampleQueueEntity);
+
+            // Arr
+            var _peekMessageJsonDeserializerAsyncResponseAct = AzQueueUnitTestHelper
+                .PeekMessageJsonDeserializerAsync(queueName).WaitAndUnwrapException();
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_peekMessageJsonDeserializerAsyncResponseAct);
+            AzQueueUnitTestHelper.AssertSampleQueueEntityFromResponse(_peekMessageJsonDeserializerAsyncResponseAct, sampleQueueEntity);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
+        }
+        
+        [Fact, TestPriority(220)]
+        public void PeekMessageJsonDeserializerAsyncBase64Test()
+        {
+            // Arrange
+            var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
+
+            var queueName = AzQueueUnitTestHelper.SendAssertMessageRandomQueueName(sampleQueueEntity, true);
+
+            // Arr
+            var _peekMessageJsonDeserializerAsyncResponseAct = AzQueueUnitTestHelper
+                .PeekMessageJsonDeserializerAsync(queueName, true).WaitAndUnwrapException();
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_peekMessageJsonDeserializerAsyncResponseAct);
+            AzQueueUnitTestHelper.AssertSampleQueueEntityFromResponse(_peekMessageJsonDeserializerAsyncResponseAct, sampleQueueEntity);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
+        }
+
+        #endregion
+
     }
 }

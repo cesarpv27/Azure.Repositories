@@ -103,7 +103,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         #region GetMessageMaxBytes
 
         [Fact, TestPriority(50)]
-        public void GetMessageMaxBytes()
+        public void GetMessageMaxBytesTest()
         {
             // Arrange
             var queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
@@ -115,6 +115,45 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_getMessageMaxBytesResponseAct);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
+        }
+
+        #endregion
+
+        #region GetProperties (sync & async)
+
+        [Fact, TestPriority(50)]
+        public void GetPropertiesTest()
+        {
+            // Arrange
+            var queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
+            var _createQueueIfNotExistsResponseArr = AzQueueUnitTestHelper.CreateQueueIfNotExists(queueName);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_createQueueIfNotExistsResponseArr);
+
+            // Arr
+            var _getPropertiesResponseAct = AzQueueUnitTestHelper.GetProperties(queueName);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_getPropertiesResponseAct);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
+        }
+        
+        [Fact, TestPriority(50)]
+        public void GetPropertiesAsyncTest()
+        {
+            // Arrange
+            var queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
+            var _createQueueIfNotExistsResponseArr = AzQueueUnitTestHelper.CreateQueueIfNotExists(queueName);
+            UnitTestHelper.AssertExpectedSuccessfulResponse(_createQueueIfNotExistsResponseArr);
+
+            // Arr
+            var _getPropertiesResponseAct = AzQueueUnitTestHelper.GetPropertiesAsync(queueName)
+                .WaitAndUnwrapException();
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_getPropertiesResponseAct);
 
             AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }
@@ -153,7 +192,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 
         #endregion
 
-        #region Exists queue 
+        #region Exists queue (sync & async)
 
         [Fact, TestPriority(50)]
         public void ExistsTest()

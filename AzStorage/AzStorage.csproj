@@ -4,7 +4,7 @@
     <!-- This project will output netstandard2.0 and net461 assemblies -->
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <PackageId>Az.Storage.Repositories</PackageId>
-    <Version>2.5.0-beta</Version>
+    <Version>3.0.0-beta</Version>
     <Authors>César Palomino Vila</Authors>
     <Product>Azure.Repositories</Product>
     <Description>This project contains repositories aimed manage the Azure platform resources.
@@ -12,7 +12,7 @@ All repositories were implemented over the last sdk version, e.g. Azure Storage 
 -Current and nearby repositories:
 AzTableRepository
 AzCosmosRepository
-AzQueueRepository (near)
+AzQueueRepository
 AzBlobRepository (near)
 
 TargetFrameworks: netstandard2.0; net461</Description>
@@ -20,25 +20,19 @@ TargetFrameworks: netstandard2.0; net461</Description>
     <PackageProjectUrl>https://github.com/cesarpv27/Azure.Repositories</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/cesarpv27/Azure.Repositories</RepositoryUrl>
-    <PackageReleaseNotes>Sync and async transactionally methods has been added in AzCosmosDBRepository class to add, get, update, upsert and delete entities into cosmos service.
+    <PackageReleaseNotes>First version of the class AzQueueRepository has been implemented. More methods will be added in next versions.
 
 Dependency updates:
-Azue.Core.1.16.0 -&gt; Azure.Core.1.19.0
-Azure.Data.Tables.12.1.0 -&gt; Azure.Data.Tables.12.2.0
-Microsoft.Azure.Cosmos.3.20.1 -&gt; Microsoft.Azure.Cosmos.3.21.0
-System.Configuration.ConfigurationManager.4.5.0 -&gt; System.Configuration.ConfigurationManager.4.7.0
-System.Security.AccessControl.4.5.0 -&gt; System.Security.AccessControl.4.7.0
-System.Security.Permissions.4.5.0 -&gt; System.Security.Permissions.4.7.0
-System.Security.Principal.Windows.4.5.0 -&gt; System.Security.Principal.Windows.4.7.0
-System.Security.Cryptography.ProtectedData.4.5.0 -&gt; System.Security.Cryptography.ProtectedData.4.7.0</PackageReleaseNotes>
+Miscellaneous.CoreTools.1.0.1 -&gt; Miscellaneous.CoreTools.1.1.0AzStorage
+Miscellaneous.AzCoreTools.2.4.1-beta -&gt; Miscellaneous.AzCoreTools.2.4.2-beta</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Azure.Data.Tables" Version="12.2.0" />
     <PackageReference Include="Azure.Storage.Queues" Version="12.8.0" />
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.21.0" />
-    <PackageReference Include="Miscellaneous.AzCoreTools" Version="2.4.1-beta" />
-    <PackageReference Include="Miscellaneous.CoreTools" Version="1.0.1" />
+    <PackageReference Include="Miscellaneous.AzCoreTools" Version="2.4.2-beta" />
+    <PackageReference Include="Miscellaneous.CoreTools" Version="1.1.0" />
   </ItemGroup>
 
 </Project>

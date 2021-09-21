@@ -26,11 +26,13 @@ namespace AzStorage.Repositories
 
         public AzTableRepository(string connectionString,
             CreateResourcePolicy createTableResource = CreateResourcePolicy.OnlyFirstTime,
+            AzTableClientOptions tableClientOptions = null, 
             AzTableRetryOptions retryOptions = null) : base(createTableResource, retryOptions)
         {
             ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(connectionString, nameof(connectionString));
 
             ConnectionString = connectionString;
+            AzTableClientOptions = tableClientOptions;
         }
 
         #region Properties
@@ -53,6 +55,8 @@ namespace AzStorage.Repositories
             }
         }
 
+        protected virtual AzTableClientOptions AzTableClientOptions { get; set; }
+
         #endregion
 
         #region Protected methods
@@ -61,7 +65,7 @@ namespace AzStorage.Repositories
         {
             ThrowIfConnectionStringIsInvalid();
 
-            return new TableServiceClient(ConnectionString, CreateClientOptions<AzTableClientOptions>());
+            return new TableServiceClient(ConnectionString, CreateClientOptions(AzTableClientOptions));
         }
 
         protected TableClient _TableClient;
@@ -153,7 +157,7 @@ namespace AzStorage.Repositories
         {
             ThrowIfConnectionStringIsInvalid();
 
-            return new TableClient(ConnectionString, tableName, CreateClientOptions<AzTableClientOptions>());
+            return new TableClient(ConnectionString, tableName, CreateClientOptions(AzTableClientOptions));
         }
 
         #endregion
