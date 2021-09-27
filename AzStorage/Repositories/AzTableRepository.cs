@@ -104,7 +104,7 @@ namespace AzStorage.Repositories
                 ExThrower.ST_ThrowInvalidOperationException($"{nameof(response)} opperations must be successful");
 
             if (response.Value == null)
-                ExThrower.ST_ThrowApplicationException(ErrorTextProvider.Error_retrieving_entities);
+                ExThrower.ST_ThrowInvalidOperationException(ErrorTextProvider.Error_retrieving_entities);
 
             return DeleteEntitiesTransactionally(response.Value, cancellationToken, tableName);
         }

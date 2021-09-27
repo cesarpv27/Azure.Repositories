@@ -51,7 +51,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
                 ent => throw new Exception(), AzQueueUnitTestHelper.GetDefaultQueueName);
 
             // Assert
-            UnitTestHelper.AssertExpectedFailedResponseWithException(_sendMessageResponseAct, "throw exception serializing object");
+            UnitTestHelper.AssertExpectedFailedResponseWithException(_sendMessageResponseAct, "throws exception serializing object");
         }
 
         [Fact, TestPriority(100)]
@@ -61,11 +61,9 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
 
             // Arr
-            var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessage(sampleQueueEntity,
-                ent => null, AzQueueUnitTestHelper.GetDefaultQueueName);
-
             // Assert
-            UnitTestHelper.AssertExpectedFailedResponse(_sendMessageResponseAct, "returned null by serializing the object");
+            Assert.Throws<InvalidOperationException>(() => AzQueueUnitTestHelper.SendMessage(sampleQueueEntity,
+                ent => null, AzQueueUnitTestHelper.GetDefaultQueueName));
         }
 
         [Fact, TestPriority(100)]
@@ -75,7 +73,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
 
             // Arr
-            var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessageJsonSerializer(sampleQueueEntity,
+            var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessage(sampleQueueEntity,
                 AzQueueUnitTestHelper.GetDefaultQueueName);
 
             // Assert
@@ -89,7 +87,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
 
             // Arr
-            var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessageJsonSerializer(sampleQueueEntity,
+            var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessage(sampleQueueEntity,
                 AzQueueUnitTestHelper.GetDefaultQueueName, true);
 
             // Assert
@@ -107,7 +105,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
 
             // Arr
-            var _sendMessageAsyncResponseAct = AzQueueUnitTestHelper.SendMessageJsonSerializerAsync(sampleQueueEntity,
+            var _sendMessageAsyncResponseAct = AzQueueUnitTestHelper.SendMessageAsync(sampleQueueEntity,
                 AzQueueUnitTestHelper.GetDefaultQueueName).WaitAndUnwrapException();
 
             // Assert
@@ -121,7 +119,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
 
             // Arr
-            var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessageJsonSerializerAsync(sampleQueueEntity,
+            var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessageAsync(sampleQueueEntity,
                 AzQueueUnitTestHelper.GetDefaultQueueName, true).WaitAndUnwrapException();
 
             // Assert
