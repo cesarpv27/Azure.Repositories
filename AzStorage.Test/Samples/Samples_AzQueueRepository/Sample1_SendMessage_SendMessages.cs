@@ -3,12 +3,14 @@ using AzStorage.Test.Utilities;
 using CoreTools.Extensions;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 {
     [TestCaseOrderer("AzStorage.Test.Utilities.PriorityOrderer", "AzStorage.Test")]
-    public class Sample1_SendMessage
+    public class Sample1_SendMessage_SendMessages
     {
         #region Put - SendMessage
 
@@ -124,6 +126,49 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_sendMessageResponseAct);
+        }
+
+        #endregion
+
+        #region Put - SendMessages
+
+        [Fact, TestPriority(110)]
+        public void SendMessagesTest()
+        {
+            // Arrange
+            int maxMessages = 30;
+            string queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
+
+            var samplesQueueEntity = AzQueueUnitTestHelper.GenerateMessagesRandom(maxMessages, true);
+
+            // Arr
+            var _sendMessagesResponseAct = AzQueueUnitTestHelper.SendMessages(samplesQueueEntity, queueName);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponses(_sendMessagesResponseAct);
+            Assert.Equal(maxMessages, _sendMessagesResponseAct.Count);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
+        }
+        
+        [Fact, TestPriority(110)]
+        public void SendMessagesTest2()
+        {
+            // Arrange
+            int maxMessages = 30;
+            string queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
+
+            var samplesQueueEntity = AzQueueUnitTestHelper.GenerateMessagesRandom(maxMessages, true)
+                .Select(ent => JsonConvert.SerializeObject(ent));
+
+            // Arr
+            var _sendMessagesResponseAct = AzQueueUnitTestHelper.SendMessages(samplesQueueEntity, queueName);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponses(_sendMessagesResponseAct);
+            Assert.Equal(maxMessages, _sendMessagesResponseAct.Count);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }
 
         #endregion

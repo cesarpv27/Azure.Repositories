@@ -506,7 +506,7 @@ namespace AzStorage.Repositories
         #region Put
 
         /// <summary>
-        /// Serialize <paramref name="messageToSerialize"/> and add it as a new message to the back of a queue. 
+        /// Serialize <paramref name="message"/> and add it as a new message to the back of a queue. 
         /// The visibility timeout specifies how long the message should be invisible to Receive and Peek operations.
         /// The <c>SerializeObject</c> method of <see cref="JsonConvert"/> class will be used in serialization.
         /// The <c>SerializeObject</c> response must be in a format that can be included in an XML request with UTF-8 encoding.
@@ -515,10 +515,10 @@ namespace AzStorage.Repositories
         /// messages. The encoded message can be up to 64 KiB in size for versions 2011-08-18
         /// and newer, or 8 KiB in size for previous versions.
         /// Throws <see cref="InvalidOperationException"/> if <c>DeserializeObject<T></c> method 
-        /// of <see cref="JsonConvert"/> class return invalid value for the <paramref name="messageToSerialize"/>.
+        /// of <see cref="JsonConvert"/> class return invalid value for the <paramref name="message"/>.
         /// </summary>
         /// <typeparam name="T">A custom model type.</typeparam>
-        /// <param name="messageToSerialize">The entity to serialize and add as a new message.</param>
+        /// <param name="message">The entity to serialize and add as a new message.</param>
         /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
         /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
         /// <param name="visibilityTimeout">Visibility timeout. Optional with a default value of 0. 
@@ -526,13 +526,13 @@ namespace AzStorage.Repositories
         /// <param name="timeToLive">Specifies the time-to-live interval for the message.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="encodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
-        /// then encode <paramref name="messageContent"/> according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// then encode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>The <see cref="AzStorageResponse{Azure.Storage.Queues.Models.SendReceipt}"/> indicating the result of the operation.</returns>
         /// <exception cref="InvalidOperationException">Throws <see cref="InvalidOperationException"/> 
         /// if <c>DeserializeObject<T></c> method of <see cref="JsonConvert"/> class return invalid value 
-        /// for the <paramref name="messageToSerialize"/>.</exception>
+        /// for the <paramref name="message"/>.</exception>
         public virtual AzStorageResponse<SendReceipt> SendMessage<T>(
-            T messageToSerialize,
+            T message,
             string queueName = null,
             TimeSpan? visibilityTimeout = default,
             TimeSpan? timeToLive = default,
@@ -540,12 +540,12 @@ namespace AzStorage.Repositories
             bool encodeCaseMessageEncoding = true)
             where T : class
         {
-            return SendMessage(messageToSerialize, JsonConvert.SerializeObject, queueName,
+            return SendMessage(message, JsonConvert.SerializeObject, queueName,
                 visibilityTimeout, timeToLive, cancellationToken, encodeCaseMessageEncoding);
         }
 
         /// <summary>
-        /// Serialize <paramref name="messageToSerialize"/> and add it as a new message to the back of a queue. 
+        /// Serialize <paramref name="message"/> and add it as a new message to the back of a queue. 
         /// The visibility timeout specifies how long the message should be invisible to Receive and Peek operations.
         /// The <paramref name="serializer"/> response must be in a format that can be included in an XML request with UTF-8 encoding.
         /// Otherwise AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding option can
@@ -553,11 +553,11 @@ namespace AzStorage.Repositories
         /// messages. The encoded message can be up to 64 KiB in size for versions 2011-08-18
         /// and newer, or 8 KiB in size for previous versions.
         /// Throws <see cref="InvalidOperationException"/> if <paramref name="serializer"/> return invalid value for 
-        /// the <paramref name="messageToSerialize"/>.
+        /// the <paramref name="message"/>.
         /// </summary>
         /// <typeparam name="T">A custom model type.</typeparam>
-        /// <param name="messageToSerialize">The entity to serialize and add as a new message.</param>
-        /// <param name="serializer">Used to serialize <paramref name="messageToSerialize"/></param>
+        /// <param name="message">The entity to serialize and add as a new message.</param>
+        /// <param name="serializer">Used to serialize <paramref name="message"/></param>
         /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
         /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
         /// <param name="visibilityTimeout">Visibility timeout. Optional with a default value of 0. 
@@ -565,12 +565,12 @@ namespace AzStorage.Repositories
         /// <param name="timeToLive">Specifies the time-to-live interval for the message.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="encodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
-        /// then encode <paramref name="messageContent"/> according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// then encode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>The <see cref="AzStorageResponse{Azure.Storage.Queues.Models.SendReceipt}"/> indicating the result of the operation.</returns>
         /// <exception cref="InvalidOperationException">Throws <see cref="InvalidOperationException"/> 
-        /// if <paramref name="serializer"/> return invalid value for the <paramref name="messageToSerialize"/>.</exception>
+        /// if <paramref name="serializer"/> return invalid value for the <paramref name="message"/>.</exception>
         public virtual AzStorageResponse<SendReceipt> SendMessage<T>(
-            T messageToSerialize,
+            T message,
             Func<T, string> serializer,
             string queueName = null,
             TimeSpan? visibilityTimeout = default,
@@ -580,7 +580,7 @@ namespace AzStorage.Repositories
         {
             ThrowIfInvalidSerializer(serializer);
 
-            var _strAzStorageResponse = SerializeObject(messageToSerialize, serializer);
+            var _strAzStorageResponse = SerializeObject(message, serializer);
             if (!_strAzStorageResponse.Succeeded)
                 return _strAzStorageResponse.InduceResponse<SendReceipt>(default);
 
@@ -591,13 +591,13 @@ namespace AzStorage.Repositories
         /// <summary>
         /// Adds a new message to the back of a queue. The visibility timeout specifies how long the message 
         /// should be invisible to Receive and Peek operations.
-        /// A <paramref name="messageContent"/> must be in a format that can be included in an XML request with UTF-8 encoding.
+        /// A <paramref name="message"/> must be in a format that can be included in an XML request with UTF-8 encoding.
         /// Otherwise AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding option can
         /// be set to Azure.Storage.Queues.QueueMessageEncoding.Base64 to handle non compliant
         /// messages. The encoded message can be up to 64 KiB in size for versions 2011-08-18
         /// and newer, or 8 KiB in size for previous versions.
         /// </summary>
-        /// <param name="messageContent">Message to add.</param>
+        /// <param name="message">Message to add.</param>
         /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
         /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
         /// <param name="visibilityTimeout">Visibility timeout. Optional with a default value of 0. 
@@ -605,24 +605,24 @@ namespace AzStorage.Repositories
         /// <param name="timeToLive">Specifies the time-to-live interval for the message.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="encodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
-        /// then encode <paramref name="messageContent"/> according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// then encode <paramref name="message"/> according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>The <see cref="AzStorageResponse{Azure.Storage.Queues.Models.SendReceipt}"/> indicating the result of the operation.</returns>
         public virtual AzStorageResponse<SendReceipt> SendMessage(
-            string messageContent,
+            string message,
             string queueName = null,
             TimeSpan? visibilityTimeout = default,
             TimeSpan? timeToLive = default,
             CancellationToken cancellationToken = default,
             bool encodeCaseMessageEncoding = true)
         {
-            ThrowIfInvalidMessageContent(messageContent);
+            ThrowIfInvalidMessageContent(message);
             queueName = GetValidQueueNameOrThrowIfInvalid(queueName);
 
             if (encodeCaseMessageEncoding)
-                messageContent = EncodeIfCase(messageContent);
+                message = EncodeIfCase(message);
 
             return FuncHelper.Execute<string, TimeSpan?, TimeSpan?, CancellationToken, Response<SendReceipt>, AzStorageResponse<SendReceipt>, SendReceipt>(
-                GetQueueClient(queueName).SendMessage, messageContent, visibilityTimeout, timeToLive, cancellationToken);
+                GetQueueClient(queueName).SendMessage, message, visibilityTimeout, timeToLive, cancellationToken);
         }
 
         #endregion
@@ -630,7 +630,7 @@ namespace AzStorage.Repositories
         #region Put async
 
         /// <summary>
-        /// Serialize <paramref name="messageToSerialize"/> and add it as a new message to the back of a queue. 
+        /// Serialize <paramref name="message"/> and add it as a new message to the back of a queue. 
         /// The visibility timeout specifies how long the message should be invisible to Receive and Peek operations.
         /// The <c>SerializeObject</c> method of <see cref="JsonConvert"/> class will be used in serialization.
         /// The <c>SerializeObject</c> response must be in a format that can be included in an XML request with UTF-8 encoding.
@@ -639,10 +639,10 @@ namespace AzStorage.Repositories
         /// messages. The encoded message can be up to 64 KiB in size for versions 2011-08-18
         /// and newer, or 8 KiB in size for previous versions.
         /// Throws <see cref="InvalidOperationException"/> if <c>DeserializeObject<T></c> method 
-        /// of <see cref="JsonConvert"/> class return invalid value for the <paramref name="messageToSerialize"/>.
+        /// of <see cref="JsonConvert"/> class return invalid value for the <paramref name="message"/>.
         /// </summary>
         /// <typeparam name="T">A custom model type.</typeparam>
-        /// <param name="messageToSerialize">The entity to serialize and add as a new message.</param>
+        /// <param name="message">The entity to serialize and add as a new message.</param>
         /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
         /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
         /// <param name="visibilityTimeout">Visibility timeout. Optional with a default value of 0. 
@@ -650,15 +650,15 @@ namespace AzStorage.Repositories
         /// <param name="timeToLive">Specifies the time-to-live interval for the message.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="encodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
-        /// then encode <paramref name="messageContent"/> according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// then encode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>The <see cref="AzStorageResponse{Azure.Storage.Queues.Models.SendReceipt}"/> indicating the result of the operation, 
         /// that was created contained within a System.Threading.Tasks.Task object representing 
         /// the service response for the asynchronous operation.</returns>
         /// <exception cref="InvalidOperationException">Throws <see cref="InvalidOperationException"/> 
         /// if <c>DeserializeObject<T></c> method of <see cref="JsonConvert"/> class return invalid value 
-        /// for the <paramref name="messageToSerialize"/>.</exception>
+        /// for the <paramref name="message"/>.</exception>
         public virtual async Task<AzStorageResponse<SendReceipt>> SendMessageAsync<T>(
-            T messageToSerialize,
+            T message,
             string queueName = null,
             TimeSpan? visibilityTimeout = default,
             TimeSpan? timeToLive = default,
@@ -666,12 +666,12 @@ namespace AzStorage.Repositories
             bool encodeCaseMessageEncoding = true)
             where T : class
         {
-            return await SendMessageAsync(messageToSerialize, JsonConvert.SerializeObject, queueName,
+            return await SendMessageAsync(message, JsonConvert.SerializeObject, queueName,
                 visibilityTimeout, timeToLive, cancellationToken, encodeCaseMessageEncoding);
         }
 
         /// <summary>
-        /// Serialize <paramref name="messageToSerialize"/> and add it as a new message to the back of a queue. 
+        /// Serialize <paramref name="message"/> and add it as a new message to the back of a queue. 
         /// The visibility timeout specifies how long the message should be invisible to Receive and Peek operations.
         /// The <paramref name="serializer"/> response must be in a format that can be included in an XML request with UTF-8 encoding.
         /// Otherwise AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding option can
@@ -679,11 +679,11 @@ namespace AzStorage.Repositories
         /// messages. The encoded message can be up to 64 KiB in size for versions 2011-08-18
         /// and newer, or 8 KiB in size for previous versions.
         /// Throws <see cref="InvalidOperationException"/> if <paramref name="serializer"/> return invalid value for 
-        /// the <paramref name="messageToSerialize"/>.
+        /// the <paramref name="message"/>.
         /// </summary>
         /// <typeparam name="T">A custom model type.</typeparam>
-        /// <param name="messageToSerialize">The entity to serialize and add as a new message.</param>
-        /// <param name="serializer">Used to serialize <paramref name="messageToSerialize"/></param>
+        /// <param name="message">The entity to serialize and add as a new message.</param>
+        /// <param name="serializer">Used to serialize <paramref name="message"/></param>
         /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
         /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
         /// <param name="visibilityTimeout">Visibility timeout. Optional with a default value of 0. 
@@ -691,14 +691,14 @@ namespace AzStorage.Repositories
         /// <param name="timeToLive">Specifies the time-to-live interval for the message.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="encodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
-        /// then encode <paramref name="messageContent"/> according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// then encode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>The <see cref="AzStorageResponse{Azure.Storage.Queues.Models.SendReceipt}"/> indicating the result of the operation, 
         /// that was created contained within a System.Threading.Tasks.Task object representing 
         /// the service response for the asynchronous operation.</returns>
         /// <exception cref="InvalidOperationException">Throws <see cref="InvalidOperationException"/> 
-        /// if <paramref name="serializer"/> return invalid value for the <paramref name="messageToSerialize"/>.</exception>
+        /// if <paramref name="serializer"/> return invalid value for the <paramref name="message"/>.</exception>
         public virtual async Task<AzStorageResponse<SendReceipt>> SendMessageAsync<T>(
-            T messageToSerialize,
+            T message,
             Func<T, string> serializer,
             string queueName = null,
             TimeSpan? visibilityTimeout = default,
@@ -708,7 +708,7 @@ namespace AzStorage.Repositories
         {
             ThrowIfInvalidSerializer(serializer);
 
-            var _strAzStorageResponse = SerializeObject(messageToSerialize, serializer);
+            var _strAzStorageResponse = SerializeObject(message, serializer);
             if (!_strAzStorageResponse.Succeeded)
                 return _strAzStorageResponse.InduceResponse<SendReceipt>(default);
 
@@ -719,13 +719,13 @@ namespace AzStorage.Repositories
         /// <summary>
         /// Adds a new message to the back of a queue. The visibility timeout specifies how long the message 
         /// should be invisible to Receive and Peek operations.
-        /// A <paramref name="messageContent"/> must be in a format that can be included in an XML request with UTF-8 encoding.
+        /// A <paramref name="message"/> must be in a format that can be included in an XML request with UTF-8 encoding.
         /// Otherwise AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding option can
         /// be set to Azure.Storage.Queues.QueueMessageEncoding.Base64 to handle non compliant
         /// messages. The encoded message can be up to 64 KiB in size for versions 2011-08-18
         /// and newer, or 8 KiB in size for previous versions.
         /// </summary>
-        /// <param name="messageContent">Message to add.</param>
+        /// <param name="message">Message to add.</param>
         /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
         /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
         /// <param name="visibilityTimeout">Visibility timeout. Optional with a default value of 0. 
@@ -733,26 +733,154 @@ namespace AzStorage.Repositories
         /// <param name="timeToLive">Specifies the time-to-live interval for the message.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="encodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
-        /// then encode <paramref name="messageContent"/> according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// then encode <paramref name="message"/> according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>The <see cref="AzStorageResponse{Azure.Storage.Queues.Models.SendReceipt}"/> indicating the result of the operation, 
         /// that was created contained within a System.Threading.Tasks.Task object representing 
         /// the service response for the asynchronous operation.</returns>
         public virtual async Task<AzStorageResponse<SendReceipt>> SendMessageAsync(
-            string messageContent,
+            string message,
             string queueName = null,
             TimeSpan? visibilityTimeout = default,
             TimeSpan? timeToLive = default,
             CancellationToken cancellationToken = default,
             bool encodeCaseMessageEncoding = true)
         {
-            ThrowIfInvalidMessageContent(messageContent);
+            ThrowIfInvalidMessageContent(message);
             queueName = GetValidQueueNameOrThrowIfInvalid(queueName);
 
             if (encodeCaseMessageEncoding)
-                messageContent = EncodeIfCase(messageContent);
+                message = EncodeIfCase(message);
 
             return await FuncHelper.ExecuteAsync<string, TimeSpan?, TimeSpan?, CancellationToken, Response<SendReceipt>, AzStorageResponse<SendReceipt>, SendReceipt>(
-                GetQueueClient(queueName).SendMessageAsync, messageContent, visibilityTimeout, timeToLive, cancellationToken);
+                GetQueueClient(queueName).SendMessageAsync, message, visibilityTimeout, timeToLive, cancellationToken);
+        }
+
+        #endregion
+
+        #region PutMessages
+
+        /// <summary>
+        /// Serialize each message in <paramref name="messages"/> and add each one as a new message to the back of a queue. 
+        /// The visibility timeout specifies how long the message should be invisible to Receive and Peek operations.
+        /// The <c>SerializeObject</c> method of <see cref="JsonConvert"/> class will be used in serialization.
+        /// All <c>SerializeObject</c> responses must be in a format that can be included in an XML request with UTF-8 encoding.
+        /// Otherwise AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding option can
+        /// be set to Azure.Storage.Queues.QueueMessageEncoding.Base64 to handle non compliant
+        /// messages. The encoded message can be up to 64 KiB in size for versions 2011-08-18
+        /// and newer, or 8 KiB in size for previous versions.
+        /// Throws <see cref="InvalidOperationException"/> if <c>DeserializeObject<T></c> method 
+        /// of <see cref="JsonConvert"/> class return invalid value for any message in <paramref name="messages"/>.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="messages">The messages to serialize and add each one as a new message.</param>
+        /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
+        /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
+        /// <param name="visibilityTimeout">Visibility timeout. Optional with a default value of 0. 
+        /// Cannot be larger than 7 days.</param>
+        /// <param name="timeToLive">Specifies the time-to-live interval for the message.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="encodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
+        /// then encode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse{Azure.Storage.Queues.Models.SendReceipt}"/> 
+        /// indicating the result of each adds operation.</returns>
+        /// <exception cref="InvalidOperationException">Throws <see cref="InvalidOperationException"/> 
+        /// if <c>DeserializeObject<T></c> method of <see cref="JsonConvert"/> class return invalid value 
+        /// for any message in <paramref name="messages"/>.</exception>
+        public virtual List<AzStorageResponse<SendReceipt>> SendMessages<T>(
+            IEnumerable<T> messages,
+            string queueName = null,
+            TimeSpan? visibilityTimeout = default,
+            TimeSpan? timeToLive = default,
+            CancellationToken cancellationToken = default,
+            bool encodeCaseMessageEncoding = true)
+            where T : class
+        {
+            return SendMessages(messages, JsonConvert.SerializeObject, queueName,
+                visibilityTimeout, timeToLive, cancellationToken, encodeCaseMessageEncoding);
+        }
+
+        /// <summary>
+        /// Serialize each message in <paramref name="messages"/> and add each one as a new message to the back of a queue. 
+        /// The visibility timeout specifies how long the message should be invisible to Receive and Peek operations.
+        /// All <paramref name="serializer"/> responses must be in a format that can be included in an XML request with UTF-8 encoding.
+        /// Otherwise AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding option can
+        /// be set to Azure.Storage.Queues.QueueMessageEncoding.Base64 to handle non compliant
+        /// messages. The encoded message can be up to 64 KiB in size for versions 2011-08-18
+        /// and newer, or 8 KiB in size for previous versions.
+        /// Throws <see cref="InvalidOperationException"/> if <paramref name="serializer"/> return invalid value 
+        /// for any message in <paramref name="messages"/>.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="messages">The messages to serialize and add each one as a new message.</param>
+        /// <param name="serializer">Used to serialize <paramref name="messages"/></param>
+        /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
+        /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
+        /// <param name="visibilityTimeout">Visibility timeout. Optional with a default value of 0. 
+        /// Cannot be larger than 7 days.</param>
+        /// <param name="timeToLive">Specifies the time-to-live interval for the message.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="encodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
+        /// then encode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse{Azure.Storage.Queues.Models.SendReceipt}"/> 
+        /// indicating the result of each adds operation.</returns>
+        /// <exception cref="InvalidOperationException">Throws <see cref="InvalidOperationException"/> 
+        /// if <paramref name="serializer"/> return invalid value 
+        /// for any message in <paramref name="messages"/>.</exception>
+        public virtual List<AzStorageResponse<SendReceipt>> SendMessages<T>(
+            IEnumerable<T> messages,
+            Func<T, string> serializer,
+            string queueName = null,
+            TimeSpan? visibilityTimeout = default,
+            TimeSpan? timeToLive = default,
+            CancellationToken cancellationToken = default,
+            bool encodeCaseMessageEncoding = true)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNull(nameof(messages), nameof(messages));
+
+            var results = new List<AzStorageResponse<SendReceipt>>();
+            foreach (var msg in messages)
+                results.Add(SendMessage(msg, serializer, queueName, visibilityTimeout,
+                        timeToLive, cancellationToken, encodeCaseMessageEncoding));
+
+            return results;
+        }
+
+        /// <summary>
+        /// Adds each message in <paramref name="messages"/> to the back of a queue. The visibility timeout specifies 
+        /// how long the message should be invisible to Receive and Peek operations.
+        /// Each message in <paramref name="messages"/> must be in a format that can be included in an XML request with UTF-8 encoding.
+        /// Otherwise AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding option can
+        /// be set to Azure.Storage.Queues.QueueMessageEncoding.Base64 to handle non compliant
+        /// messages. The encoded message can be up to 64 KiB in size for versions 2011-08-18
+        /// and newer, or 8 KiB in size for previous versions.
+        /// </summary>
+        /// <param name="messages">Messages to add.</param>
+        /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
+        /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
+        /// <param name="visibilityTimeout">Visibility timeout. Optional with a default value of 0. 
+        /// Cannot be larger than 7 days.</param>
+        /// <param name="timeToLive">Specifies the time-to-live interval for the message.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="encodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
+        /// then encode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse{Azure.Storage.Queues.Models.SendReceipt}"/> 
+        /// indicating the result of each adds operation.</returns>
+        public virtual List<AzStorageResponse<SendReceipt>> SendMessages(
+           IEnumerable<string> messages,
+           string queueName = null,
+           TimeSpan? visibilityTimeout = default,
+           TimeSpan? timeToLive = default,
+           CancellationToken cancellationToken = default,
+           bool encodeCaseMessageEncoding = true)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNull(nameof(messages), nameof(messages));
+
+            var results = new List<AzStorageResponse<SendReceipt>>();
+            foreach (var msg in messages)
+                results.Add(SendMessage(msg, queueName, visibilityTimeout,
+                    timeToLive, cancellationToken, encodeCaseMessageEncoding));
+
+            return results;
         }
 
         #endregion
@@ -772,7 +900,7 @@ namespace AzStorage.Repositories
         /// Cannot be larger than 7 days.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
-        /// then decode <paramref name="messageContent"/> according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>The <see cref="AzStorageResponse{T}"/> indicating the result of the operation.</returns>
         /// <exception cref="InvalidOperationException">Throws <see cref="InvalidOperationException"/> 
         /// if <c>DeserializeObject<T></c> method of <see cref="JsonConvert"/> class return invalid value for the message.</exception>
@@ -799,7 +927,7 @@ namespace AzStorage.Repositories
         /// Cannot be larger than 7 days.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
-        /// then decode <paramref name="messageContent"/> according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>The <see cref="AzStorageResponse{T}"/> indicating the result of the operation.</returns>
         /// <exception cref="InvalidOperationException">Throws <see cref="InvalidOperationException"/> 
         /// if <paramref name="deserializer"/> return invalid value for the message.</exception>
@@ -829,7 +957,7 @@ namespace AzStorage.Repositories
         /// Cannot be larger than 7 days.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
-        /// then decode <paramref name="messageContent"/> according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>The <see cref="AzStorageResponse{string}"/> indicating the result of the operation.</returns>
         public virtual AzStorageResponse<string> ReceiveMessage(
             string queueName = null,
@@ -879,7 +1007,7 @@ namespace AzStorage.Repositories
         /// Cannot be larger than 7 days.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
-        /// then decode <paramref name="messageContent"/> according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>The <see cref="AzStorageResponse{T}"/> indicating the result of the operation, 
         /// that was created contained within a System.Threading.Tasks.Task object representing 
         /// the service response for the asynchronous operation.</returns>
@@ -908,7 +1036,7 @@ namespace AzStorage.Repositories
         /// Cannot be larger than 7 days.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
-        /// then decode <paramref name="messageContent"/> according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>The <see cref="AzStorageResponse{T}"/> indicating the result of the operation, 
         /// that was created contained within a System.Threading.Tasks.Task object representing 
         /// the service response for the asynchronous operation.</returns>
@@ -940,7 +1068,7 @@ namespace AzStorage.Repositories
         /// Cannot be larger than 7 days.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
-        /// then decode <paramref name="messageContent"/> according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>The <see cref="AzStorageResponse{string}"/> indicating the result of the operation, 
         /// that was created contained within a System.Threading.Tasks.Task object representing 
         /// the service response for the asynchronous operation.</returns>
@@ -993,7 +1121,7 @@ namespace AzStorage.Repositories
         /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
-        /// then decode <paramref name="messageContent"/> according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>The <see cref="AzStorageResponse{T}"/> indicating the result of the operation.</returns>
         /// <exception cref="InvalidOperationException">Throws <see cref="InvalidOperationException"/> 
         /// if <c>DeserializeObject<T></c> method of <see cref="JsonConvert"/> class return invalid value for the message.</exception>
@@ -1017,7 +1145,7 @@ namespace AzStorage.Repositories
         /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
-        /// then decode <paramref name="messageContent"/> according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>The <see cref="AzStorageResponse{T}"/> indicating the result of the operation.</returns>
         /// <exception cref="InvalidOperationException">Throws <see cref="InvalidOperationException"/> 
         /// if <paramref name="deserializer"/> return invalid value for the message.</exception>
@@ -1043,7 +1171,7 @@ namespace AzStorage.Repositories
         /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
-        /// then decode <paramref name="messageContent"/> according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>The <see cref="AzStorageResponse{string}"/> indicating the result of the operation.</returns>
         public virtual AzStorageResponse<string> PeekMessage(
             string queueName = null,
@@ -1089,7 +1217,7 @@ namespace AzStorage.Repositories
         /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
-        /// then decode <paramref name="messageContent"/> according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>The <see cref="AzStorageResponse{T}"/> indicating the result of the operation, 
         /// that was created contained within a System.Threading.Tasks.Task object representing 
         /// the service response for the asynchronous operation.</returns>
@@ -1115,7 +1243,7 @@ namespace AzStorage.Repositories
         /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
-        /// then decode <paramref name="messageContent"/> according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>The <see cref="AzStorageResponse{T}"/> indicating the result of the operation, 
         /// that was created contained within a System.Threading.Tasks.Task object representing 
         /// the service response for the asynchronous operation.</returns>
@@ -1143,7 +1271,7 @@ namespace AzStorage.Repositories
         /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
-        /// then decode <paramref name="messageContent"/> according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>The <see cref="AzStorageResponse{string}"/> indicating the result of the operation, 
         /// that was created contained within a System.Threading.Tasks.Task object representing 
         /// the service response for the asynchronous operation.</returns>
@@ -1196,7 +1324,7 @@ namespace AzStorage.Repositories
         /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
-        /// then decode <paramref name="messageContent"/> according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>The <see cref="AzStorageResponse{List{T}}"/> indicating the result of the operation.</returns>
         /// <exception cref="InvalidOperationException">Throws <see cref="InvalidOperationException"/> 
         /// if <c>DeserializeObject<T></c> method of <see cref="JsonConvert"/> class return invalid value for any message.</exception>
@@ -1224,7 +1352,7 @@ namespace AzStorage.Repositories
         /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
-        /// then decode <paramref name="messageContent"/> according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>The <see cref="AzStorageResponse{List{T}}"/> indicating the result of the operation.</returns>
         /// <exception cref="InvalidOperationException">Throws <see cref="InvalidOperationException"/> 
         /// if <paramref name="deserializer"/> return invalid value for any message.</exception>
@@ -1253,7 +1381,7 @@ namespace AzStorage.Repositories
         /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
-        /// then decode <paramref name="messageContent"/> according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>The <see cref="AzStorageResponse{List{string}}"/> indicating the result of the operation.</returns>
         public virtual AzStorageResponse<List<string>> PeekMessages(
             int? maxMessages = null,
@@ -1312,7 +1440,7 @@ namespace AzStorage.Repositories
         /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
-        /// then decode <paramref name="messageContent"/> according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>The <see cref="AzStorageResponse{List{T}}"/> indicating the result of the operation, 
         /// that was created contained within a System.Threading.Tasks.Task object representing 
         /// the service response for the asynchronous operation.</returns>
@@ -1342,7 +1470,7 @@ namespace AzStorage.Repositories
         /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
-        /// then decode <paramref name="messageContent"/> according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>The <see cref="AzStorageResponse{List{T}}"/> indicating the result of the operation, 
         /// that was created contained within a System.Threading.Tasks.Task object representing 
         /// the service response for the asynchronous operation.</returns>
@@ -1362,7 +1490,7 @@ namespace AzStorage.Repositories
             
             return InduceResponse(_strAzStorageResponse, deserializer);
         }
-        
+
         /// <summary>
         /// Retrieves one or more messages from the front of the queue but does not alter the visibility of the message.
         /// </summary>
@@ -1373,7 +1501,7 @@ namespace AzStorage.Repositories
         /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
-        /// then decode <paramref name="messageContent"/> according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>The <see cref="AzStorageResponse{List{string}}"/> indicating the result of the operation, 
         /// that was created contained within a System.Threading.Tasks.Task object representing 
         /// the service response for the asynchronous operation.</returns>

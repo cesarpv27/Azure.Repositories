@@ -161,6 +161,25 @@ namespace AzStorage.Test.Helpers
             return queueName;
         }
 
+        public static List<SampleQueueEntity> GenerateMessagesRandom(
+            int maxMessages,
+            bool randomEntity = true)
+        {
+            SampleQueueEntity tmpSampleQueueEntity;
+            var messagesToSerialize = new List<SampleQueueEntity>(maxMessages);
+            for (int i = 0; i < maxMessages; i++)
+            {
+                if (randomEntity)
+                    tmpSampleQueueEntity = GenerateRandomSampleQueueEntity();
+                else
+                    tmpSampleQueueEntity = GenerateDefaultSampleQueueEntity();
+
+                messagesToSerialize.Add(tmpSampleQueueEntity);
+            }
+
+            return messagesToSerialize;
+        }
+
         public static string SendAssertMessageRandomQueueName(
             SampleQueueEntity messageToSerialize,
             bool base64Encoding = false)
@@ -259,6 +278,26 @@ namespace AzStorage.Test.Helpers
         {
             return await GetOrCreateAzQueueRepository(base64Encoding, optionCreateIfNotExist)
                 .SendMessageAsync(sampleQueueEntity, queueName, encodeCaseMessageEncoding: base64Encoding);
+        }
+
+        public static List<AzStorageResponse<SendReceipt>> SendMessages(
+            IEnumerable<SampleQueueEntity> messages,
+            string queueName,
+            bool base64Encoding = false,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return GetOrCreateAzQueueRepository(base64Encoding, optionCreateIfNotExist)
+                .SendMessages(messages, queueName, encodeCaseMessageEncoding: base64Encoding);
+        }
+        
+        public static List<AzStorageResponse<SendReceipt>> SendMessages(
+            IEnumerable<string> messages,
+            string queueName,
+            bool base64Encoding = false,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return GetOrCreateAzQueueRepository(base64Encoding, optionCreateIfNotExist)
+                .SendMessages(messages, queueName, encodeCaseMessageEncoding: base64Encoding);
         }
 
         #endregion
