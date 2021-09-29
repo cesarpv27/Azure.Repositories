@@ -22,7 +22,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 
             var queueName = AzQueueUnitTestHelper.SendAssertMessageRandomQueueName(messageContent);
 
-            // Arr
+            // Act
             var _receiveRawMessageResponseAct = AzQueueUnitTestHelper.ReceiveRawMessage(queueName);
 
             // Assert
@@ -38,7 +38,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var queueName = AzQueueUnitTestHelper.GenerateSendAssertMessageRandomQueueName(
                 out SampleQueueEntity sampleQueueEntity);
 
-            // Arr
+            // Act
             var _receiveMessageResponseAct = AzQueueUnitTestHelper.ReceiveMessage(
                 JsonConvert.DeserializeObject<SampleQueueEntity>, queueName);
 
@@ -56,7 +56,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var queueName = AzQueueUnitTestHelper.GenerateSendAssertMessageRandomQueueName(
                 out SampleQueueEntity sampleQueueEntity);
 
-            // Arr
+            // Act
             var _receiveMessageJsonDeserializerResponseAct = AzQueueUnitTestHelper.ReceiveMessage(queueName);
 
             // Assert
@@ -74,7 +74,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var _createQueueIfNotExistsResponseArr = AzQueueUnitTestHelper.CreateQueueIfNotExists(queueName);
             UnitTestHelper.AssertExpectedSuccessfulResponse(_createQueueIfNotExistsResponseArr);
 
-            // Arr
+            // Act
             var _receiveMessageJsonDeserializerResponseAct = AzQueueUnitTestHelper.ReceiveMessage(queueName);
 
             // Assert
@@ -92,7 +92,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var queueName = AzQueueUnitTestHelper.GenerateSendAssertMessageRandomQueueName(
                 out SampleQueueEntity sampleQueueEntity, base64Encoding);
 
-            // Arr
+            // Act
             var _receiveMessageJsonDeserializerResponseAct = AzQueueUnitTestHelper
                 .ReceiveMessage(queueName, base64Encoding);
 
@@ -116,7 +116,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var queueName = AzQueueUnitTestHelper.GenerateSendAssertMessageRandomQueueName(
                 out SampleQueueEntity sampleQueueEntity);
 
-            // Arr
+            // Act
             var _receiveMessageJsonDeserializerAsyncResponseAct = AzQueueUnitTestHelper
                 .ReceiveMessageAsync(queueName).WaitAndUnwrapException();
 
@@ -135,7 +135,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var queueName = AzQueueUnitTestHelper.GenerateSendAssertMessageRandomQueueName(
                 out SampleQueueEntity sampleQueueEntity, base64Encoding);
 
-            // Arr
+            // Act
             var _receiveMessageJsonDeserializerAsyncResponseAct = AzQueueUnitTestHelper
                 .ReceiveMessageAsync(queueName, base64Encoding).WaitAndUnwrapException();
 
@@ -158,7 +158,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 
             var queueName = AzQueueUnitTestHelper.SendAssertMessageRandomQueueName(messageContent);
 
-            // Arr
+            // Act
             var _receiveRawMessageResponseAct = AzQueueUnitTestHelper.PeekRawMessage(queueName);
 
             // Assert
@@ -174,7 +174,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var queueName = AzQueueUnitTestHelper.GenerateSendAssertMessageRandomQueueName(
                 out SampleQueueEntity sampleQueueEntity);
 
-            // Arr
+            // Act
             var _peekMessageResponseAct = AzQueueUnitTestHelper.PeekMessage(queueName);
 
             // Assert
@@ -192,7 +192,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var _createQueueIfNotExistsResponseArr = AzQueueUnitTestHelper.CreateQueueIfNotExists(queueName);
             UnitTestHelper.AssertExpectedSuccessfulResponse(_createQueueIfNotExistsResponseArr);
 
-            // Arr
+            // Act
             var _peekMessageResponseAct = AzQueueUnitTestHelper.PeekMessage(queueName);
 
             // Assert
@@ -210,7 +210,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var queueName = AzQueueUnitTestHelper.GenerateSendAssertMessageRandomQueueName(
                 out SampleQueueEntity sampleQueueEntity, base64Encoding);
 
-            // Arr
+            // Act
             var _peekMessageResponseAct = AzQueueUnitTestHelper
                 .PeekMessage(queueName, base64Encoding);
 
@@ -232,7 +232,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var queueName = AzQueueUnitTestHelper.GenerateSendAssertMessageRandomQueueName(
                 out SampleQueueEntity sampleQueueEntity);
 
-            // Arr
+            // Act
             var _peekMessageAsyncResponseAct = AzQueueUnitTestHelper
                 .PeekMessageAsync(queueName).WaitAndUnwrapException();
 
@@ -251,7 +251,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var queueName = AzQueueUnitTestHelper.GenerateSendAssertMessageRandomQueueName(
                 out SampleQueueEntity sampleQueueEntity, base64Encoding);
 
-            // Arr
+            // Act
             var _peekMessageAsyncResponseAct = AzQueueUnitTestHelper
                 .PeekMessageAsync(queueName, base64Encoding).WaitAndUnwrapException();
 

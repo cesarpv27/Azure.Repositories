@@ -23,7 +23,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessage(messageContent, queueName);
             UnitTestHelper.AssertExpectedSuccessfulResponse(_sendMessageResponseAct);
 
-            // Arr
+            // Act
             var _clearMessagesResponseAct = AzQueueUnitTestHelper.ClearMessages(queueName);
 
             // Assert
@@ -43,7 +43,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessage(messageContent, queueName);
             UnitTestHelper.AssertExpectedSuccessfulResponse(_sendMessageResponseAct);
 
-            // Arr
+            // Act
             var _clearMessagesResponseAct = AzQueueUnitTestHelper.ClearMessagesAsync(queueName).WaitAndUnwrapException();
 
             // Assert

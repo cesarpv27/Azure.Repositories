@@ -757,7 +757,7 @@ namespace AzStorage.Repositories
 
         #endregion
 
-        #region PutMessages
+        #region Put messages
 
         /// <summary>
         /// Serialize each message in <paramref name="messages"/> and add each one as a new message to the back of a queue. 
@@ -942,8 +942,6 @@ namespace AzStorage.Repositories
 
             var _strAzStorageResponse = ReceiveMessage(queueName, visibilityTimeout,
                 cancellationToken, decodeCaseMessageEncoding);
-            if (!_strAzStorageResponse.Succeeded)
-                return _strAzStorageResponse.InduceResponse<T>(default);
 
             return InduceResponse(_strAzStorageResponse, deserializer);
         }
@@ -1053,8 +1051,6 @@ namespace AzStorage.Repositories
 
             var _strAzStorageResponse = await ReceiveMessageAsync(queueName, visibilityTimeout,
                 cancellationToken, decodeCaseMessageEncoding);
-            if (!_strAzStorageResponse.Succeeded)
-                return _strAzStorageResponse.InduceResponse<T>(default);
 
             return InduceResponse(_strAzStorageResponse, deserializer);
         }
@@ -1103,6 +1099,270 @@ namespace AzStorage.Repositories
 
             return await FuncHelper.ExecuteAsync<TimeSpan?, CancellationToken, Response<QueueMessage>, AzStorageResponse<QueueMessage>, QueueMessage>(
                 GetQueueClient(queueName).ReceiveMessageAsync, visibilityTimeout, cancellationToken);
+        }
+
+        #endregion
+
+        #region Get messages
+
+        /// <summary>
+        /// Receives one or more messages from the front of the queue and deserialize each message to the specified type <typeparamref name="T"/>.
+        /// The <c>DeserializeObject<T></c> method of <see cref="JsonConvert"/> class will be used in deserialization.
+        /// Throws <see cref="InvalidOperationException"/> if <c>DeserializeObject<T></c> method 
+        /// of <see cref="JsonConvert"/> class return invalid value for any message.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="maxMessages">A nonzero integer value that specifies the number of messages to retrieve
+        ///  from the queue, up to a maximum of 32. If fewer are visible, the visible messages
+        ///  are returned. By default, a single message is retrieved from the queue with this operation.</param>
+        /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
+        /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
+        /// <param name="visibilityTimeout">Visibility timeout. Optional with a default value of 0. 
+        /// Cannot be larger than 7 days.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
+        /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// <returns>The <see cref="AzStorageResponse{List{T}}"/> indicating the result of the operation
+        /// containing a collection of entities.</returns>
+        /// <exception cref="InvalidOperationException">Throws <see cref="InvalidOperationException"/> 
+        /// if <c>DeserializeObject<T></c> method of <see cref="JsonConvert"/> class return invalid value for any message.</exception>
+        public virtual AzStorageResponse<List<T>> ReceiveMessages<T>(
+            int? maxMessages = null,
+            string queueName = null,
+            TimeSpan? visibilityTimeout = default,
+            CancellationToken cancellationToken = default,
+            bool decodeCaseMessageEncoding = true)
+        {
+            return ReceiveMessages(JsonConvert.DeserializeObject<T>, maxMessages, queueName, visibilityTimeout,
+                cancellationToken, decodeCaseMessageEncoding);
+        }
+
+        /// <summary>
+        /// Receives one or more messages from the front of the queue and deserialize each message to the specified type <typeparamref name="T"/>.
+        /// The <paramref name="deserializer"/> will be used in deserialization.
+        /// Throws <see cref="InvalidOperationException"/> if <paramref name="deserializer"/> return invalid value for any message.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="deserializer">Used to deserialize the message.</param>
+        /// <param name="maxMessages">A nonzero integer value that specifies the number of messages to retrieve
+        ///  from the queue, up to a maximum of 32. If fewer are visible, the visible messages
+        ///  are returned. By default, a single message is retrieved from the queue with this operation.</param>
+        /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
+        /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
+        /// <param name="visibilityTimeout">Visibility timeout. Optional with a default value of 0. 
+        /// Cannot be larger than 7 days.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
+        /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// <returns>The <see cref="AzStorageResponse{List{T}}"/> indicating the result of the operation
+        /// containing a collection of entities.</returns>
+        /// <exception cref="InvalidOperationException">Throws <see cref="InvalidOperationException"/> 
+        /// if <paramref name="deserializer"/> return invalid value for any message.</exception>
+        public virtual AzStorageResponse<List<T>> ReceiveMessages<T>(
+            Func<string, T> deserializer,
+            int? maxMessages = null,
+            string queueName = null,
+            TimeSpan? visibilityTimeout = default,
+            CancellationToken cancellationToken = default,
+            bool decodeCaseMessageEncoding = true)
+        {
+            ThrowIfInvalidDeserializer(deserializer);
+
+            var _strAzStorageResponse = ReceiveMessages(maxMessages, queueName, visibilityTimeout,
+                cancellationToken, decodeCaseMessageEncoding);
+
+            return InduceResponse(_strAzStorageResponse, deserializer);
+        }
+
+        /// <summary>
+        /// Receives one or more messages from the front of the queue.
+        /// </summary>
+        /// <param name="maxMessages">A nonzero integer value that specifies the number of messages to retrieve
+        ///  from the queue, up to a maximum of 32. If fewer are visible, the visible messages
+        ///  are returned. By default, a single message is retrieved from the queue with this operation.</param>
+        /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
+        /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
+        /// <param name="visibilityTimeout">Visibility timeout. Optional with a default value of 0. 
+        /// Cannot be larger than 7 days.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
+        /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// <returns>The <see cref="AzStorageResponse{List{string}}"/> indicating the result of the operation
+        /// containing a collection of messages.</returns>
+        public virtual AzStorageResponse<List<string>> ReceiveMessages(
+            int? maxMessages = null,
+            string queueName = null,
+            TimeSpan? visibilityTimeout = default,
+            CancellationToken cancellationToken = default,
+            bool decodeCaseMessageEncoding = true)
+        {
+            var _msgAzStorageResponse = ReceiveRawMessages(maxMessages, queueName,
+                visibilityTimeout, cancellationToken);
+
+            return InduceResponse(_msgAzStorageResponse, queueMsg => queueMsg.Body, decodeCaseMessageEncoding);
+        }
+
+        /// <summary>
+        /// Receives one or more messages from the front of the queue as <see cref="QueueMessage"/> instances.
+        /// </summary>
+        /// <param name="maxMessages">A nonzero integer value that specifies the number of messages to retrieve
+        ///  from the queue, up to a maximum of 32. If fewer are visible, the visible messages
+        ///  are returned. By default, a single message is retrieved from the queue with this operation.</param>
+        /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
+        /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
+        /// <param name="visibilityTimeout">Visibility timeout. Optional with a default value of 0. 
+        /// Cannot be larger than 7 days.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <returns>The <see cref="AzStorageResponse{QueueMessage[]}"/> indicating the result of the operation
+        /// containing a collection of messages.</returns>
+        public virtual AzStorageResponse<QueueMessage[]> ReceiveRawMessages(
+            int? maxMessages = null,
+            string queueName = null,
+            TimeSpan? visibilityTimeout = default,
+            CancellationToken cancellationToken = default)
+        {
+            queueName = GetValidQueueNameOrThrowIfInvalid(queueName);
+
+            ThrowIfInvalidMaxMessagesValue(maxMessages);
+
+            return FuncHelper.Execute<int?, TimeSpan?, CancellationToken, Response<QueueMessage[]>, AzStorageResponse<QueueMessage[]>, QueueMessage[]>(
+                GetQueueClient(queueName).ReceiveMessages, maxMessages, visibilityTimeout, cancellationToken);
+        }
+
+        #endregion
+
+        #region Get messages async
+
+        /// <summary>
+        /// Receives one or more messages from the front of the queue and deserialize each message to the specified type <typeparamref name="T"/>.
+        /// The <c>DeserializeObject<T></c> method of <see cref="JsonConvert"/> class will be used in deserialization.
+        /// Throws <see cref="InvalidOperationException"/> if <c>DeserializeObject<T></c> method 
+        /// of <see cref="JsonConvert"/> class return invalid value for any message.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="maxMessages">A nonzero integer value that specifies the number of messages to retrieve
+        ///  from the queue, up to a maximum of 32. If fewer are visible, the visible messages
+        ///  are returned. By default, a single message is retrieved from the queue with this operation.</param>
+        /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
+        /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
+        /// <param name="visibilityTimeout">Visibility timeout. Optional with a default value of 0. 
+        /// Cannot be larger than 7 days.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
+        /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// <returns>The <see cref="AzStorageResponse{List{T}}"/> indicating the result of the operation
+        /// containing a collection of entities, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        /// <exception cref="InvalidOperationException">Throws <see cref="InvalidOperationException"/> 
+        /// if <c>DeserializeObject<T></c> method of <see cref="JsonConvert"/> class return invalid value for any message.</exception>
+        public virtual async Task<AzStorageResponse<List<T>>> ReceiveMessagesAsync<T>(
+            int? maxMessages = null,
+            string queueName = null,
+            TimeSpan? visibilityTimeout = default,
+            CancellationToken cancellationToken = default,
+            bool decodeCaseMessageEncoding = true)
+        {
+            return await ReceiveMessagesAsync(JsonConvert.DeserializeObject<T>, maxMessages, queueName, visibilityTimeout,
+                cancellationToken, decodeCaseMessageEncoding);
+        }
+
+        /// <summary>
+        /// Receives one or more messages from the front of the queue and deserialize each message to the specified type <typeparamref name="T"/>.
+        /// The <paramref name="deserializer"/> will be used in deserialization.
+        /// Throws <see cref="InvalidOperationException"/> if <paramref name="deserializer"/> return invalid value for any message.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="deserializer">Used to deserialize the message.</param>
+        /// <param name="maxMessages">A nonzero integer value that specifies the number of messages to retrieve
+        ///  from the queue, up to a maximum of 32. If fewer are visible, the visible messages
+        ///  are returned. By default, a single message is retrieved from the queue with this operation.</param>
+        /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
+        /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
+        /// <param name="visibilityTimeout">Visibility timeout. Optional with a default value of 0. 
+        /// Cannot be larger than 7 days.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
+        /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// <returns>The <see cref="AzStorageResponse{List{T}}"/> indicating the result of the operation
+        /// containing a collection of entities, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        /// <exception cref="InvalidOperationException">Throws <see cref="InvalidOperationException"/> 
+        /// if <paramref name="deserializer"/> return invalid value for any message.</exception>
+        public virtual async Task<AzStorageResponse<List<T>>> ReceiveMessagesAsync<T>(
+            Func<string, T> deserializer,
+            int? maxMessages = null,
+            string queueName = null,
+            TimeSpan? visibilityTimeout = default,
+            CancellationToken cancellationToken = default,
+            bool decodeCaseMessageEncoding = true)
+        {
+            ThrowIfInvalidDeserializer(deserializer);
+
+            var _strAzStorageResponse = await ReceiveMessagesAsync(maxMessages, queueName, visibilityTimeout,
+                cancellationToken, decodeCaseMessageEncoding);
+
+            return InduceResponse(_strAzStorageResponse, deserializer);
+        }
+
+        /// <summary>
+        /// Receives one or more messages from the front of the queue.
+        /// </summary>
+        /// <param name="maxMessages">A nonzero integer value that specifies the number of messages to retrieve
+        ///  from the queue, up to a maximum of 32. If fewer are visible, the visible messages
+        ///  are returned. By default, a single message is retrieved from the queue with this operation.</param>
+        /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
+        /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
+        /// <param name="visibilityTimeout">Visibility timeout. Optional with a default value of 0. 
+        /// Cannot be larger than 7 days.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
+        /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// <returns>The <see cref="AzStorageResponse{List{string}}"/> indicating the result of the operation
+        /// containing a collection of messages, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        public virtual async Task<AzStorageResponse<List<string>>> ReceiveMessagesAsync(
+            int? maxMessages = null,
+            string queueName = null,
+            TimeSpan? visibilityTimeout = default,
+            CancellationToken cancellationToken = default,
+            bool decodeCaseMessageEncoding = true)
+        {
+            var _msgAzStorageResponse = await ReceiveRawMessagesAsync(maxMessages, queueName, 
+                visibilityTimeout, cancellationToken);
+
+            return InduceResponse(_msgAzStorageResponse, queueMsg => queueMsg.Body, decodeCaseMessageEncoding);
+        }
+
+        /// <summary>
+        /// Receives one or more messages from the front of the queue as <see cref="QueueMessage"/> instances.
+        /// </summary>
+        /// <param name="maxMessages">A nonzero integer value that specifies the number of messages to retrieve
+        ///  from the queue, up to a maximum of 32. If fewer are visible, the visible messages
+        ///  are returned. By default, a single message is retrieved from the queue with this operation.</param>
+        /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
+        /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
+        /// <param name="visibilityTimeout">Visibility timeout. Optional with a default value of 0. 
+        /// Cannot be larger than 7 days.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <returns>The <see cref="AzStorageResponse{QueueMessage[]}"/> indicating the result of the operation
+        /// containing a collection of messages, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        public virtual async Task<AzStorageResponse<QueueMessage[]>> ReceiveRawMessagesAsync(
+            int? maxMessages = null,
+            string queueName = null,
+            TimeSpan? visibilityTimeout = default,
+            CancellationToken cancellationToken = default)
+        {
+            queueName = GetValidQueueNameOrThrowIfInvalid(queueName);
+
+            ThrowIfInvalidMaxMessagesValue(maxMessages);
+
+            return await FuncHelper.ExecuteAsync<int?, TimeSpan?, CancellationToken, Response<QueueMessage[]>, AzStorageResponse<QueueMessage[]>, QueueMessage[]>(
+                GetQueueClient(queueName).ReceiveMessagesAsync, maxMessages, visibilityTimeout, cancellationToken);
         }
 
         #endregion
@@ -1158,8 +1418,6 @@ namespace AzStorage.Repositories
             ThrowIfInvalidDeserializer(deserializer);
 
             var _strAzStorageResponse = PeekMessage(queueName, cancellationToken, decodeCaseMessageEncoding);
-            if (!_strAzStorageResponse.Succeeded)
-                return _strAzStorageResponse.InduceResponse<T>(default);
 
             return InduceResponse(_strAzStorageResponse, deserializer);
         }
@@ -1258,8 +1516,6 @@ namespace AzStorage.Repositories
             ThrowIfInvalidDeserializer(deserializer);
 
             var _strAzStorageResponse = await PeekMessageAsync(queueName, cancellationToken, decodeCaseMessageEncoding);
-            if (!_strAzStorageResponse.Succeeded)
-                return _strAzStorageResponse.InduceResponse<T>(default);
 
             return InduceResponse(_strAzStorageResponse, deserializer);
         }
@@ -1325,7 +1581,8 @@ namespace AzStorage.Repositories
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
         /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
-        /// <returns>The <see cref="AzStorageResponse{List{T}}"/> indicating the result of the operation.</returns>
+        /// <returns>The <see cref="AzStorageResponse{List{T}}"/> indicating the result of the operation,
+        /// containing a collection of entities.</returns>
         /// <exception cref="InvalidOperationException">Throws <see cref="InvalidOperationException"/> 
         /// if <c>DeserializeObject<T></c> method of <see cref="JsonConvert"/> class return invalid value for any message.</exception>
         public virtual AzStorageResponse<List<T>> PeekMessages<T>(
@@ -1353,7 +1610,8 @@ namespace AzStorage.Repositories
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
         /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
-        /// <returns>The <see cref="AzStorageResponse{List{T}}"/> indicating the result of the operation.</returns>
+        /// <returns>The <see cref="AzStorageResponse{List{T}}"/> indicating the result of the operation,
+        /// containing a collection of entities.</returns>
         /// <exception cref="InvalidOperationException">Throws <see cref="InvalidOperationException"/> 
         /// if <paramref name="deserializer"/> return invalid value for any message.</exception>
         public virtual AzStorageResponse<List<T>> PeekMessages<T>(
@@ -1382,7 +1640,8 @@ namespace AzStorage.Repositories
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
         /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
-        /// <returns>The <see cref="AzStorageResponse{List{string}}"/> indicating the result of the operation.</returns>
+        /// <returns>The <see cref="AzStorageResponse{List{string}}"/> indicating the result of the operation,
+        /// containing a collection of messages.</returns>
         public virtual AzStorageResponse<List<string>> PeekMessages(
             int? maxMessages = null,
             string queueName = null,
@@ -1407,7 +1666,8 @@ namespace AzStorage.Repositories
         /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
         /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
-        /// <returns>The <see cref="AzStorageResponse{PeekedMessage}"/> indicating the result of the operation.</returns>
+        /// <returns>The <see cref="AzStorageResponse{PeekedMessage}"/> indicating the result of the operation,
+        /// containing a collection of <see cref="PeekedMessage"/>.</returns>
         public virtual AzStorageResponse<PeekedMessage[]> PeekRawMessages(
             int? maxMessages = null,
             string queueName = null,
@@ -1441,7 +1701,8 @@ namespace AzStorage.Repositories
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
         /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
-        /// <returns>The <see cref="AzStorageResponse{List{T}}"/> indicating the result of the operation, 
+        /// <returns>The <see cref="AzStorageResponse{List{T}}"/> indicating the result of the operation
+        /// containing a collection of entities, 
         /// that was created contained within a System.Threading.Tasks.Task object representing 
         /// the service response for the asynchronous operation.</returns>
         /// <exception cref="InvalidOperationException">Throws <see cref="InvalidOperationException"/> 
@@ -1471,7 +1732,8 @@ namespace AzStorage.Repositories
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
         /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
-        /// <returns>The <see cref="AzStorageResponse{List{T}}"/> indicating the result of the operation, 
+        /// <returns>The <see cref="AzStorageResponse{List{T}}"/> indicating the result of the operation
+        /// containing a collection of entities, 
         /// that was created contained within a System.Threading.Tasks.Task object representing 
         /// the service response for the asynchronous operation.</returns>
         /// <exception cref="InvalidOperationException">Throws <see cref="InvalidOperationException"/> 
@@ -1502,7 +1764,8 @@ namespace AzStorage.Repositories
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <param name="decodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
         /// then decode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
-        /// <returns>The <see cref="AzStorageResponse{List{string}}"/> indicating the result of the operation, 
+        /// <returns>The <see cref="AzStorageResponse{List{string}}"/> indicating the result of the operation
+        /// containing a collection of messages,  
         /// that was created contained within a System.Threading.Tasks.Task object representing 
         /// the service response for the asynchronous operation.</returns>
         public virtual async Task<AzStorageResponse<List<string>>> PeekMessagesAsync(
@@ -1513,10 +1776,7 @@ namespace AzStorage.Repositories
         {
             var _msgAzStorageResponse = await PeekRawMessagesAsync(maxMessages, queueName, cancellationToken);
 
-            return InduceResponse(
-                _msgAzStorageResponse, 
-                peekedMsg => peekedMsg.Body, 
-                decodeCaseMessageEncoding);
+            return InduceResponse(_msgAzStorageResponse, peekedMsg => peekedMsg.Body, decodeCaseMessageEncoding);
         }
 
         /// <summary>
@@ -1529,7 +1789,8 @@ namespace AzStorage.Repositories
         /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
         /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
-        /// <returns>The <see cref="AzStorageResponse{Azure.Storage.Queues.Models.PeekedMessage[]}"/> indicating the result of the operation, 
+        /// <returns>The <see cref="AzStorageResponse{Azure.Storage.Queues.Models.PeekedMessage[]}"/> indicating the result of the operation
+        /// containing a collection of messages, 
         /// that was created contained within a System.Threading.Tasks.Task object representing 
         /// the service response for the asynchronous operation.</returns>
         public virtual async Task<AzStorageResponse<PeekedMessage[]>> PeekRawMessagesAsync(

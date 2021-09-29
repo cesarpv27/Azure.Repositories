@@ -24,11 +24,13 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             string messageContent = "create queue test";
             string queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
 
-            // Arr
+            // Act
             var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessage(messageContent, queueName);
 
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulResponse(_sendMessageResponseAct);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }
 
         [Fact, TestPriority(50)]
@@ -37,7 +39,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             // Arrange
             string messageContent = "create queue test";
 
-            // Arr
+            // Act
             Assert.Throws<ArgumentNullException>("DefaultQueueName", 
                 () => AzQueueUnitTestHelper.SendMessage(messageContent, null));
 
@@ -51,7 +53,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             string messageContent = null;
             string queueName = AzQueueUnitTestHelper.GetDefaultQueueName;
 
-            // Arr
+            // Act
             Assert.Throws<ArgumentNullException>("messageContent", 
                 () => AzQueueUnitTestHelper.SendMessage(messageContent, queueName));
 
@@ -68,7 +70,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var _createQueueIfNotExistsResponseArr = AzQueueUnitTestHelper.CreateQueueIfNotExists(queueName);
             UnitTestHelper.AssertExpectedSuccessfulResponse(_createQueueIfNotExistsResponseArr);
 
-            // Arr
+            // Act
             var _getAccountNameResponseAct = AzQueueUnitTestHelper.GetAccountName(queueName);
 
             // Assert
@@ -89,7 +91,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var _createQueueIfNotExistsResponseArr = AzQueueUnitTestHelper.CreateQueueIfNotExists(queueName);
             UnitTestHelper.AssertExpectedSuccessfulResponse(_createQueueIfNotExistsResponseArr);
 
-            // Arr
+            // Act
             var _getMaxPeekableMessagesResponseAct = AzQueueUnitTestHelper.GetMaxPeekableMessages(queueName);
 
             // Assert
@@ -110,7 +112,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var _createQueueIfNotExistsResponseArr = AzQueueUnitTestHelper.CreateQueueIfNotExists(queueName);
             UnitTestHelper.AssertExpectedSuccessfulResponse(_createQueueIfNotExistsResponseArr);
 
-            // Arr
+            // Act
             var _getMessageMaxBytesResponseAct = AzQueueUnitTestHelper.GetMessageMaxBytes(queueName);
 
             // Assert
@@ -131,7 +133,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var _createQueueIfNotExistsResponseArr = AzQueueUnitTestHelper.CreateQueueIfNotExists(queueName);
             UnitTestHelper.AssertExpectedSuccessfulResponse(_createQueueIfNotExistsResponseArr);
 
-            // Arr
+            // Act
             var _getPropertiesResponseAct = AzQueueUnitTestHelper.GetProperties(queueName);
 
             // Assert
@@ -148,7 +150,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var _createQueueIfNotExistsResponseArr = AzQueueUnitTestHelper.CreateQueueIfNotExists(queueName);
             UnitTestHelper.AssertExpectedSuccessfulResponse(_createQueueIfNotExistsResponseArr);
 
-            // Arr
+            // Act
             var _getPropertiesResponseAct = AzQueueUnitTestHelper.GetPropertiesAsync(queueName)
                 .WaitAndUnwrapException();
 
@@ -170,7 +172,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var _createQueueIfNotExistsResponseArr = AzQueueUnitTestHelper.CreateQueueIfNotExists(queueName);
             UnitTestHelper.AssertExpectedSuccessfulResponse(_createQueueIfNotExistsResponseArr);
 
-            // Arr
+            // Act
             var _deleteQueueIfExistsResponseAct = AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
 
             // Assert
@@ -183,7 +185,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             // Arrange
             var queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
 
-            // Arr
+            // Act
             var _deleteQueueIfExistsResponseAct = AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
 
             // Assert
@@ -202,7 +204,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var _createQueueIfNotExistsResponseArr = AzQueueUnitTestHelper.CreateQueueIfNotExists(queueName);
             UnitTestHelper.AssertExpectedSuccessfulResponse(_createQueueIfNotExistsResponseArr);
 
-            // Arr
+            // Act
             var _existsResponseAct = AzQueueUnitTestHelper.Exists(queueName);
 
             // Assert
@@ -217,7 +219,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             // Arrange
             var queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
 
-            // Arr
+            // Act
             var _existsResponseAct = AzQueueUnitTestHelper.Exists(queueName);
 
             // Assert
@@ -234,7 +236,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var _createQueueIfNotExistsResponseArr = AzQueueUnitTestHelper.CreateQueueIfNotExists(queueName);
             UnitTestHelper.AssertExpectedSuccessfulResponse(_createQueueIfNotExistsResponseArr);
 
-            // Arr
+            // Act
             var _existsResponseAct = AzQueueUnitTestHelper.ExistsAsync(queueName).WaitAndUnwrapException();
 
             // Assert

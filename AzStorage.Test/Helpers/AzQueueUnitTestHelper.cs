@@ -346,6 +346,34 @@ namespace AzStorage.Test.Helpers
 
         #endregion
 
+        #region Get messages (sync & async)
+
+        public static AzStorageResponse<List<SampleQueueEntity>> ReceiveMessages(
+            int maxMessages,
+            string queueName = null,
+            bool base64Encoding = false,
+            TimeSpan? visibilityTimeout = default,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return GetOrCreateAzQueueRepository(base64Encoding, optionCreateIfNotExist)
+                .ReceiveMessages<SampleQueueEntity>(maxMessages, queueName,
+                visibilityTimeout, decodeCaseMessageEncoding: base64Encoding);
+        }
+
+        public static async Task<AzStorageResponse<List<SampleQueueEntity>>> ReceiveMessagesAsync(
+            int maxMessages,
+            string queueName = null,
+            bool base64Encoding = false,
+            TimeSpan? visibilityTimeout = default,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return await GetOrCreateAzQueueRepository(base64Encoding, optionCreateIfNotExist)
+                .ReceiveMessagesAsync<SampleQueueEntity>(maxMessages, queueName,
+                visibilityTimeout, decodeCaseMessageEncoding: base64Encoding);
+        }
+
+        #endregion
+
         #region Peek (sync & async)
 
         public static AzStorageResponse<PeekedMessage> PeekRawMessage(

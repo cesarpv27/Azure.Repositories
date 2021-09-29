@@ -20,7 +20,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             // Arrange
             string messageContent = "create queue test";
 
-            // Arr
+            // Act
             var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessage(messageContent,
                 AzQueueUnitTestHelper.GetDefaultQueueName);
 
@@ -34,7 +34,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             // Arrange
             var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
 
-            // Arr
+            // Act
             var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessage(sampleQueueEntity,
                 JsonConvert.SerializeObject, AzQueueUnitTestHelper.GetDefaultQueueName);
 
@@ -48,7 +48,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             // Arrange
             var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
 
-            // Arr
+            // Act
             var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessage(sampleQueueEntity,
                 ent => throw new Exception(), AzQueueUnitTestHelper.GetDefaultQueueName);
 
@@ -62,7 +62,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             // Arrange
             var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
 
-            // Arr
+            // Act
             // Assert
             Assert.Throws<InvalidOperationException>(() => AzQueueUnitTestHelper.SendMessage(sampleQueueEntity,
                 ent => null, AzQueueUnitTestHelper.GetDefaultQueueName));
@@ -74,7 +74,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             // Arrange
             var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
 
-            // Arr
+            // Act
             var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessage(sampleQueueEntity,
                 AzQueueUnitTestHelper.GetDefaultQueueName);
 
@@ -88,7 +88,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             // Arrange
             var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
 
-            // Arr
+            // Act
             var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessage(sampleQueueEntity,
                 AzQueueUnitTestHelper.GetDefaultQueueName, true);
 
@@ -106,7 +106,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             // Arrange
             var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
 
-            // Arr
+            // Act
             var _sendMessageAsyncResponseAct = AzQueueUnitTestHelper.SendMessageAsync(sampleQueueEntity,
                 AzQueueUnitTestHelper.GetDefaultQueueName).WaitAndUnwrapException();
 
@@ -120,7 +120,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             // Arrange
             var sampleQueueEntity = AzQueueUnitTestHelper.GenerateDefaultSampleQueueEntity();
 
-            // Arr
+            // Act
             var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessageAsync(sampleQueueEntity,
                 AzQueueUnitTestHelper.GetDefaultQueueName, true).WaitAndUnwrapException();
 
@@ -141,7 +141,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 
             var samplesQueueEntity = AzQueueUnitTestHelper.GenerateMessagesRandom(maxMessages, true);
 
-            // Arr
+            // Act
             var _sendMessagesResponseAct = AzQueueUnitTestHelper.SendMessages(samplesQueueEntity, queueName);
 
             // Assert
@@ -161,7 +161,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var samplesQueueEntity = AzQueueUnitTestHelper.GenerateMessagesRandom(maxMessages, true)
                 .Select(ent => JsonConvert.SerializeObject(ent));
 
-            // Arr
+            // Act
             var _sendMessagesResponseAct = AzQueueUnitTestHelper.SendMessages(samplesQueueEntity, queueName);
 
             // Assert

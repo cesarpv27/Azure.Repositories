@@ -30,7 +30,7 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
 
             var tableName = typeof(SampleTableEntity).Name;
 
-            // Arr
+            // Act
             var _addEntityResponseAct = AzTableUnitTestHelper.AddEntity(sampleEntity);
 
             // Assert
@@ -57,7 +57,7 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
                 RowKey = rowKey
             };
 
-            // Arr
+            // Act
             var _addEntityResponseAct = AzTableUnitTestHelper.AddEntity(sampleEntity);
 
             // Assert
@@ -80,7 +80,7 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
 
             var tableName = typeof(SampleTableEntity).Name;
 
-            // Arr
+            // Act
             var _addEntityResponseAct = AzTableUnitTestHelper.AddEntity(entity, tableName);
 
             // Assert
@@ -106,7 +106,7 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
 
             var tableName = $"{typeof(SampleTableEntity).Name}{UnitTestHelper.GetOverOneHundredRandomValue()}";
 
-            // Arr
+            // Act
             var _addEntityResponseAct = AzTableUnitTestHelper.AddEntity(entity, tableName);
 
             // Assert

@@ -27,7 +27,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             string messageId = _sendMessageResponseAct.Value.MessageId;
             string popReceipt = _sendMessageResponseAct.Value.PopReceipt;
 
-            // Arr
+            // Act
             var _deleteMessageResponseAct = AzQueueUnitTestHelper.DeleteMessage(messageId, popReceipt, queueName);
 
             // Assert
@@ -48,7 +48,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             string messageId = Guid.NewGuid().ToString();
             string popReceipt = "AgAAAAMAAAAAAAAAFoHaalyu1wE=";
 
-            // Arr
+            // Act
             var _deleteMessageResponseAct = AzQueueUnitTestHelper.DeleteMessage(messageId, popReceipt, queueName);
 
             // Assert
@@ -66,7 +66,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             string messageId = default;
             string popReceipt = "AgAAAAMAAAAAAAAAFoHaalyu1wE=";
 
-            // Arr
+            // Act
             // Assert
             Assert.Throws<ArgumentNullException>("messageId",
                 () => AzQueueUnitTestHelper.DeleteMessage(messageId, popReceipt, queueName));
@@ -81,7 +81,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             string messageId = Guid.NewGuid().ToString();
             string popReceipt = default;
 
-            // Arr
+            // Act
             // Assert
             Assert.Throws<ArgumentNullException>("popReceipt",
                 () => AzQueueUnitTestHelper.DeleteMessage(messageId, popReceipt, queueName));
@@ -104,7 +104,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             string messageId = _sendMessageResponseAct.Value.MessageId;
             string popReceipt = _sendMessageResponseAct.Value.PopReceipt;
 
-            // Arr
+            // Act
             var _deleteMessageAsyncResponseAct = AzQueueUnitTestHelper
                 .DeleteMessageAsync(messageId, popReceipt, queueName).WaitAndUnwrapException();
 

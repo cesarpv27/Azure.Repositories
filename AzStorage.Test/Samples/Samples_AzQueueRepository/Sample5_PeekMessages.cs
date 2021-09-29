@@ -22,7 +22,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var queueName = AzQueueUnitTestHelper.GenerateSendAssertMessagesRandomQueueName(maxMessages,
                 out List<SampleQueueEntity> samplesQueueEntity);
 
-            // Arr
+            // Act
             var _peekMessagesResponseAct = AzQueueUnitTestHelper.PeekMessages(maxMessages, queueName);
 
             // Assert
@@ -42,7 +42,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var queueName = AzQueueUnitTestHelper.GenerateSendAssertMessagesRandomQueueName(maxMessages,
                 out List<SampleQueueEntity> samplesQueueEntity, base64Encoding);
 
-            // Arr
+            // Act
             var _peekMessagesResponseAct = AzQueueUnitTestHelper.PeekMessages(maxMessages, queueName, base64Encoding);
 
             // Assert
@@ -65,7 +65,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var queueName = AzQueueUnitTestHelper.GenerateSendAssertMessagesRandomQueueName(maxMessages,
                 out List<SampleQueueEntity> samplesQueueEntity);
 
-            // Arr
+            // Act
             var _peekMessagesAsyncResponseAct = AzQueueUnitTestHelper
                 .PeekMessagesAsync(maxMessages, queueName).WaitAndUnwrapException();
 
@@ -86,7 +86,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var queueName = AzQueueUnitTestHelper.GenerateSendAssertMessagesRandomQueueName(maxMessages,
                 out List<SampleQueueEntity> samplesQueueEntity, base64Encoding);
 
-            // Arr
+            // Act
             var _peekMessagesAsyncResponseAct = AzQueueUnitTestHelper
                 .PeekMessagesAsync(maxMessages, queueName, base64Encoding).WaitAndUnwrapException();
 
@@ -105,12 +105,13 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             int maxMessages = 32;
             string queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
 
-            // Arr
+            // Act
             var _peekMessagesAsyncResponseAct = AzQueueUnitTestHelper
                 .PeekMessagesAsync(maxMessages, queueName).WaitAndUnwrapException();
 
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_peekMessagesAsyncResponseAct);
+            Assert.Empty(_peekMessagesAsyncResponseAct.Value);
 
             AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }
@@ -123,7 +124,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             int maxMessages33 = 33;
             var queueName = AzQueueUnitTestHelper.GetDefaultQueueName;
 
-            // Arr
+            // Act
             // Assert
             Assert.Throws<ArgumentOutOfRangeException>("maxMessages", () => AzQueueUnitTestHelper
                 .PeekMessagesAsync(maxMessages0, queueName).WaitAndUnwrapException());
