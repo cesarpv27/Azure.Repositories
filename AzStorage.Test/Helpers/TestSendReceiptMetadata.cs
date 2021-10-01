@@ -5,7 +5,7 @@ using System.Text;
 
 namespace AzStorage.Test.Helpers
 {
-    public class TestSendReceiptMetadata : SendReceiptMetadata
+    public class TestSendReceiptMetadata : ReceiptMetadata
     {
         public TestSendReceiptMetadata(string messageId, string popReceipt)
         {

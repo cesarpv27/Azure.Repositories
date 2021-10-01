@@ -93,7 +93,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 
             // Act
             var _deleteMessageResponseAct = AzQueueUnitTestHelper.DeleteMessage(
-                new SendReceiptMetadata(messageId, popReceipt), queueName);
+                new ReceiptMetadata(messageId, popReceipt), queueName);
 
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulResponse(_deleteMessageResponseAct);
@@ -106,12 +106,12 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         {
             // Arrange
             var queueName = string.Empty;
-            SendReceiptMetadata sendReceiptMetadata = null;
+            ReceiptMetadata receiptMetadata = null;
 
             // Act
             // Assert
-            Assert.Throws<ArgumentNullException>("sendReceiptMetadata",
-                () => AzQueueUnitTestHelper.DeleteMessage(sendReceiptMetadata, queueName));
+            Assert.Throws<ArgumentNullException>("receiptMetadata",
+                () => AzQueueUnitTestHelper.DeleteMessage(receiptMetadata, queueName));
         }
 
         #endregion
@@ -196,7 +196,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 
             // Act
             var _deleteMessageResponseAct = AzQueueUnitTestHelper.DeleteMessageAsync(
-                new SendReceiptMetadata(messageId, popReceipt), queueName).WaitAndUnwrapException();
+                new ReceiptMetadata(messageId, popReceipt), queueName).WaitAndUnwrapException();
 
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulResponse(_deleteMessageResponseAct);
@@ -209,12 +209,12 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         {
             // Arrange
             var queueName = string.Empty;
-            SendReceiptMetadata sendReceiptMetadata = null;
+            ReceiptMetadata receiptMetadata = null;
 
             // Act
             // Assert
-            Assert.Throws<ArgumentNullException>("sendReceiptMetadata",
-                () => AzQueueUnitTestHelper.DeleteMessageAsync(sendReceiptMetadata, queueName).WaitAndUnwrapException());
+            Assert.Throws<ArgumentNullException>("receiptMetadata",
+                () => AzQueueUnitTestHelper.DeleteMessageAsync(receiptMetadata, queueName).WaitAndUnwrapException());
         }
 
         #endregion
@@ -227,10 +227,10 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             // Arrange
             int maxMessages = 10;
             var queueName = AzQueueUnitTestHelper.GenerateSendAssertMessagesRandomQueueName(
-                maxMessages, out List<SendReceiptMetadata> sendReceiptsMetadata, false, false);
+                maxMessages, out List<ReceiptMetadata> receiptsMetadata, false, false);
 
             // Act
-            var _deleteMessagesResponseAct = AzQueueUnitTestHelper.DeleteMessages(sendReceiptsMetadata, queueName);
+            var _deleteMessagesResponseAct = AzQueueUnitTestHelper.DeleteMessages(receiptsMetadata, queueName);
 
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulResponses(_deleteMessagesResponseAct);
@@ -243,12 +243,12 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         {
             // Arrange
             var queueName = string.Empty;
-            List<SendReceiptMetadata> sendReceiptsMetadata = null;
+            List<ReceiptMetadata> receiptsMetadata = null;
 
             // Act
             // Assert
-            Assert.Throws<ArgumentNullException>("sendReceiptsMetadata",
-                () => AzQueueUnitTestHelper.DeleteMessages(sendReceiptsMetadata, queueName));
+            Assert.Throws<ArgumentNullException>("receiptsMetadata",
+                () => AzQueueUnitTestHelper.DeleteMessages(receiptsMetadata, queueName));
         }
 
         #endregion
@@ -261,11 +261,11 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             // Arrange
             int maxMessages = 10;
             var queueName = AzQueueUnitTestHelper.GenerateSendAssertMessagesRandomQueueName(
-                maxMessages, out List<SendReceiptMetadata> sendReceiptsMetadata, false, false);
+                maxMessages, out List<ReceiptMetadata> receiptsMetadata, false, false);
 
             // Act
             var _deleteMessagesAsyncResponseAct = AzQueueUnitTestHelper
-                .DeleteMessagesAsync(sendReceiptsMetadata, queueName).WaitAndUnwrapException();
+                .DeleteMessagesAsync(receiptsMetadata, queueName).WaitAndUnwrapException();
 
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulResponses(_deleteMessagesAsyncResponseAct);
@@ -278,12 +278,12 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         {
             // Arrange
             var queueName = string.Empty;
-            List<SendReceiptMetadata> sendReceiptsMetadata = null;
+            List<ReceiptMetadata> receiptsMetadata = null;
 
             // Act
             // Assert
-            Assert.Throws<ArgumentNullException>("sendReceiptsMetadata",
-                () => AzQueueUnitTestHelper.DeleteMessagesAsync(sendReceiptsMetadata, queueName).WaitAndUnwrapException());
+            Assert.Throws<ArgumentNullException>("receiptsMetadata",
+                () => AzQueueUnitTestHelper.DeleteMessagesAsync(receiptsMetadata, queueName).WaitAndUnwrapException());
         }
         
         [Fact, TestPriority(392)]
@@ -291,16 +291,16 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         {
             // Arrange
             var queueName = string.Empty;
-            var sendReceiptsMetadata = new List<SendReceiptMetadata>(1) { null };
+            var receiptsMetadata = new List<ReceiptMetadata>(1) { null };
 
             // Act
             var _deleteMessagesAsyncResponseAct = AzQueueUnitTestHelper
-                .DeleteMessagesAsync(sendReceiptsMetadata, queueName).WaitAndUnwrapException();
+                .DeleteMessagesAsync(receiptsMetadata, queueName).WaitAndUnwrapException();
 
             // Assert
             UnitTestHelper.AssertExpectedFailedResponse(
                 _deleteMessagesAsyncResponseAct.First(), 
-                ErrorTextProvider.sendReceiptMetadata_is_null());
+                ErrorTextProvider.receiptMetadata_is_null());
         }
         
         [Fact, TestPriority(393)]
@@ -308,19 +308,19 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         {
             // Arrange
             var queueName = string.Empty;
-            var sendReceiptsMetadata = new List<SendReceiptMetadata>(1) 
+            var receiptsMetadata = new List<ReceiptMetadata>(1) 
             { 
                 new TestSendReceiptMetadata(default, "Test value") 
             };
 
             // Act
             var _deleteMessagesAsyncResponseAct = AzQueueUnitTestHelper
-                .DeleteMessagesAsync(sendReceiptsMetadata, queueName).WaitAndUnwrapException();
+                .DeleteMessagesAsync(receiptsMetadata, queueName).WaitAndUnwrapException();
 
             // Assert
             UnitTestHelper.AssertExpectedFailedResponse(
                 _deleteMessagesAsyncResponseAct.First(), 
-                ErrorTextProvider.sendReceiptMetadata_MessageId_is_null_or_empty());
+                ErrorTextProvider.receiptMetadata_MessageId_is_null_or_empty());
         }
         
         [Fact, TestPriority(394)]
@@ -328,19 +328,19 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         {
             // Arrange
             var queueName = string.Empty;
-            var sendReceiptsMetadata = new List<SendReceiptMetadata>(1) 
+            var receiptsMetadata = new List<ReceiptMetadata>(1) 
             { 
                 new TestSendReceiptMetadata(" ", "Test value") 
             };
 
             // Act
             var _deleteMessagesAsyncResponseAct = AzQueueUnitTestHelper
-                .DeleteMessagesAsync(sendReceiptsMetadata, queueName).WaitAndUnwrapException();
+                .DeleteMessagesAsync(receiptsMetadata, queueName).WaitAndUnwrapException();
 
             // Assert
             UnitTestHelper.AssertExpectedFailedResponse(
                 _deleteMessagesAsyncResponseAct.First(), 
-                ErrorTextProvider.sendReceiptMetadata_MessageId_is_null_or_whitespace());
+                ErrorTextProvider.receiptMetadata_MessageId_is_null_or_whitespace());
         }
 
         [Fact, TestPriority(396)]
@@ -348,19 +348,19 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         {
             // Arrange
             var queueName = string.Empty;
-            var sendReceiptsMetadata = new List<SendReceiptMetadata>(1) 
+            var receiptsMetadata = new List<ReceiptMetadata>(1) 
             { 
                 new TestSendReceiptMetadata("Test value", default)
             };
 
             // Act
             var _deleteMessagesResponseAct = AzQueueUnitTestHelper
-                .DeleteMessages(sendReceiptsMetadata, queueName);
+                .DeleteMessages(receiptsMetadata, queueName);
 
             // Assert
             UnitTestHelper.AssertExpectedFailedResponse(
                 _deleteMessagesResponseAct.First(),
-                ErrorTextProvider.sendReceiptMetadata_PopReceipt_is_null_or_empty());
+                ErrorTextProvider.receiptMetadata_PopReceipt_is_null_or_empty());
         }
 
         [Fact, TestPriority(398)]
@@ -368,19 +368,19 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         {
             // Arrange
             var queueName = string.Empty;
-            var sendReceiptsMetadata = new List<SendReceiptMetadata>(1)
+            var receiptsMetadata = new List<ReceiptMetadata>(1)
             {
                 new TestSendReceiptMetadata("Test value", " ")
             };
 
             // Act
             var _deleteMessagesResponseAct = AzQueueUnitTestHelper
-                .DeleteMessages(sendReceiptsMetadata, queueName);
+                .DeleteMessages(receiptsMetadata, queueName);
 
             // Assert
             UnitTestHelper.AssertExpectedFailedResponse(
                 _deleteMessagesResponseAct.First(),
-                ErrorTextProvider.sendReceiptMetadata_PopReceipt_is_null_or_whitespace());
+                ErrorTextProvider.receiptMetadata_PopReceipt_is_null_or_whitespace());
         }
 
         #endregion

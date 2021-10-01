@@ -50,12 +50,12 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         public void CreateQueueTest3()
         {
             // Arrange
-            string messageContent = null;
-            string queueName = AzQueueUnitTestHelper.GetDefaultQueueName;
+            string messageText = null;
+            string queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
 
             // Act
-            Assert.Throws<ArgumentNullException>("messageContent", 
-                () => AzQueueUnitTestHelper.SendMessage(messageContent, queueName));
+            Assert.Throws<ArgumentNullException>(nameof(messageText), 
+                () => AzQueueUnitTestHelper.SendMessage(messageText, queueName));
 
             // Assert
         }

@@ -1,17 +1,14 @@
 ﻿using AzCoreTools.Core;
 using Azure.Storage.Queues.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using ExThrower = CoreTools.Throws.ExceptionThrower;
 
 namespace AzStorage.Core.Queues
 {
-    public class SendReceiptMetadata
+    public class ReceiptMetadata
     {
-        protected SendReceiptMetadata() { }
+        protected ReceiptMetadata() { }
 
-        public SendReceiptMetadata(AzStorageResponse<SendReceipt> azStorageResponse)
+        public ReceiptMetadata(AzStorageResponse<SendReceipt> azStorageResponse)
         {
             ExThrower.ST_ThrowIfArgumentIsNull(azStorageResponse, nameof(azStorageResponse), nameof(azStorageResponse));
             if (azStorageResponse.Value == null)
@@ -20,7 +17,7 @@ namespace AzStorage.Core.Queues
             Initialize(azStorageResponse.Value.MessageId, azStorageResponse.Value.PopReceipt);
         }
 
-        public SendReceiptMetadata(string messageId, string popReceipt)
+        public ReceiptMetadata(string messageId, string popReceipt)
         {
             Initialize(messageId, popReceipt);
         }

@@ -1,7 +1,6 @@
 ﻿using AzStorage.Test.Helpers;
 using AzStorage.Test.Utilities;
 using CoreTools.Extensions;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -53,7 +52,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 
             AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }
-
+        
         [Fact, TestPriority(615)]
         public void ReceiveMessagesTest3() // Empty queue
         {
@@ -154,6 +153,24 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_receiveMessagesResponseAct3);
             Assert.Equal(maxMessages, _receiveMessagesResponseAct3.Value.Count);
             AzQueueUnitTestHelper.AssertSamplesQueueEntityFromResponse(_receiveMessagesResponseAct3, samplesQueueEntity);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
+        }
+
+        [Fact, TestPriority(630)]
+        public void ReceiveMessagesTest7()// Failed: Throws InvalidOperationException. Json deserializer & base64Encoding true only when sending a message.
+        {
+            // Arrange
+            int maxMessages = 1;
+            bool base64Encoding = true;
+            var queueName = AzQueueUnitTestHelper.GenerateSendAssertMessagesRandomQueueName(maxMessages,
+                out List<SampleQueueEntity> samplesQueueEntity, base64Encoding);
+            base64Encoding = false;
+
+            // Act
+            // Assert
+            Assert.Throws<InvalidOperationException>(() => AzQueueUnitTestHelper
+                .ReceiveMessages(maxMessages, queueName, base64Encoding));
 
             AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }

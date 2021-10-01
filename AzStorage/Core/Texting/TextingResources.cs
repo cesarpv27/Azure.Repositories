@@ -15,48 +15,48 @@ namespace AzStorage.Core.Texting
         public const string Can_not_load_create_queue = "Can not load or create queue";
         public const string Invalid_KeyValuePair_key_null_empty_whitespaces = "Invalid element in collection, some KeyValuePair contains key equals null, empty or whitespace";
 
-        public static string sendReceiptMetadata_is_null(string sendReceiptMetadataParamName = null)
+        public static string receiptMetadata_is_null(string receiptMetadataParamName = null)
         {
-            if (string.IsNullOrEmpty(sendReceiptMetadataParamName))
-                sendReceiptMetadataParamName = "'sendReceiptMetadata'";
+            if (string.IsNullOrEmpty(receiptMetadataParamName))
+                receiptMetadataParamName = "'receiptMetadata'";
 
-            return sendReceiptMetadataParamName + " is null";
+            return receiptMetadataParamName + " is null";
         }
 
-        public static string sendReceiptMetadata_MessageId_is_null_or_empty(
-            string sendReceiptMetadataMessageIdParamName = null)
+        public static string receiptMetadata_MessageId_is_null_or_empty(
+            string receiptMetadataMessageIdParamName = null)
         {
-            if (string.IsNullOrEmpty(sendReceiptMetadataMessageIdParamName))
-                sendReceiptMetadataMessageIdParamName = "'sendReceiptMetadata.MessageId'";
+            if (string.IsNullOrEmpty(receiptMetadataMessageIdParamName))
+                receiptMetadataMessageIdParamName = "'receiptMetadata.MessageId'";
 
-            return sendReceiptMetadataMessageIdParamName + " is null or empty";
+            return receiptMetadataMessageIdParamName + " is null or empty";
         }
 
-        public static string sendReceiptMetadata_MessageId_is_null_or_whitespace(
-            string sendReceiptMetadataMessageIdParamName = null)
+        public static string receiptMetadata_MessageId_is_null_or_whitespace(
+            string receiptMetadataMessageIdParamName = null)
         {
-            if (string.IsNullOrEmpty(sendReceiptMetadataMessageIdParamName))
-                sendReceiptMetadataMessageIdParamName = "'sendReceiptMetadata.MessageId'";
+            if (string.IsNullOrEmpty(receiptMetadataMessageIdParamName))
+                receiptMetadataMessageIdParamName = "'receiptMetadata.MessageId'";
 
-            return sendReceiptMetadataMessageIdParamName + " is null or whitespace";
+            return receiptMetadataMessageIdParamName + " is null or whitespace";
         }
 
-        public static string sendReceiptMetadata_PopReceipt_is_null_or_empty(
-            string sendReceiptMetadataPopReceiptParamName = null)
+        public static string receiptMetadata_PopReceipt_is_null_or_empty(
+            string receiptMetadataPopReceiptParamName = null)
         {
-            if (string.IsNullOrEmpty(sendReceiptMetadataPopReceiptParamName))
-                sendReceiptMetadataPopReceiptParamName = "'sendReceiptMetadata.PopReceipt'";
+            if (string.IsNullOrEmpty(receiptMetadataPopReceiptParamName))
+                receiptMetadataPopReceiptParamName = "'receiptMetadata.PopReceipt'";
 
-            return sendReceiptMetadataPopReceiptParamName + " is null or empty";
+            return receiptMetadataPopReceiptParamName + " is null or empty";
         }
 
-        public static string sendReceiptMetadata_PopReceipt_is_null_or_whitespace(
-            string sendReceiptMetadataPopReceiptParamName = null)
+        public static string receiptMetadata_PopReceipt_is_null_or_whitespace(
+            string receiptMetadataPopReceiptParamName = null)
         {
-            if (string.IsNullOrEmpty(sendReceiptMetadataPopReceiptParamName))
-                sendReceiptMetadataPopReceiptParamName = "'sendReceiptMetadata.PopReceipt'";
+            if (string.IsNullOrEmpty(receiptMetadataPopReceiptParamName))
+                receiptMetadataPopReceiptParamName = "'receiptMetadata.PopReceipt'";
 
-            return sendReceiptMetadataPopReceiptParamName + " is null or whitespace";
+            return receiptMetadataPopReceiptParamName + " is null or whitespace";
         }
     }
 }

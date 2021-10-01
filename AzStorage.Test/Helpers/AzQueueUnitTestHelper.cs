@@ -163,14 +163,14 @@ namespace AzStorage.Test.Helpers
 
         public static string GenerateSendAssertMessagesRandomQueueName(
             int maxMessages,
-            out List<SendReceiptMetadata> messagesToSerialize,
+            out List<ReceiptMetadata> messagesToSerialize,
             bool base64Encoding = false,
             bool randomEntity = true)
         {
             string queueName = GetRandomQueueNameFromDefault();
 
             SampleQueueEntity tmpSampleQueueEntity;
-            messagesToSerialize = new List<SendReceiptMetadata>(maxMessages);
+            messagesToSerialize = new List<ReceiptMetadata>(maxMessages);
             for (int i = 0; i < maxMessages; i++)
             {
                 if (randomEntity)
@@ -182,7 +182,7 @@ namespace AzStorage.Test.Helpers
                     queueName, base64Encoding);
                 UnitTestHelper.AssertExpectedSuccessfulGenResponse(_sendMessageResponseAct);
 
-                messagesToSerialize.Add(new SendReceiptMetadata(_sendMessageResponseAct));
+                messagesToSerialize.Add(new ReceiptMetadata(_sendMessageResponseAct));
 
             }
 
@@ -503,6 +503,58 @@ namespace AzStorage.Test.Helpers
 
         #endregion
 
+        #region Update message (sync & async)
+
+        public static AzStorageResponse<UpdateReceipt> UpdateMessage(
+            ReceiptMetadata receiptMetadata,
+            string queueName,
+            string messageText = null,
+            TimeSpan visibilityTimeout = default,
+            bool base64Encoding = false,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return GetOrCreateAzQueueRepository(base64Encoding, optionCreateIfNotExist)
+                .UpdateMessage(receiptMetadata, messageText, queueName, visibilityTimeout,
+                encodeCaseMessageEncoding: base64Encoding);
+        }
+        
+        public static async Task<AzStorageResponse<UpdateReceipt>> UpdateMessageAsync(
+            ReceiptMetadata receiptMetadata,
+            string queueName,
+            string messageText = null,
+            TimeSpan visibilityTimeout = default,
+            bool base64Encoding = false,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return await GetOrCreateAzQueueRepository(base64Encoding, optionCreateIfNotExist)
+                .UpdateMessageAsync(receiptMetadata, messageText, queueName, visibilityTimeout,
+                encodeCaseMessageEncoding: base64Encoding);
+        }
+
+        public static AzStorageResponse<UpdateReceipt> UpdateMessage(
+            ReceiptMetadata receiptMetadata,
+            BinaryData message = null,
+            string queueName = null,
+            TimeSpan visibilityTimeout = default,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return GetOrCreateAzQueueRepository(optionCreateIfNotExist)
+                .UpdateMessage(receiptMetadata, message, queueName, visibilityTimeout);
+        }
+        
+        public static async Task<AzStorageResponse<UpdateReceipt>> UpdateMessageAsync(
+            ReceiptMetadata receiptMetadata,
+            BinaryData message = null,
+            string queueName = null,
+            TimeSpan visibilityTimeout = default,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return await GetOrCreateAzQueueRepository(optionCreateIfNotExist)
+                .UpdateMessageAsync(receiptMetadata, message, queueName, visibilityTimeout);
+        }
+
+        #endregion
+
         #region Delete message (sync & async)
 
         public static AzStorageResponse DeleteMessage(
@@ -526,21 +578,21 @@ namespace AzStorage.Test.Helpers
         }
 
         public static AzStorageResponse DeleteMessage(
-            SendReceiptMetadata sendReceiptMetadata,
+            ReceiptMetadata receiptMetadata,
             string queueName,
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
         {
             return GetOrCreateAzQueueRepository(optionCreateIfNotExist)
-                .DeleteMessage(sendReceiptMetadata, queueName);
+                .DeleteMessage(receiptMetadata, queueName);
         }
 
         public static async Task<AzStorageResponse> DeleteMessageAsync(
-            SendReceiptMetadata sendReceiptMetadata,
+            ReceiptMetadata receiptMetadata,
             string queueName,
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
         {
             return await GetOrCreateAzQueueRepository(optionCreateIfNotExist)
-                .DeleteMessageAsync(sendReceiptMetadata, queueName);
+                .DeleteMessageAsync(receiptMetadata, queueName);
         }
 
         #endregion
@@ -548,21 +600,21 @@ namespace AzStorage.Test.Helpers
         #region Delete messages (sync & async)
 
         public static List<AzStorageResponse> DeleteMessages(
-            IEnumerable<SendReceiptMetadata> sendReceiptsMetadata,
+            IEnumerable<ReceiptMetadata> receiptsMetadata,
             string queueName,
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
         {
             return GetOrCreateAzQueueRepository(optionCreateIfNotExist)
-                .DeleteMessages(sendReceiptsMetadata, queueName);
+                .DeleteMessages(receiptsMetadata, queueName);
         }
 
         public static async Task<List<AzStorageResponse>> DeleteMessagesAsync(
-            IEnumerable<SendReceiptMetadata> sendReceiptsMetadata,
+            IEnumerable<ReceiptMetadata> receiptsMetadata,
             string queueName,
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
         {
             return await GetOrCreateAzQueueRepository(optionCreateIfNotExist)
-                .DeleteMessagesAsync(sendReceiptsMetadata, queueName);
+                .DeleteMessagesAsync(receiptsMetadata, queueName);
         }
 
         #endregion
