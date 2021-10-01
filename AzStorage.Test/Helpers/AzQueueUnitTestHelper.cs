@@ -155,8 +155,60 @@ namespace AzStorage.Test.Helpers
 
                 var _sendMessageResponseAct = SendMessage(tmpSampleQueueEntity, JsonConvert.SerializeObject,
                     queueName, base64Encoding);
-                UnitTestHelper.AssertExpectedSuccessfulResponse(_sendMessageResponseAct);
+                UnitTestHelper.AssertExpectedSuccessfulGenResponse(_sendMessageResponseAct);
             }
+
+            return queueName;
+        }
+
+        public static string GenerateSendAssertMessagesRandomQueueName(
+            int maxMessages,
+            out List<SendReceiptMetadata> messagesToSerialize,
+            bool base64Encoding = false,
+            bool randomEntity = true)
+        {
+            string queueName = GetRandomQueueNameFromDefault();
+
+            SampleQueueEntity tmpSampleQueueEntity;
+            messagesToSerialize = new List<SendReceiptMetadata>(maxMessages);
+            for (int i = 0; i < maxMessages; i++)
+            {
+                if (randomEntity)
+                    tmpSampleQueueEntity = GenerateRandomSampleQueueEntity();
+                else
+                    tmpSampleQueueEntity = GenerateDefaultSampleQueueEntity();
+
+                var _sendMessageResponseAct = SendMessage(tmpSampleQueueEntity, JsonConvert.SerializeObject,
+                    queueName, base64Encoding);
+                UnitTestHelper.AssertExpectedSuccessfulGenResponse(_sendMessageResponseAct);
+
+                messagesToSerialize.Add(new SendReceiptMetadata(_sendMessageResponseAct));
+
+            }
+
+            return queueName;
+        }
+
+        public static string GenerateSendAssertMessageRandomQueueName(
+            out string messageId,
+            out string popReceipt,
+            bool base64Encoding = false,
+            bool randomEntity = true)
+        {
+            string queueName = GetRandomQueueNameFromDefault();
+
+            SampleQueueEntity tmpSampleQueueEntity;
+            if (randomEntity)
+                tmpSampleQueueEntity = GenerateRandomSampleQueueEntity();
+            else
+                tmpSampleQueueEntity = GenerateDefaultSampleQueueEntity();
+
+            var _sendMessageResponseAct = SendMessage(tmpSampleQueueEntity, JsonConvert.SerializeObject,
+                queueName, base64Encoding);
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_sendMessageResponseAct);
+
+            messageId = _sendMessageResponseAct.Value.MessageId;
+            popReceipt = _sendMessageResponseAct.Value.PopReceipt;
 
             return queueName;
         }
@@ -280,6 +332,10 @@ namespace AzStorage.Test.Helpers
                 .SendMessageAsync(sampleQueueEntity, queueName, encodeCaseMessageEncoding: base64Encoding);
         }
 
+        #endregion
+
+        #region Put messages (sync & async)
+
         public static List<AzStorageResponse<SendReceipt>> SendMessages(
             IEnumerable<SampleQueueEntity> messages,
             string queueName,
@@ -289,7 +345,7 @@ namespace AzStorage.Test.Helpers
             return GetOrCreateAzQueueRepository(base64Encoding, optionCreateIfNotExist)
                 .SendMessages(messages, queueName, encodeCaseMessageEncoding: base64Encoding);
         }
-        
+
         public static List<AzStorageResponse<SendReceipt>> SendMessages(
             IEnumerable<string> messages,
             string queueName,
@@ -298,6 +354,26 @@ namespace AzStorage.Test.Helpers
         {
             return GetOrCreateAzQueueRepository(base64Encoding, optionCreateIfNotExist)
                 .SendMessages(messages, queueName, encodeCaseMessageEncoding: base64Encoding);
+        }
+        
+        public static async Task<List<AzStorageResponse<SendReceipt>>> SendMessagesAsync(
+            IEnumerable<SampleQueueEntity> messages,
+            string queueName,
+            bool base64Encoding = false,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return await GetOrCreateAzQueueRepository(base64Encoding, optionCreateIfNotExist)
+                .SendMessagesAsync(messages, queueName, encodeCaseMessageEncoding: base64Encoding);
+        }
+
+        public static async Task<List<AzStorageResponse<SendReceipt>>> SendMessagesAsync(
+            IEnumerable<string> messages,
+            string queueName,
+            bool base64Encoding = false,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return await GetOrCreateAzQueueRepository(base64Encoding, optionCreateIfNotExist)
+                .SendMessagesAsync(messages, queueName, encodeCaseMessageEncoding: base64Encoding);
         }
 
         #endregion
@@ -447,6 +523,46 @@ namespace AzStorage.Test.Helpers
         {
             return await GetOrCreateAzQueueRepository(optionCreateIfNotExist)
                 .DeleteMessageAsync(messageId, popReceipt, queueName);
+        }
+
+        public static AzStorageResponse DeleteMessage(
+            SendReceiptMetadata sendReceiptMetadata,
+            string queueName,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return GetOrCreateAzQueueRepository(optionCreateIfNotExist)
+                .DeleteMessage(sendReceiptMetadata, queueName);
+        }
+
+        public static async Task<AzStorageResponse> DeleteMessageAsync(
+            SendReceiptMetadata sendReceiptMetadata,
+            string queueName,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return await GetOrCreateAzQueueRepository(optionCreateIfNotExist)
+                .DeleteMessageAsync(sendReceiptMetadata, queueName);
+        }
+
+        #endregion
+
+        #region Delete messages (sync & async)
+
+        public static List<AzStorageResponse> DeleteMessages(
+            IEnumerable<SendReceiptMetadata> sendReceiptsMetadata,
+            string queueName,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return GetOrCreateAzQueueRepository(optionCreateIfNotExist)
+                .DeleteMessages(sendReceiptsMetadata, queueName);
+        }
+
+        public static async Task<List<AzStorageResponse>> DeleteMessagesAsync(
+            IEnumerable<SendReceiptMetadata> sendReceiptsMetadata,
+            string queueName,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return await GetOrCreateAzQueueRepository(optionCreateIfNotExist)
+                .DeleteMessagesAsync(sendReceiptsMetadata, queueName);
         }
 
         #endregion

@@ -25,6 +25,12 @@ namespace AzStorage.Test.Helpers
             Assert.NotNull(response.Value);
         }
         
+        public static void AssertExpectedSuccessfulResponses(IEnumerable<IAzDetailedResponse> responses)
+        {
+            foreach (var _resp in responses)
+                AssertExpectedSuccessfulResponse(_resp);
+        }
+        
         public static void AssertExpectedSuccessfulGenResponses<T>(IEnumerable<IAzDetailedResponse<T>> responses)
         {
             foreach (var _resp in responses)

@@ -132,7 +132,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 
         #region Put - SendMessages
 
-        [Fact, TestPriority(110)]
+        [Fact, TestPriority(140)]
         public void SendMessagesTest()
         {
             // Arrange
@@ -151,7 +151,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }
         
-        [Fact, TestPriority(110)]
+        [Fact, TestPriority(145)]
         public void SendMessagesTest2()
         {
             // Arrange
@@ -163,6 +163,51 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 
             // Act
             var _sendMessagesResponseAct = AzQueueUnitTestHelper.SendMessages(samplesQueueEntity, queueName);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponses(_sendMessagesResponseAct);
+            Assert.Equal(maxMessages, _sendMessagesResponseAct.Count);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
+        }
+
+        #endregion
+
+        #region Put - SendMessages async
+
+        [Fact, TestPriority(150)]
+        public void SendMessagesAsyncTest()
+        {
+            // Arrange
+            int maxMessages = 30;
+            string queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
+
+            var samplesQueueEntity = AzQueueUnitTestHelper.GenerateMessagesRandom(maxMessages, true);
+
+            // Act
+            var _sendMessagesResponseAct = AzQueueUnitTestHelper
+                .SendMessagesAsync(samplesQueueEntity, queueName).WaitAndUnwrapException();
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponses(_sendMessagesResponseAct);
+            Assert.Equal(maxMessages, _sendMessagesResponseAct.Count);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
+        }
+
+        [Fact, TestPriority(155)]
+        public void SendMessagesAsyncTest2()
+        {
+            // Arrange
+            int maxMessages = 30;
+            string queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
+
+            var samplesQueueEntity = AzQueueUnitTestHelper.GenerateMessagesRandom(maxMessages, true)
+                .Select(ent => JsonConvert.SerializeObject(ent));
+
+            // Act
+            var _sendMessagesResponseAct = AzQueueUnitTestHelper
+                .SendMessagesAsync(samplesQueueEntity, queueName).WaitAndUnwrapException();
 
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulGenResponses(_sendMessagesResponseAct);

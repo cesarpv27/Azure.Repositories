@@ -363,6 +363,64 @@ namespace AzStorage.Repositories
                     $"'{nameof(maxMessages)}' parameter is out of valid range: 1-32");
         }
 
+        protected virtual void ThrowIfInvalidSendReceiptMetadata(SendReceiptMetadata sendReceiptMetadata)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNull(sendReceiptMetadata, nameof(sendReceiptMetadata));
+
+            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(sendReceiptMetadata.MessageId, nameof(sendReceiptMetadata.MessageId), nameof(sendReceiptMetadata.MessageId));
+            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(sendReceiptMetadata.PopReceipt, nameof(sendReceiptMetadata.PopReceipt), nameof(sendReceiptMetadata.PopReceipt));
+
+        }
+        
+        protected virtual bool ValidateSendReceiptMetadata(SendReceiptMetadata sendReceiptMetadata, out AzStorageResponse azStorageResponse)
+        {
+            if (sendReceiptMetadata == default)
+            {
+                azStorageResponse = AzStorageResponse.Create(
+                    ErrorTextProvider.sendReceiptMetadata_is_null());
+                return false;
+            }
+
+            #region MessageId validations
+
+            if (string.IsNullOrEmpty(sendReceiptMetadata.MessageId))
+            {
+                azStorageResponse = AzStorageResponse.Create(
+                    ErrorTextProvider.sendReceiptMetadata_MessageId_is_null_or_empty());
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(sendReceiptMetadata.MessageId))
+            {
+                azStorageResponse = AzStorageResponse.Create(
+                    ErrorTextProvider.sendReceiptMetadata_MessageId_is_null_or_whitespace());
+                return false;
+            }
+
+            #endregion
+
+            #region PopReceipt validations
+
+            if (string.IsNullOrEmpty(sendReceiptMetadata.PopReceipt))
+            {
+                azStorageResponse = AzStorageResponse.Create(
+                    ErrorTextProvider.sendReceiptMetadata_PopReceipt_is_null_or_empty());
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(sendReceiptMetadata.PopReceipt))
+            {
+                azStorageResponse = AzStorageResponse.Create(
+                    ErrorTextProvider.sendReceiptMetadata_PopReceipt_is_null_or_whitespace());
+                return false;
+            }
+
+            #endregion
+
+            azStorageResponse = null;
+            return true;
+        }
+
         #endregion
 
         #region Default queue name
@@ -782,7 +840,7 @@ namespace AzStorage.Repositories
         /// <param name="encodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
         /// then encode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>A collection containing responses of type <see cref="AzStorageResponse{Azure.Storage.Queues.Models.SendReceipt}"/> 
-        /// indicating the result of each adds operation.</returns>
+        /// indicating the result of each add operation.</returns>
         /// <exception cref="InvalidOperationException">Throws <see cref="InvalidOperationException"/> 
         /// if <c>DeserializeObject<T></c> method of <see cref="JsonConvert"/> class return invalid value 
         /// for any message in <paramref name="messages"/>.</exception>
@@ -822,7 +880,7 @@ namespace AzStorage.Repositories
         /// <param name="encodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
         /// then encode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>A collection containing responses of type <see cref="AzStorageResponse{Azure.Storage.Queues.Models.SendReceipt}"/> 
-        /// indicating the result of each adds operation.</returns>
+        /// indicating the result of each add operation.</returns>
         /// <exception cref="InvalidOperationException">Throws <see cref="InvalidOperationException"/> 
         /// if <paramref name="serializer"/> return invalid value 
         /// for any message in <paramref name="messages"/>.</exception>
@@ -838,8 +896,8 @@ namespace AzStorage.Repositories
             ExThrower.ST_ThrowIfArgumentIsNull(nameof(messages), nameof(messages));
 
             var results = new List<AzStorageResponse<SendReceipt>>();
-            foreach (var msg in messages)
-                results.Add(SendMessage(msg, serializer, queueName, visibilityTimeout,
+            foreach (var entityMsg in messages)
+                results.Add(SendMessage(entityMsg, serializer, queueName, visibilityTimeout,
                         timeToLive, cancellationToken, encodeCaseMessageEncoding));
 
             return results;
@@ -864,7 +922,7 @@ namespace AzStorage.Repositories
         /// <param name="encodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
         /// then encode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
         /// <returns>A collection containing responses of type <see cref="AzStorageResponse{Azure.Storage.Queues.Models.SendReceipt}"/> 
-        /// indicating the result of each adds operation.</returns>
+        /// indicating the result of each add operation.</returns>
         public virtual List<AzStorageResponse<SendReceipt>> SendMessages(
            IEnumerable<string> messages,
            string queueName = null,
@@ -878,6 +936,140 @@ namespace AzStorage.Repositories
             var results = new List<AzStorageResponse<SendReceipt>>();
             foreach (var msg in messages)
                 results.Add(SendMessage(msg, queueName, visibilityTimeout,
+                    timeToLive, cancellationToken, encodeCaseMessageEncoding));
+
+            return results;
+        }
+
+        #endregion
+
+        #region Put messages async
+
+        /// <summary>
+        /// Serialize each message in <paramref name="messages"/> and add each one as a new message to the back of a queue. 
+        /// The visibility timeout specifies how long the message should be invisible to Receive and Peek operations.
+        /// The <c>SerializeObject</c> method of <see cref="JsonConvert"/> class will be used in serialization.
+        /// All <c>SerializeObject</c> responses must be in a format that can be included in an XML request with UTF-8 encoding.
+        /// Otherwise AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding option can
+        /// be set to Azure.Storage.Queues.QueueMessageEncoding.Base64 to handle non compliant
+        /// messages. The encoded message can be up to 64 KiB in size for versions 2011-08-18
+        /// and newer, or 8 KiB in size for previous versions.
+        /// Throws <see cref="InvalidOperationException"/> if <c>DeserializeObject<T></c> method 
+        /// of <see cref="JsonConvert"/> class return invalid value for any message in <paramref name="messages"/>.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="messages">The messages to serialize and add each one as a new message.</param>
+        /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
+        /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
+        /// <param name="visibilityTimeout">Visibility timeout. Optional with a default value of 0. 
+        /// Cannot be larger than 7 days.</param>
+        /// <param name="timeToLive">Specifies the time-to-live interval for the message.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="encodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
+        /// then encode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse{Azure.Storage.Queues.Models.SendReceipt}"/> 
+        /// indicating the result of each add operation, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        /// <exception cref="InvalidOperationException">Throws <see cref="InvalidOperationException"/> 
+        /// if <c>DeserializeObject<T></c> method of <see cref="JsonConvert"/> class return invalid value 
+        /// for any message in <paramref name="messages"/>.</exception>
+        public virtual async Task<List<AzStorageResponse<SendReceipt>>> SendMessagesAsync<T>(
+            IEnumerable<T> messages,
+            string queueName = null,
+            TimeSpan? visibilityTimeout = default,
+            TimeSpan? timeToLive = default,
+            CancellationToken cancellationToken = default,
+            bool encodeCaseMessageEncoding = true)
+            where T : class
+        {
+            return await SendMessagesAsync(messages, JsonConvert.SerializeObject, queueName,
+                visibilityTimeout, timeToLive, cancellationToken, encodeCaseMessageEncoding);
+        }
+
+        /// <summary>
+        /// Serialize each message in <paramref name="messages"/> and add each one as a new message to the back of a queue. 
+        /// The visibility timeout specifies how long the message should be invisible to Receive and Peek operations.
+        /// All <paramref name="serializer"/> responses must be in a format that can be included in an XML request with UTF-8 encoding.
+        /// Otherwise AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding option can
+        /// be set to Azure.Storage.Queues.QueueMessageEncoding.Base64 to handle non compliant
+        /// messages. The encoded message can be up to 64 KiB in size for versions 2011-08-18
+        /// and newer, or 8 KiB in size for previous versions.
+        /// Throws <see cref="InvalidOperationException"/> if <paramref name="serializer"/> return invalid value 
+        /// for any message in <paramref name="messages"/>.
+        /// </summary>
+        /// <typeparam name="T">A custom model type.</typeparam>
+        /// <param name="messages">The messages to serialize and add each one as a new message.</param>
+        /// <param name="serializer">Used to serialize <paramref name="messages"/></param>
+        /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
+        /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
+        /// <param name="visibilityTimeout">Visibility timeout. Optional with a default value of 0. 
+        /// Cannot be larger than 7 days.</param>
+        /// <param name="timeToLive">Specifies the time-to-live interval for the message.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="encodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
+        /// then encode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse{Azure.Storage.Queues.Models.SendReceipt}"/> 
+        /// indicating the result of each add operation, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        /// <exception cref="InvalidOperationException">Throws <see cref="InvalidOperationException"/> 
+        /// if <paramref name="serializer"/> return invalid value 
+        /// for any message in <paramref name="messages"/>.</exception>
+        public virtual async Task<List<AzStorageResponse<SendReceipt>>> SendMessagesAsync<T>(
+            IEnumerable<T> messages,
+            Func<T, string> serializer,
+            string queueName = null,
+            TimeSpan? visibilityTimeout = default,
+            TimeSpan? timeToLive = default,
+            CancellationToken cancellationToken = default,
+            bool encodeCaseMessageEncoding = true)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNull(nameof(messages), nameof(messages));
+
+            var results = new List<AzStorageResponse<SendReceipt>>();
+            foreach (var entityMsg in messages)
+                results.Add(await SendMessageAsync(entityMsg, serializer, queueName, visibilityTimeout,
+                        timeToLive, cancellationToken, encodeCaseMessageEncoding));
+
+            return results;
+        }
+
+        /// <summary>
+        /// Adds each message in <paramref name="messages"/> to the back of a queue. The visibility timeout specifies 
+        /// how long the message should be invisible to Receive and Peek operations.
+        /// Each message in <paramref name="messages"/> must be in a format that can be included in an XML request with UTF-8 encoding.
+        /// Otherwise AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding option can
+        /// be set to Azure.Storage.Queues.QueueMessageEncoding.Base64 to handle non compliant
+        /// messages. The encoded message can be up to 64 KiB in size for versions 2011-08-18
+        /// and newer, or 8 KiB in size for previous versions.
+        /// </summary>
+        /// <param name="messages">Messages to add.</param>
+        /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
+        /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
+        /// <param name="visibilityTimeout">Visibility timeout. Optional with a default value of 0. 
+        /// Cannot be larger than 7 days.</param>
+        /// <param name="timeToLive">Specifies the time-to-live interval for the message.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="encodeCaseMessageEncoding">If AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding is defined
+        /// then encode the message according to the value specified in AzStorage.Core.Queues.AzQueueClientOptions.MessageEncoding.</param>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse{Azure.Storage.Queues.Models.SendReceipt}"/> 
+        /// indicating the result of each add operation, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        public virtual async Task<List<AzStorageResponse<SendReceipt>>> SendMessagesAsync(
+           IEnumerable<string> messages,
+           string queueName = null,
+           TimeSpan? visibilityTimeout = default,
+           TimeSpan? timeToLive = default,
+           CancellationToken cancellationToken = default,
+           bool encodeCaseMessageEncoding = true)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNull(nameof(messages), nameof(messages));
+
+            var results = new List<AzStorageResponse<SendReceipt>>();
+            foreach (var msg in messages)
+                results.Add(await SendMessageAsync(msg, queueName, visibilityTimeout,
                     timeToLive, cancellationToken, encodeCaseMessageEncoding));
 
             return results;
@@ -1813,6 +2005,26 @@ namespace AzStorage.Repositories
         /// <summary>
         /// Permanently removes the specified message from its queue.
         /// </summary>
+        /// <param name="sendReceiptMetadata">Contains ID of the message to delete and 
+        /// valid pop receipt value returned from an earlier call to the 
+        /// Get Messages or Update Message operation.</param>
+        /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
+        /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <returns>The <see cref="AzStorageResponse"/> indicating the result of the operation.</returns>
+        public virtual AzStorageResponse DeleteMessage(
+            SendReceiptMetadata sendReceiptMetadata,
+            string queueName = null,
+            CancellationToken cancellationToken = default)
+        {
+            ThrowIfInvalidSendReceiptMetadata(sendReceiptMetadata);
+
+            return DeleteMessage(sendReceiptMetadata.MessageId, sendReceiptMetadata.PopReceipt, queueName, cancellationToken);
+        }
+
+        /// <summary>
+        /// Permanently removes the specified message from its queue.
+        /// </summary>
         /// <param name="messageId">ID of the message to delete.</param>
         /// <param name="popReceipt">A valid pop receipt value returned from an earlier call to the 
         /// Get Messages or Update Message operation.</param>
@@ -1842,6 +2054,28 @@ namespace AzStorage.Repositories
         /// <summary>
         /// Permanently removes the specified message from its queue.
         /// </summary>
+        /// <param name="sendReceiptMetadata">Contains ID of the message to delete and 
+        /// valid pop receipt value returned from an earlier call to the 
+        /// Get Messages or Update Message operation.</param>
+        /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
+        /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <returns>The <see cref="AzStorageResponse"/> indicating the result of the operation, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        public virtual async Task<AzStorageResponse> DeleteMessageAsync(
+            SendReceiptMetadata sendReceiptMetadata,
+            string queueName = null,
+            CancellationToken cancellationToken = default)
+        {
+            ThrowIfInvalidSendReceiptMetadata(sendReceiptMetadata);
+
+            return await DeleteMessageAsync(sendReceiptMetadata.MessageId, sendReceiptMetadata.PopReceipt, queueName, cancellationToken);
+        }
+        
+        /// <summary>
+        /// Permanently removes the specified message from its queue.
+        /// </summary>
         /// <param name="messageId">ID of the message to delete.</param>
         /// <param name="popReceipt">A valid pop receipt value returned from an earlier call to the 
         /// Get Messages or Update Message operation.</param>
@@ -1864,6 +2098,68 @@ namespace AzStorage.Repositories
 
             return await FuncHelper.ExecuteAsync<string, string, CancellationToken, Response, AzStorageResponse>(
                 GetQueueClient(queueName).DeleteMessageAsync, messageId, popReceipt, cancellationToken);
+        }
+
+        #endregion
+
+        #region Delete messages
+
+        /// <summary>
+        /// Permanently removes each message in <paramref name="messages"/> from the queue.
+        /// </summary>
+        /// <param name="messages">Messages to remove.</param>
+        /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
+        /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse"/> 
+        /// indicating the result of each remove operation.</returns>
+        public virtual List<AzStorageResponse> DeleteMessages(
+           IEnumerable<SendReceiptMetadata> sendReceiptsMetadata,
+           string queueName = null,
+           CancellationToken cancellationToken = default)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNull(sendReceiptsMetadata, nameof(sendReceiptsMetadata), nameof(sendReceiptsMetadata));
+
+            var results = new List<AzStorageResponse>();
+            foreach (var sendReceipt in sendReceiptsMetadata)
+                if (!ValidateSendReceiptMetadata(sendReceipt, out AzStorageResponse tmpAzStorageResponse))
+                    results.Add(tmpAzStorageResponse);
+                else
+                    results.Add(DeleteMessage(sendReceipt, queueName, cancellationToken));
+
+            return results;
+        }
+
+        #endregion
+        
+        #region Delete messages async
+
+        /// <summary>
+        /// Permanently removes each message in <paramref name="messages"/> from the queue.
+        /// </summary>
+        /// <param name="messages">Messages to remove.</param>
+        /// <param name="queueName">The queue name to execute the operation. If <paramref name="queueName"/> is null, 
+        /// the value of property <c>DefaultQueueName</c> will be taken as queue name.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse"/> 
+        /// indicating the result of each remove operation, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        public virtual async Task<List<AzStorageResponse>> DeleteMessagesAsync(
+           IEnumerable<SendReceiptMetadata> sendReceiptsMetadata,
+           string queueName = null,
+           CancellationToken cancellationToken = default)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNull(sendReceiptsMetadata, nameof(sendReceiptsMetadata), nameof(sendReceiptsMetadata));
+
+            var results = new List<AzStorageResponse>();
+            foreach (var sendReceipt in sendReceiptsMetadata)
+                if (!ValidateSendReceiptMetadata(sendReceipt, out AzStorageResponse tmpAzStorageResponse))
+                    results.Add(tmpAzStorageResponse);
+                else
+                    results.Add(await DeleteMessageAsync(sendReceipt, queueName, cancellationToken));
+
+            return results;
         }
 
         #endregion
