@@ -34,12 +34,12 @@ namespace AzStorage.Core.Queues
         /// <summary>
         /// The Id of the Message.
         /// </summary>
-        public string MessageId { get; protected set; }
+        public virtual string MessageId { get; protected set; }
 
         /// <summary>
         /// This value is required to delete the Message. If deletion fails using this popreceipt
         /// then the message has been dequeued by another client.
         /// </summary>
-        public string PopReceipt { get; protected set; }
+        public virtual string PopReceipt { get; protected set; }
     }
 }

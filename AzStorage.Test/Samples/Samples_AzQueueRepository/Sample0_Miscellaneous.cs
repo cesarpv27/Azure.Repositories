@@ -21,11 +21,11 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         public void CreateQueueTest()
         {
             // Arrange
-            string messageContent = "create queue test";
+            string messageText = ConstProvider.Sent_message_text;
             string queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
 
             // Act
-            var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessage(messageContent, queueName);
+            var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessage(messageText, queueName);
 
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulResponse(_sendMessageResponseAct);
@@ -37,11 +37,11 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         public void CreateQueueTest2()
         {
             // Arrange
-            string messageContent = "create queue test";
+            string messageText = ConstProvider.Sent_message_text;
 
             // Act
             Assert.Throws<ArgumentNullException>("DefaultQueueName", 
-                () => AzQueueUnitTestHelper.SendMessage(messageContent, null));
+                () => AzQueueUnitTestHelper.SendMessage(messageText, null));
 
             // Assert
         }

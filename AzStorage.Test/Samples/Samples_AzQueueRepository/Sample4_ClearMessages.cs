@@ -16,11 +16,11 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         public void ClearMessagesTest()
         {
             // Arrange
-            string messageContent = "create queue test";
+            string messageText = ConstProvider.Sent_message_text;
 
             var queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
 
-            var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessage(messageContent, queueName);
+            var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessage(messageText, queueName);
             UnitTestHelper.AssertExpectedSuccessfulResponse(_sendMessageResponseAct);
 
             // Act
@@ -36,11 +36,11 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         public void ClearMessagesAsyncTest()
         {
             // Arrange
-            string messageContent = "create queue test";
+            string messageText = ConstProvider.Sent_message_text;
 
             var queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
 
-            var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessage(messageContent, queueName);
+            var _sendMessageResponseAct = AzQueueUnitTestHelper.SendMessage(messageText, queueName);
             UnitTestHelper.AssertExpectedSuccessfulResponse(_sendMessageResponseAct);
 
             // Act

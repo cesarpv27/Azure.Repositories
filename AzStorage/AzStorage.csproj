@@ -4,7 +4,7 @@
     <!-- This project will output netstandard2.0 and net461 assemblies -->
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <PackageId>Az.Storage.Repositories</PackageId>
-    <Version>3.5.0-beta</Version>
+    <Version>3.6.0-beta</Version>
     <Authors>César Palomino Vila</Authors>
     <Product>Azure.Repositories</Product>
     <Description>This project contains repositories aimed manage the Azure platform resources.
@@ -20,7 +20,16 @@ TargetFrameworks: netstandard2.0; net461</Description>
     <PackageProjectUrl>https://github.com/cesarpv27/Azure.Repositories</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/cesarpv27/Azure.Repositories</RepositoryUrl>
-    <PackageReleaseNotes>v3.5.0
+    <PackageReleaseNotes>v3.6.0
+New UpdateMessages and UpdateMessagesAsync methods has been implemented in class AzQueueRepository.
+New UpdateMessages and UpdateMessagesAsync methods has been implemented in class AzQueueRepository with ExpandedReceiptMetadata as parameter.
+New SendMessage and SendMessageAsync methods has been implemented in class AzQueueRepository with BinaryData as message parameter.
+To avoid confusions all public and generic methods in AzQueueRepository class have been renamed to include the words Entity or Entities as appropriate.
+
+Dependencies updates:
+Miscellaneous.AzCoreTools.2.8.0-beta -&gt; Miscellaneous.AzCoreTools.2.9.1-beta
+
+v3.5.0
 New UpdateMessage and UpdateMessageAsync methods has been implemented in class AzQueueRepository. More methods will be added in next versions.
 
 v3.4.0
@@ -31,7 +40,7 @@ New SendMessagesAsync , DeleteMessage, DeleteMessageAsync, DeleteMessages and De
     <PackageReference Include="Azure.Data.Tables" Version="12.2.0" />
     <PackageReference Include="Azure.Storage.Queues" Version="12.8.0" />
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.21.0" />
-    <PackageReference Include="Miscellaneous.AzCoreTools" Version="2.8.0-beta" />
+    <PackageReference Include="Miscellaneous.AzCoreTools" Version="2.9.1-beta" />
     <PackageReference Include="Miscellaneous.CoreTools" Version="1.1.0" />
   </ItemGroup>
 

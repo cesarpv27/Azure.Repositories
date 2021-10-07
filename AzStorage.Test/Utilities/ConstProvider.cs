@@ -14,6 +14,7 @@ namespace AzStorage.Test.Utilities
         public const int Hundreds_RandomMaxValue = 301;
         public const int Thousands_RandomMinValue = 2001;
         public const int Thousands_RandomMaxValue = 5001;
-        public const string Updated_message_text = "Updated message text";
+        public const string Updated_message_text = "Updated message";
+        public const string Sent_message_text = "Sent message";
     }
 }

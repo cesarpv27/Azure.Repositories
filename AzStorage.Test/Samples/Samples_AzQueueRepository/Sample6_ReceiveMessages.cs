@@ -15,7 +15,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         #region Receive messages
 
         [Fact, TestPriority(610)]
-        public void ReceiveMessagesTest()// Json deserializer
+        public void ReceiveMessageEntitiesTest()// Json deserializer
         {
             // Arrange
             int maxMessages = 32;
@@ -23,7 +23,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
                 out List<SampleQueueEntity> samplesQueueEntity);
 
             // Act
-            var _receiveMessagesResponseAct = AzQueueUnitTestHelper.ReceiveMessages(maxMessages, queueName);
+            var _receiveMessagesResponseAct = AzQueueUnitTestHelper.ReceiveMessageEntities(maxMessages, queueName);
 
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_receiveMessagesResponseAct);
@@ -34,7 +34,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         }
 
         [Fact, TestPriority(614)]
-        public void ReceiveMessagesTest2()// Json deserializer & base64Encoding
+        public void ReceiveMessageEntitiesTest2()// Json deserializer & base64Encoding
         {
             // Arrange
             int maxMessages = 32;
@@ -43,7 +43,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
                 out List<SampleQueueEntity> samplesQueueEntity, base64Encoding);
 
             // Act
-            var _receiveMessagesResponseAct = AzQueueUnitTestHelper.ReceiveMessages(maxMessages, queueName, base64Encoding);
+            var _receiveMessagesResponseAct = AzQueueUnitTestHelper.ReceiveMessageEntities(maxMessages, queueName, base64Encoding);
 
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_receiveMessagesResponseAct);
@@ -54,7 +54,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         }
         
         [Fact, TestPriority(615)]
-        public void ReceiveMessagesTest3() // Empty queue
+        public void ReceiveMessageEntitiesTest3() // Empty queue
         {
             // Arrange
             int maxMessages = 32;
@@ -62,7 +62,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 
             // Act
             var _receiveMessagesResponseAct = AzQueueUnitTestHelper
-                .ReceiveMessages(maxMessages, queueName);
+                .ReceiveMessageEntities(maxMessages, queueName);
 
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_receiveMessagesResponseAct);
@@ -72,7 +72,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         }
 
         [Fact, TestPriority(618)]
-        public void ReceiveMessagesTest4() // Invalid maxMessages, throws ArgumentOutOfRangeException
+        public void ReceiveMessageEntitiesTest4() // Invalid maxMessages, throws ArgumentOutOfRangeException
         {
             // Arrange
             int maxMessages0 = 0;
@@ -82,13 +82,13 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             // Act
             // Assert
             Assert.Throws<ArgumentOutOfRangeException>("maxMessages", () => AzQueueUnitTestHelper
-                .ReceiveMessages(maxMessages0, queueName));
+                .ReceiveMessageEntities(maxMessages0, queueName));
             Assert.Throws<ArgumentOutOfRangeException>("maxMessages", () => AzQueueUnitTestHelper
-                .ReceiveMessages(maxMessages33, queueName));
+                .ReceiveMessageEntities(maxMessages33, queueName));
         }
 
         [Fact, TestPriority(622)]
-        public void ReceiveMessagesTest5()// Default visibilityTimeout
+        public void ReceiveMessageEntitiesTest5()// Default visibilityTimeout
         {
             // Arrange
             int maxMessages = 10;
@@ -97,17 +97,17 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
                 out List<SampleQueueEntity> samplesQueueEntity, base64Encoding);
 
             var _receiveMessagesResponseArr = AzQueueUnitTestHelper
-                .ReceiveMessages(maxMessages / 2, queueName, base64Encoding);
+                .ReceiveMessageEntities(maxMessages / 2, queueName, base64Encoding);
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_receiveMessagesResponseArr);
             Assert.Equal(maxMessages / 2, _receiveMessagesResponseArr.Value.Count);
             AzQueueUnitTestHelper.AssertSamplesQueueEntityFromResponse(_receiveMessagesResponseArr, samplesQueueEntity);
 
             // Act
             var _receiveMessagesResponseAct = AzQueueUnitTestHelper
-                .ReceiveMessages(maxMessages / 2, queueName, base64Encoding);
+                .ReceiveMessageEntities(maxMessages / 2, queueName, base64Encoding);
 
             var _receiveMessagesResponseAct2 = AzQueueUnitTestHelper
-                .ReceiveMessages(maxMessages / 2, queueName, base64Encoding);
+                .ReceiveMessageEntities(maxMessages / 2, queueName, base64Encoding);
 
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_receiveMessagesResponseAct);
@@ -121,7 +121,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         }
 
         [Fact, TestPriority(626)]
-        public void ReceiveMessagesTest6() // Custom visibilityTimeout
+        public void ReceiveMessageEntitiesTest6() // Custom visibilityTimeout
         {
             // Arrange
             int maxMessages = 10;
@@ -132,15 +132,15 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 
             // Act
             var _receiveMessagesResponseAct = AzQueueUnitTestHelper
-                .ReceiveMessages(maxMessages, queueName, base64Encoding, visibilityTimeout);
+                .ReceiveMessageEntities(maxMessages, queueName, base64Encoding, visibilityTimeout);
 
             var _receiveMessagesResponseAct2 = AzQueueUnitTestHelper
-                .ReceiveMessages(maxMessages, queueName, base64Encoding);
+                .ReceiveMessageEntities(maxMessages, queueName, base64Encoding);
 
             Thread.Sleep(visibilityTimeout);
 
             var _receiveMessagesResponseAct3 = AzQueueUnitTestHelper
-                .ReceiveMessages(maxMessages, queueName, base64Encoding, visibilityTimeout);
+                .ReceiveMessageEntities(maxMessages, queueName, base64Encoding, visibilityTimeout);
 
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_receiveMessagesResponseAct);
@@ -158,7 +158,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         }
 
         [Fact, TestPriority(630)]
-        public void ReceiveMessagesTest7()// Failed: Throws InvalidOperationException. Json deserializer & base64Encoding true only when sending a message.
+        public void ReceiveMessageEntitiesTest7()// Failed: Throws InvalidOperationException. Json deserializer & base64Encoding true only when sending a message.
         {
             // Arrange
             int maxMessages = 1;
@@ -170,7 +170,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             // Act
             // Assert
             Assert.Throws<InvalidOperationException>(() => AzQueueUnitTestHelper
-                .ReceiveMessages(maxMessages, queueName, base64Encoding));
+                .ReceiveMessageEntities(maxMessages, queueName, base64Encoding));
 
             AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }
@@ -180,7 +180,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         #region Receive messages
 
         [Fact, TestPriority(650)]
-        public void ReceiveMessagesAsyncTest()// Json deserializer
+        public void ReceiveMessageEntitiesAsyncTest()// Json deserializer
         {
             // Arrange
             int maxMessages = 32;
@@ -189,7 +189,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 
             // Act
             var _receiveMessagesAsyncResponseAct = AzQueueUnitTestHelper
-                .ReceiveMessagesAsync(maxMessages, queueName).WaitAndUnwrapException();
+                .ReceiveMessageEntitiesAsync(maxMessages, queueName).WaitAndUnwrapException();
 
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_receiveMessagesAsyncResponseAct);
@@ -200,7 +200,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         }
 
         [Fact, TestPriority(654)]
-        public void ReceiveMessagesAsyncTest2()// Json deserializer & base64Encoding
+        public void ReceiveMessageEntitiesAsyncTest2()// Json deserializer & base64Encoding
         {
             // Arrange
             int maxMessages = 32;
@@ -210,7 +210,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 
             // Act
             var _receiveMessagesAsyncResponseAct = AzQueueUnitTestHelper
-                .ReceiveMessagesAsync(maxMessages, queueName, base64Encoding).WaitAndUnwrapException();
+                .ReceiveMessageEntitiesAsync(maxMessages, queueName, base64Encoding).WaitAndUnwrapException();
 
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_receiveMessagesAsyncResponseAct);
@@ -221,7 +221,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         }
 
         [Fact, TestPriority(658)]
-        public void ReceiveMessagesAsyncTest3() // Empty queue
+        public void ReceiveMessageEntitiesAsyncTest3() // Empty queue
         {
             // Arrange
             int maxMessages = 32;
@@ -229,7 +229,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 
             // Act
             var _receiveMessagesAsyncResponseAct = AzQueueUnitTestHelper
-                .ReceiveMessagesAsync(maxMessages, queueName).WaitAndUnwrapException();
+                .ReceiveMessageEntitiesAsync(maxMessages, queueName).WaitAndUnwrapException();
 
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_receiveMessagesAsyncResponseAct);
@@ -239,7 +239,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         }
 
         [Fact, TestPriority(662)]
-        public void ReceiveMessagesAsyncTest4() // Invalid maxMessages, throws ArgumentOutOfRangeException
+        public void ReceiveMessageEntitiesAsyncTest4() // Invalid maxMessages, throws ArgumentOutOfRangeException
         {
             // Arrange
             int maxMessages0 = 0;
@@ -249,13 +249,13 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             // Act
             // Assert
             Assert.Throws<ArgumentOutOfRangeException>("maxMessages", () => AzQueueUnitTestHelper
-                .ReceiveMessagesAsync(maxMessages0, queueName).WaitAndUnwrapException());
+                .ReceiveMessageEntitiesAsync(maxMessages0, queueName).WaitAndUnwrapException());
             Assert.Throws<ArgumentOutOfRangeException>("maxMessages", () => AzQueueUnitTestHelper
-                .ReceiveMessagesAsync(maxMessages33, queueName).WaitAndUnwrapException());
+                .ReceiveMessageEntitiesAsync(maxMessages33, queueName).WaitAndUnwrapException());
         }
 
         [Fact, TestPriority(665)]
-        public void ReceiveMessagesAsyncTest5()// Default visibilityTimeout
+        public void ReceiveMessageEntitiesAsyncTest5()// Default visibilityTimeout
         {
             // Arrange
             int maxMessages = 10;
@@ -264,17 +264,17 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
                 out List<SampleQueueEntity> samplesQueueEntity, base64Encoding);
 
             var _receiveMessagesAsyncResponseArr = AzQueueUnitTestHelper
-                .ReceiveMessagesAsync(maxMessages / 2, queueName, base64Encoding).WaitAndUnwrapException();
+                .ReceiveMessageEntitiesAsync(maxMessages / 2, queueName, base64Encoding).WaitAndUnwrapException();
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_receiveMessagesAsyncResponseArr);
             Assert.Equal(maxMessages / 2, _receiveMessagesAsyncResponseArr.Value.Count);
             AzQueueUnitTestHelper.AssertSamplesQueueEntityFromResponse(_receiveMessagesAsyncResponseArr, samplesQueueEntity);
 
             // Act
             var _receiveMessagesAsyncResponseAct = AzQueueUnitTestHelper
-                .ReceiveMessagesAsync(maxMessages / 2, queueName, base64Encoding).WaitAndUnwrapException();
+                .ReceiveMessageEntitiesAsync(maxMessages / 2, queueName, base64Encoding).WaitAndUnwrapException();
             
             var _receiveMessagesAsyncResponseAct2 = AzQueueUnitTestHelper
-                .ReceiveMessagesAsync(maxMessages / 2, queueName, base64Encoding).WaitAndUnwrapException();
+                .ReceiveMessageEntitiesAsync(maxMessages / 2, queueName, base64Encoding).WaitAndUnwrapException();
 
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_receiveMessagesAsyncResponseAct);
@@ -288,7 +288,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
         }
 
         [Fact, TestPriority(670)]
-        public void ReceiveMessagesAsyncTest6() // Custom visibilityTimeout
+        public void ReceiveMessageEntitiesAsyncTest6() // Custom visibilityTimeout
         {
             // Arrange
             int maxMessages = 10;
@@ -299,15 +299,15 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 
             // Act
             var _receiveMessagesAsyncResponseAct = AzQueueUnitTestHelper
-                .ReceiveMessagesAsync(maxMessages, queueName, base64Encoding, visibilityTimeout).WaitAndUnwrapException();
+                .ReceiveMessageEntitiesAsync(maxMessages, queueName, base64Encoding, visibilityTimeout).WaitAndUnwrapException();
 
             var _receiveMessagesAsyncResponseAct2 = AzQueueUnitTestHelper
-                .ReceiveMessagesAsync(maxMessages, queueName, base64Encoding).WaitAndUnwrapException();
+                .ReceiveMessageEntitiesAsync(maxMessages, queueName, base64Encoding).WaitAndUnwrapException();
 
             Thread.Sleep(visibilityTimeout);
 
             var _receiveMessagesAsyncResponseAct3 = AzQueueUnitTestHelper
-                .ReceiveMessagesAsync(maxMessages, queueName, base64Encoding, visibilityTimeout).WaitAndUnwrapException();
+                .ReceiveMessageEntitiesAsync(maxMessages, queueName, base64Encoding, visibilityTimeout).WaitAndUnwrapException();
 
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_receiveMessagesAsyncResponseAct);
