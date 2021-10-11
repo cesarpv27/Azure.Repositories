@@ -1249,15 +1249,27 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="take">Amount of items to take.</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<List<T>> QueryAll<T>(
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null)
+            string partitionKeyPropName = null,
+            int take = AzCoreTools.Utilities.ConstProvider.DefaultTake,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default)
         {
             return QueryAll<T, AzCosmosResponse<List<T>>>(databaseId,
                 containerId,
-                partitionKeyPropName);
+                partitionKeyPropName,
+                take,
+                continuationToken, 
+                requestOptions,
+                cancellationToken);
         }
 
         /// <summary>
@@ -1269,17 +1281,26 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="take">Amount of items to take.</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual TOut QueryAll<T, TOut>(
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+            string partitionKeyPropName = null,
+            int take = AzCoreTools.Utilities.ConstProvider.DefaultTake,
+            string continuationToken = null, 
+            QueryRequestOptions requestOptions = default, 
+            CancellationToken cancellationToken = default)
+            where TOut : AzCosmosResponse<List<T>>, new()
         {
             Initialize(databaseId, containerId, partitionKeyPropName, false, false);
 
-            return CosmosFuncHelper.Execute<int, AzCosmosResponse<List<T>>, TOut, List<T>>(
+            return CosmosFuncHelper.Execute<int, string, QueryRequestOptions, CancellationToken, AzCosmosResponse<List<T>>, TOut, List<T>>(
                 Container.QueryAll<T>,
-                int.MaxValue);
+                take, continuationToken, requestOptions, cancellationToken);
         }
 
         #endregion
@@ -1293,17 +1314,26 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="AzCosmosResponse{IEnumerable{T}}"/> containing a collection 
         /// that allows to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<IEnumerable<T>> LazyQueryAll<T>(
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null)
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default)
         {
             return LazyQueryAll<T, AzCosmosResponse<IEnumerable<T>>>(
                 databaseId,
                 containerId,
-                partitionKeyPropName);
+                partitionKeyPropName,
+                continuationToken,
+                requestOptions,
+                cancellationToken);
         }
 
         /// <summary>
@@ -1315,18 +1345,25 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="TOut"/> containing a collection that allows 
         /// to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual TOut LazyQueryAll<T, TOut>(
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null) where TOut : AzCosmosResponse<IEnumerable<T>>, new()
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default) 
+            where TOut : AzCosmosResponse<IEnumerable<T>>, new()
         {
             Initialize(databaseId, containerId, partitionKeyPropName, false, false);
 
-            return CosmosFuncHelper.Execute<int, AzCosmosResponse<IEnumerable<T>>, TOut, IEnumerable<T>>(
+            return CosmosFuncHelper.Execute<int, string, QueryRequestOptions, CancellationToken, AzCosmosResponse<IEnumerable<T>>, TOut, IEnumerable<T>>(
                 Container.LazyQueryAll<T>,
-                int.MaxValue);
+                int.MaxValue, continuationToken, requestOptions, cancellationToken);
         }
 
         #endregion
@@ -1342,18 +1379,27 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<List<T>> QueryByFilter<T>(
             string filter,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null)
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default)
         {
             return QueryByFilter<T, AzCosmosResponse<List<T>>>(
                 filter,
                 databaseId,
                 containerId,
-                partitionKeyPropName);
+                partitionKeyPropName,
+                continuationToken,
+                requestOptions,
+                cancellationToken);
         }
 
         /// <summary>
@@ -1367,19 +1413,25 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual TOut QueryByFilter<T, TOut>(
             string filter,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default) 
+            where TOut : AzCosmosResponse<List<T>>, new()
         {
             Initialize(databaseId, containerId, partitionKeyPropName, false, false);
 
-            return CosmosFuncHelper.Execute<string, int, AzCosmosResponse<List<T>>, TOut, List<T>>(
+            return CosmosFuncHelper.Execute<string, int, string, QueryRequestOptions, CancellationToken, AzCosmosResponse<List<T>>, TOut, List<T>>(
                 Container.QueryByFilter<T>,
-                filter,
-                int.MaxValue);
+                filter, int.MaxValue, continuationToken, requestOptions, cancellationToken);
         }
 
         #endregion
@@ -1396,19 +1448,28 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="AzCosmosResponse{IEnumerable{T}}"/> containing a collection 
         /// that allows to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<IEnumerable<T>> LazyQueryByFilter<T>(
             string filter,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null)
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default)
         {
             return LazyQueryByFilter<T, AzCosmosResponse<IEnumerable<T>>>(
                 filter,
                 databaseId,
                 containerId,
-                partitionKeyPropName);
+                partitionKeyPropName,
+                continuationToken,
+                requestOptions,
+                cancellationToken);
         }
 
         /// <summary>
@@ -1423,20 +1484,26 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="TOut"/> containing a collection that allows 
         /// to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual TOut LazyQueryByFilter<T, TOut>(
             string filter,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null) where TOut : AzCosmosResponse<IEnumerable<T>>, new()
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default) 
+            where TOut : AzCosmosResponse<IEnumerable<T>>, new()
         {
             Initialize(databaseId, containerId, partitionKeyPropName, false, false);
 
-            return CosmosFuncHelper.Execute<string, int, AzCosmosResponse<IEnumerable<T>>, TOut, IEnumerable<T>>(
+            return CosmosFuncHelper.Execute<string, int, string, QueryRequestOptions, CancellationToken, AzCosmosResponse<IEnumerable<T>>, TOut, IEnumerable<T>>(
                 Container.LazyQueryByFilter<T>,
-                filter,
-                int.MaxValue);
+                filter, int.MaxValue, continuationToken, requestOptions, cancellationToken);
         }
 
         #endregion
@@ -1452,18 +1519,27 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<List<T>> QueryByQueryDefinition<T>(
             QueryDefinition queryDefinition,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null)
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default)
         {
             return QueryByQueryDefinition<T, AzCosmosResponse<List<T>>>(
                 queryDefinition,
                 databaseId,
                 containerId,
-                partitionKeyPropName);
+                partitionKeyPropName,
+                continuationToken,
+                requestOptions,
+                cancellationToken);
         }
 
         /// <summary>
@@ -1477,19 +1553,25 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual TOut QueryByQueryDefinition<T, TOut>(
             QueryDefinition queryDefinition,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default) 
+            where TOut : AzCosmosResponse<List<T>>, new()
         {
             Initialize(databaseId, containerId, partitionKeyPropName, false, false);
 
-            return CosmosFuncHelper.Execute<QueryDefinition, int, AzCosmosResponse<List<T>>, TOut, List<T>>(
+            return CosmosFuncHelper.Execute<QueryDefinition, int, string, QueryRequestOptions, CancellationToken, AzCosmosResponse<List<T>>, TOut, List<T>>(
                 Container.QueryByQueryDefinition<T>,
-                queryDefinition,
-                int.MaxValue);
+                queryDefinition, int.MaxValue, continuationToken, requestOptions, cancellationToken);
         }
 
         #endregion
@@ -1506,19 +1588,28 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="AzCosmosResponse{IEnumerable{T}}"/> containing a collection 
         /// that allows to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<IEnumerable<T>> LazyQueryByQueryDefinition<T>(
             QueryDefinition queryDefinition,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null)
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default)
         {
             return LazyQueryByQueryDefinition<T, AzCosmosResponse<IEnumerable<T>>>(
                 queryDefinition,
                 databaseId,
                 containerId,
-                partitionKeyPropName);
+                partitionKeyPropName,
+                continuationToken,
+                requestOptions,
+                cancellationToken);
         }
 
         /// <summary>
@@ -1533,20 +1624,26 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="TOut"/> containing a collection that allows 
         /// to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual TOut LazyQueryByQueryDefinition<T, TOut>(
             QueryDefinition queryDefinition,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null) where TOut : AzCosmosResponse<IEnumerable<T>>, new()
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default) 
+            where TOut : AzCosmosResponse<IEnumerable<T>>, new()
         {
             Initialize(databaseId, containerId, partitionKeyPropName, false, false);
 
-            return CosmosFuncHelper.Execute<QueryDefinition, int, AzCosmosResponse<IEnumerable<T>>, TOut, IEnumerable<T>>(
+            return CosmosFuncHelper.Execute<QueryDefinition, int, string, QueryRequestOptions, CancellationToken, AzCosmosResponse<IEnumerable<T>>, TOut, IEnumerable<T>>(
                 Container.LazyQueryByQueryDefinition<T>,
-                queryDefinition,
-                int.MaxValue);
+                queryDefinition, int.MaxValue, continuationToken, requestOptions, cancellationToken);
         }
 
         #endregion
@@ -1561,18 +1658,27 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<List<T>> QueryByPartitionKey<T>(
             string partitionKey,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null)
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default)
         {
             return QueryByPartitionKey<T, AzCosmosResponse<List<T>>>(
                 partitionKey,
                 databaseId,
                 containerId,
-                partitionKeyPropName);
+                partitionKeyPropName,
+                continuationToken,
+                requestOptions,
+                cancellationToken);
         }
 
         /// <summary>
@@ -1585,19 +1691,25 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual TOut QueryByPartitionKey<T, TOut>(
             string partitionKey,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default)
+            where TOut : AzCosmosResponse<List<T>>, new()
         {
             Initialize(databaseId, containerId, partitionKeyPropName, false, false);
 
-            return CosmosFuncHelper.Execute<string, int, AzCosmosResponse<List<T>>, TOut, List<T>>(
+            return CosmosFuncHelper.Execute<string, int, string, QueryRequestOptions, CancellationToken, AzCosmosResponse<List<T>>, TOut, List<T>>(
                 Container.QueryByPartitionKey<T>,
-                partitionKey,
-                int.MaxValue);
+                partitionKey, int.MaxValue, continuationToken, requestOptions, cancellationToken);
         }
 
         #endregion
@@ -1614,19 +1726,28 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="AzCosmosResponse{IEnumerable{T}}"/> containing a collection 
         /// that allows to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<IEnumerable<T>> LazyQueryByPartitionKey<T>(
             string partitionKey,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null)
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default)
         {
             return LazyQueryByPartitionKey<T, AzCosmosResponse<IEnumerable<T>>>(
                 partitionKey,
                 databaseId,
                 containerId,
-                partitionKeyPropName);
+                partitionKeyPropName,
+                continuationToken,
+                requestOptions,
+                cancellationToken);
         }
 
         /// <summary>
@@ -1641,20 +1762,26 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="TOut"/> containing a collection that allows 
         /// to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual TOut LazyQueryByPartitionKey<T, TOut>(
             string partitionKey,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null) where TOut : AzCosmosResponse<IEnumerable<T>>, new()
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default) 
+            where TOut : AzCosmosResponse<IEnumerable<T>>, new()
         {
             Initialize(databaseId, containerId, partitionKeyPropName, false, false);
 
-            return CosmosFuncHelper.Execute<string, int, AzCosmosResponse<IEnumerable<T>>, TOut, IEnumerable<T>>(
+            return CosmosFuncHelper.Execute<string, int, string, QueryRequestOptions, CancellationToken, AzCosmosResponse<IEnumerable<T>>, TOut, IEnumerable<T>>(
                 Container.LazyQueryByPartitionKey<T>,
-                partitionKey,
-                int.MaxValue);
+                partitionKey, int.MaxValue, continuationToken, requestOptions, cancellationToken);
         }
 
         #endregion
@@ -1671,18 +1798,27 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<List<T>> QueryWithOr<T>(
             IEnumerable<KeyValuePair<string, string>> nameValueProperties,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null)
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default)
         {
             return QueryWithOr<T, AzCosmosResponse<List<T>>>(
                 nameValueProperties,
                 databaseId,
                 containerId,
-                partitionKeyPropName);
+                partitionKeyPropName,
+                continuationToken,
+                requestOptions,
+                cancellationToken);
         }
 
         /// <summary>
@@ -1697,17 +1833,24 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual TOut QueryWithOr<T, TOut>(
             IEnumerable<KeyValuePair<string, string>> nameValueProperties,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default) 
+            where TOut : AzCosmosResponse<List<T>>, new()
         {
             ThrowIfInvalidNameValueProperties(nameValueProperties);
 
             return QueryByQueryDefinition<T, TOut>(GenerateQueryDefinition(nameValueProperties, BooleanOperator.or),
-                databaseId, containerId, partitionKeyPropName);
+                databaseId, containerId, partitionKeyPropName, continuationToken, requestOptions, cancellationToken);
         }
 
         /// <summary>
@@ -1720,18 +1863,27 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<List<T>> QueryWithOr<T>(
             dynamic operationTerms,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null)
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default)
         {
             return QueryWithOr<T, AzCosmosResponse<List<T>>>(
                 operationTerms,
                 databaseId,
                 containerId,
-                partitionKeyPropName);
+                partitionKeyPropName,
+                continuationToken,
+                requestOptions,
+                cancellationToken);
         }
 
         /// <summary>
@@ -1746,17 +1898,24 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual TOut QueryWithOr<T, TOut>(
             dynamic operationTerms,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default) 
+            where TOut : AzCosmosResponse<List<T>>, new()
         {
             ExThrower.ST_ThrowIfArgumentIsNull(operationTerms, nameof(operationTerms), nameof(operationTerms));
 
             return QueryByQueryDefinition<T, TOut>(GenerateQueryDefinition(operationTerms, BooleanOperator.or), 
-                databaseId, containerId, partitionKeyPropName);
+                databaseId, containerId, partitionKeyPropName, continuationToken, requestOptions, cancellationToken);
         }
 
         #endregion
@@ -1775,19 +1934,28 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="AzCosmosResponse{IEnumerable{T}}"/> containing a collection 
         /// that allows to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<IEnumerable<T>> LazyQueryWithOr<T>(
             IEnumerable<KeyValuePair<string, string>> nameValueProperties,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null)
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default)
         {
             return LazyQueryWithOr<T, AzCosmosResponse<IEnumerable<T>>>(
                 nameValueProperties,
                 databaseId,
                 containerId,
-                partitionKeyPropName);
+                partitionKeyPropName,
+                continuationToken,
+                requestOptions,
+                cancellationToken);
         }
 
         /// <summary>
@@ -1804,18 +1972,25 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="TOut"/> containing a collection that allows 
         /// to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual TOut LazyQueryWithOr<T, TOut>(
             IEnumerable<KeyValuePair<string, string>> nameValueProperties,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null) where TOut : AzCosmosResponse<IEnumerable<T>>, new()
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default) 
+            where TOut : AzCosmosResponse<IEnumerable<T>>, new()
         {
             ThrowIfInvalidNameValueProperties(nameValueProperties);
 
             return LazyQueryByQueryDefinition<T, TOut>(GenerateQueryDefinition(nameValueProperties, BooleanOperator.or),
-                databaseId, containerId, partitionKeyPropName);
+                databaseId, containerId, partitionKeyPropName, continuationToken, requestOptions, cancellationToken);
         }
 
         /// <summary>
@@ -1830,19 +2005,28 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="AzCosmosResponse{IEnumerable{T}}"/> containing a collection 
         /// that allows to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<IEnumerable<T>> LazyQueryWithOr<T>(
             dynamic operationTerms,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null)
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default)
         {
             return LazyQueryWithOr<T, AzCosmosResponse<IEnumerable<T>>>(
                 operationTerms,
                 databaseId,
                 containerId,
-                partitionKeyPropName);
+                partitionKeyPropName,
+                continuationToken,
+                requestOptions,
+                cancellationToken);
         }
 
         /// <summary>
@@ -1859,18 +2043,25 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="TOut"/> containing a collection that allows 
         /// to iterate on demand over items of type <typeparamref name="T"/>.</returns>
         public virtual TOut LazyQueryWithOr<T, TOut>(
             dynamic operationTerms,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null) where TOut : AzCosmosResponse<IEnumerable<T>>, new()
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default) 
+            where TOut : AzCosmosResponse<IEnumerable<T>>, new()
         {
             ExThrower.ST_ThrowIfArgumentIsNull(operationTerms, nameof(operationTerms), nameof(operationTerms));
 
             return LazyQueryByQueryDefinition<T, TOut>(GenerateQueryDefinition(operationTerms, BooleanOperator.or), 
-                databaseId, containerId, partitionKeyPropName);
+                databaseId, containerId, partitionKeyPropName, continuationToken, requestOptions, cancellationToken);
         }
 
         #endregion
@@ -1887,18 +2078,27 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<List<T>> QueryWithAnd<T>(
             IEnumerable<KeyValuePair<string, string>> nameValueProperties,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null)
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default)
         {
             return QueryWithAnd<T, AzCosmosResponse<List<T>>>(
                 nameValueProperties,
                 databaseId,
                 containerId,
-                partitionKeyPropName);
+                partitionKeyPropName,
+                continuationToken,
+                requestOptions,
+                cancellationToken);
         }
 
         /// <summary>
@@ -1913,17 +2113,24 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual TOut QueryWithAnd<T, TOut>(
             IEnumerable<KeyValuePair<string, string>> nameValueProperties,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default) 
+            where TOut : AzCosmosResponse<List<T>>, new()
         {
             ThrowIfInvalidNameValueProperties(nameValueProperties);
 
             return QueryByQueryDefinition<T, TOut>(GenerateQueryDefinition(nameValueProperties, BooleanOperator.and),
-                databaseId, containerId, partitionKeyPropName);
+                databaseId, containerId, partitionKeyPropName, continuationToken, requestOptions, cancellationToken);
         }
 
         /// <summary>
@@ -1936,18 +2143,27 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual AzCosmosResponse<List<T>> QueryWithAnd<T>(
             dynamic operationTerms,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null)
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default)
         {
             return QueryWithAnd<T, AzCosmosResponse<List<T>>>(
                 operationTerms,
                 databaseId,
                 containerId,
-                partitionKeyPropName);
+                partitionKeyPropName,
+                continuationToken,
+                requestOptions,
+                cancellationToken);
         }
 
         /// <summary>
@@ -1962,17 +2178,24 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual TOut QueryWithAnd<T, TOut>(
             dynamic operationTerms,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default) 
+            where TOut : AzCosmosResponse<List<T>>, new()
         {
             ExThrower.ST_ThrowIfArgumentIsNull(operationTerms, nameof(operationTerms), nameof(operationTerms));
 
             return QueryByQueryDefinition<T, TOut>(GenerateQueryDefinition(operationTerms, BooleanOperator.and), 
-                databaseId, containerId, partitionKeyPropName);
+                databaseId, containerId, partitionKeyPropName, continuationToken, requestOptions, cancellationToken);
         }
 
         #endregion
@@ -1997,13 +2220,19 @@ namespace AzStorage.Repositories
             IEnumerable<KeyValuePair<string, string>> nameValueProperties,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null)
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default)
         {
             return LazyQueryWithAnd<T, AzCosmosResponse<IEnumerable<T>>>(
                 nameValueProperties,
                 databaseId,
                 containerId,
-                partitionKeyPropName);
+                partitionKeyPropName,
+                continuationToken,
+                requestOptions,
+                cancellationToken);
         }
 
         /// <summary>
@@ -2026,12 +2255,16 @@ namespace AzStorage.Repositories
             IEnumerable<KeyValuePair<string, string>> nameValueProperties,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null) where TOut : AzCosmosResponse<IEnumerable<T>>, new()
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default) 
+            where TOut : AzCosmosResponse<IEnumerable<T>>, new()
         {
             ThrowIfInvalidNameValueProperties(nameValueProperties);
 
             return LazyQueryByQueryDefinition<T, TOut>(GenerateQueryDefinition(nameValueProperties, BooleanOperator.and),
-                databaseId, containerId, partitionKeyPropName);
+                databaseId, containerId, partitionKeyPropName, continuationToken, requestOptions, cancellationToken);
         }
 
         /// <summary>
@@ -2052,13 +2285,19 @@ namespace AzStorage.Repositories
             dynamic operationTerms,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null)
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default)
         {
             return LazyQueryWithAnd<T, AzCosmosResponse<IEnumerable<T>>>(
                 operationTerms,
                 databaseId,
                 containerId,
-                partitionKeyPropName);
+                partitionKeyPropName,
+                continuationToken,
+                requestOptions,
+                cancellationToken);
         }
 
         /// <summary>
@@ -2081,12 +2320,16 @@ namespace AzStorage.Repositories
             dynamic operationTerms,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null) where TOut : AzCosmosResponse<IEnumerable<T>>, new()
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default) 
+            where TOut : AzCosmosResponse<IEnumerable<T>>, new()
         {
             ExThrower.ST_ThrowIfArgumentIsNull(operationTerms, nameof(operationTerms), nameof(operationTerms));
 
             return LazyQueryByQueryDefinition<T, TOut>(GenerateQueryDefinition(operationTerms, BooleanOperator.and), 
-                databaseId, containerId, partitionKeyPropName);
+                databaseId, containerId, partitionKeyPropName, continuationToken, requestOptions, cancellationToken);
         }
 
         #endregion
@@ -2104,6 +2347,9 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>, 
         /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
         /// for the asynchronous operation.
@@ -2111,11 +2357,17 @@ namespace AzStorage.Repositories
         public virtual async Task<AzCosmosResponse<List<T>>> QueryAllAsync<T>(
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null)
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default)
         {
             return await QueryAllAsync<T, AzCosmosResponse<List<T>>>(databaseId,
                 containerId,
-                partitionKeyPropName);
+                partitionKeyPropName,
+                continuationToken,
+                requestOptions,
+                cancellationToken);
         }
 
         /// <summary>
@@ -2127,6 +2379,9 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>, 
         /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
         /// for the asynchronous operation.
@@ -2134,13 +2389,17 @@ namespace AzStorage.Repositories
         public virtual async Task<TOut> QueryAllAsync<T, TOut>(
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default) 
+            where TOut : AzCosmosResponse<List<T>>, new()
         {
             Initialize(databaseId, containerId, partitionKeyPropName, false, false);
 
-            return await CosmosFuncHelper.ExecuteAsync<int, AzCosmosResponse<List<T>>, TOut, List<T>>(
+            return await CosmosFuncHelper.ExecuteAsync<int, string, QueryRequestOptions, CancellationToken, AzCosmosResponse<List<T>>, TOut, List<T>>(
                 Container.QueryAllAsync<T>,
-                int.MaxValue);
+                int.MaxValue, continuationToken, requestOptions, cancellationToken);
         }
 
         #endregion
@@ -2156,6 +2415,9 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>, 
         /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
         /// for the asynchronous operation.</returns>
@@ -2163,13 +2425,19 @@ namespace AzStorage.Repositories
             string filter,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null)
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default)
         {
             return await QueryByFilterAsync<T, AzCosmosResponse<List<T>>>(
                 filter,
                 databaseId,
                 containerId,
-                partitionKeyPropName);
+                partitionKeyPropName,
+                continuationToken,
+                requestOptions,
+                cancellationToken);
         }
 
         /// <summary>
@@ -2183,6 +2451,9 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>, 
         /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
         /// for the asynchronous operation.</returns>
@@ -2190,14 +2461,17 @@ namespace AzStorage.Repositories
             string filter,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default) 
+            where TOut : AzCosmosResponse<List<T>>, new()
         {
             Initialize(databaseId, containerId, partitionKeyPropName, false, false);
 
-            return await CosmosFuncHelper.ExecuteAsync<string, int, AzCosmosResponse<List<T>>, TOut, List<T>>(
+            return await CosmosFuncHelper.ExecuteAsync<string, int, string, QueryRequestOptions, CancellationToken, AzCosmosResponse<List<T>>, TOut, List<T>>(
                 Container.QueryByFilterAsync<T>,
-                filter,
-                int.MaxValue);
+                filter, int.MaxValue, continuationToken, requestOptions, cancellationToken);
         }
 
         #endregion
@@ -2213,18 +2487,27 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>.</returns>
         public virtual async Task<AzCosmosResponse<List<T>>> QueryByQueryDefinitionAsync<T>(
             QueryDefinition queryDefinition,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null)
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default)
         {
             return await QueryByQueryDefinitionAsync<T, AzCosmosResponse<List<T>>>(
                 queryDefinition,
                 databaseId,
                 containerId,
-                partitionKeyPropName);
+                partitionKeyPropName,
+                continuationToken,
+                requestOptions,
+                cancellationToken);
         }
 
         /// <summary>
@@ -2238,6 +2521,9 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>, 
         /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
         /// for the asynchronous operation.</returns>
@@ -2245,14 +2531,17 @@ namespace AzStorage.Repositories
             QueryDefinition queryDefinition,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default) 
+            where TOut : AzCosmosResponse<List<T>>, new()
         {
             Initialize(databaseId, containerId, partitionKeyPropName, false, false);
 
-            return await CosmosFuncHelper.ExecuteAsync<QueryDefinition, int, AzCosmosResponse<List<T>>, TOut, List<T>>(
+            return await CosmosFuncHelper.ExecuteAsync<QueryDefinition, int, string, QueryRequestOptions, CancellationToken, AzCosmosResponse<List<T>>, TOut, List<T>>(
                 Container.QueryByQueryDefinitionAsync<T>,
-                queryDefinition,
-                int.MaxValue);
+                queryDefinition, int.MaxValue, continuationToken, requestOptions, cancellationToken);
         }
 
         #endregion
@@ -2267,6 +2556,9 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>, 
         /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
         /// for the asynchronous operation.</returns>
@@ -2274,13 +2566,19 @@ namespace AzStorage.Repositories
             string partitionKey,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null)
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default)
         {
             return await QueryByPartitionKeyAsync<T, AzCosmosResponse<List<T>>>(
                 partitionKey,
                 databaseId,
                 containerId,
-                partitionKeyPropName);
+                partitionKeyPropName,
+                continuationToken,
+                requestOptions,
+                cancellationToken);
         }
 
         /// <summary>
@@ -2293,6 +2591,9 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>, 
         /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
         /// for the asynchronous operation.</returns>
@@ -2300,14 +2601,17 @@ namespace AzStorage.Repositories
             string partitionKey,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default) 
+            where TOut : AzCosmosResponse<List<T>>, new()
         {
             Initialize(databaseId, containerId, partitionKeyPropName, false, false);
 
-            return await CosmosFuncHelper.ExecuteAsync<string, int, AzCosmosResponse<List<T>>, TOut, List<T>>(
+            return await CosmosFuncHelper.ExecuteAsync<string, int, string, QueryRequestOptions, CancellationToken, AzCosmosResponse<List<T>>, TOut, List<T>>(
                 Container.QueryByPartitionKeyAsync<T>,
-                partitionKey,
-                int.MaxValue);
+                partitionKey, int.MaxValue, continuationToken, requestOptions, cancellationToken);
         }
 
         #endregion
@@ -2324,6 +2628,9 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>, 
         /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
         /// for the asynchronous operation.</returns>
@@ -2331,13 +2638,19 @@ namespace AzStorage.Repositories
             IEnumerable<KeyValuePair<string, string>> nameValueProperties,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null)
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default)
         {
             return await QueryWithOrAsync<T, AzCosmosResponse<List<T>>>(
                 nameValueProperties,
                 databaseId,
                 containerId,
-                partitionKeyPropName);
+                partitionKeyPropName,
+                continuationToken,
+                requestOptions,
+                cancellationToken);
         }
 
         /// <summary>
@@ -2352,6 +2665,9 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>, 
         /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
         /// for the asynchronous operation.</returns>
@@ -2359,12 +2675,16 @@ namespace AzStorage.Repositories
             IEnumerable<KeyValuePair<string, string>> nameValueProperties,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default) 
+            where TOut : AzCosmosResponse<List<T>>, new()
         {
             ThrowIfInvalidNameValueProperties(nameValueProperties);
 
             return await QueryByQueryDefinitionAsync<T, TOut>(GenerateQueryDefinition(nameValueProperties, BooleanOperator.or),
-                databaseId, containerId, partitionKeyPropName);
+                databaseId, containerId, partitionKeyPropName, continuationToken, requestOptions, cancellationToken);
         }
 
         /// <summary>
@@ -2377,6 +2697,9 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>, 
         /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
         /// for the asynchronous operation.</returns>
@@ -2384,13 +2707,19 @@ namespace AzStorage.Repositories
             dynamic operationTerms,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null)
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default)
         {
             return await QueryWithOrAsync<T, AzCosmosResponse<List<T>>>(
                 operationTerms,
                 databaseId,
                 containerId,
-                partitionKeyPropName);
+                partitionKeyPropName,
+                continuationToken,
+                requestOptions,
+                cancellationToken);
         }
 
         /// <summary>
@@ -2405,6 +2734,9 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>, 
         /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
         /// for the asynchronous operation.</returns>
@@ -2412,12 +2744,16 @@ namespace AzStorage.Repositories
             dynamic operationTerms,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default) 
+            where TOut : AzCosmosResponse<List<T>>, new()
         {
             ExThrower.ST_ThrowIfArgumentIsNull(operationTerms, nameof(operationTerms), nameof(operationTerms));
 
             return await QueryByQueryDefinitionAsync<T, TOut>(GenerateQueryDefinition(operationTerms, BooleanOperator.or),
-                databaseId, containerId, partitionKeyPropName);
+                databaseId, containerId, partitionKeyPropName, continuationToken, requestOptions, cancellationToken);
         }
 
         #endregion
@@ -2434,6 +2770,9 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>, 
         /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
         /// for the asynchronous operation.</returns>
@@ -2441,13 +2780,19 @@ namespace AzStorage.Repositories
             IEnumerable<KeyValuePair<string, string>> nameValueProperties,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null)
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default)
         {
             return await QueryWithAndAsync<T, AzCosmosResponse<List<T>>>(
                 nameValueProperties,
                 databaseId,
                 containerId,
-                partitionKeyPropName);
+                partitionKeyPropName,
+                continuationToken,
+                requestOptions,
+                cancellationToken);
         }
 
         /// <summary>
@@ -2462,6 +2807,9 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>, 
         /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
         /// for the asynchronous operation.</returns>
@@ -2469,12 +2817,16 @@ namespace AzStorage.Repositories
             IEnumerable<KeyValuePair<string, string>> nameValueProperties,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default) 
+            where TOut : AzCosmosResponse<List<T>>, new()
         {
             ThrowIfInvalidNameValueProperties(nameValueProperties);
 
             return await QueryByQueryDefinitionAsync<T, TOut>(GenerateQueryDefinition(nameValueProperties, BooleanOperator.and),
-                databaseId, containerId, partitionKeyPropName);
+                databaseId, containerId, partitionKeyPropName, continuationToken, requestOptions, cancellationToken);
         }
 
         /// <summary>
@@ -2487,6 +2839,9 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="AzCosmosResponse{List{T}}"/> containing a collection of items of type <typeparamref name="T"/>, 
         /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
         /// for the asynchronous operation.</returns>
@@ -2494,13 +2849,19 @@ namespace AzStorage.Repositories
             dynamic operationTerms,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null)
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default)
         {
             return await QueryWithAndAsync<T, AzCosmosResponse<List<T>>>(
                 operationTerms,
                 databaseId,
                 containerId,
-                partitionKeyPropName);
+                partitionKeyPropName,
+                continuationToken,
+                requestOptions,
+                cancellationToken);
         }
 
         /// <summary>
@@ -2515,6 +2876,9 @@ namespace AzStorage.Repositories
         /// <param name="databaseId">The Id of the Cosmos database.</param>
         /// <param name="containerId">The Id of the Cosmos container.</param>
         /// <param name="partitionKeyPropName">The path to the partition key. Example: /PartitionKey</param>
+        /// <param name="continuationToken">The continuation token in the Azure Cosmos DB service.</param>
+        /// <param name="requestOptions">The options for the item query request.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A <see cref="TOut"/> containing a collection of items of type <typeparamref name="T"/>, 
         /// that was created contained within a System.Threading.Tasks.Task object representing the service response 
         /// for the asynchronous operation.</returns>
@@ -2522,12 +2886,16 @@ namespace AzStorage.Repositories
             dynamic operationTerms,
             string databaseId = null,
             string containerId = null,
-            string partitionKeyPropName = null) where TOut : AzCosmosResponse<List<T>>, new()
+            string partitionKeyPropName = null,
+            string continuationToken = null,
+            QueryRequestOptions requestOptions = default,
+            CancellationToken cancellationToken = default) 
+            where TOut : AzCosmosResponse<List<T>>, new()
         {
             ExThrower.ST_ThrowIfArgumentIsNull(operationTerms, nameof(operationTerms), nameof(operationTerms));
 
             return await QueryByQueryDefinitionAsync<T, TOut>(GenerateQueryDefinition(operationTerms, BooleanOperator.and),
-                databaseId, containerId, partitionKeyPropName);
+                databaseId, containerId, partitionKeyPropName, continuationToken, requestOptions, cancellationToken);
         }
 
         #endregion

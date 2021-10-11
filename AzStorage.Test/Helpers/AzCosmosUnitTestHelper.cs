@@ -320,6 +320,14 @@ namespace AzStorage.Test.Helpers
                 Assert.True(enumerableB.Where(entt => entt.Id.Equals(entity.Id)
                 && entt.PartitionKey.Equals(entity.PartitionKey)).Count() == 1);
         }
+        
+        public static void AssertEnumerableBNotContainsAnyEnumerableAEntities<T>(IEnumerable<T> enumerableA,
+            IEnumerable<T> enumerableB) where T : CustomCosmosEntity
+        {
+            foreach (var entity in enumerableA)
+                Assert.True(enumerableB.Where(entt => entt.Id.Equals(entity.Id)
+                && entt.PartitionKey.Equals(entity.PartitionKey)).Count() == 0);
+        }
 
         #endregion
 
@@ -887,6 +895,16 @@ namespace AzStorage.Test.Helpers
             where T : BaseCosmosEntity
         {
             return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryAll<T>();
+        }
+        
+        public static AzCosmosResponse<List<T>> QueryAll<T>(
+            int take,
+            string continuationToken = default,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+            where T : BaseCosmosEntity
+        {
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist)
+                .QueryAll<T>(take: take, continuationToken: continuationToken);
         }
 
         public static AzCosmosResponse<IEnumerable<T>> LazyQueryAll<T>(

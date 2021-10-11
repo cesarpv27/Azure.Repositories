@@ -23,14 +23,14 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
                 AzCosmosUnitTestHelper.QueryAll<CustomCosmosEntity>);
         }
 
-        [Fact, TestPriority(60)]
+        [Fact, TestPriority(52)]
         public void LazyQueryAllTest()
         {
             AzCosmosUnitTestHelper.CommonQueryAllTest<CustomCosmosEntity, IEnumerable<CustomCosmosEntity>>(
                 AzCosmosUnitTestHelper.LazyQueryAll<CustomCosmosEntity>);
         }
 
-        [Fact, TestPriority(70)]
+        [Fact, TestPriority(54)]
         public void QueryAllAsyncTest()
         {
             // Arrange
@@ -47,6 +47,40 @@ namespace AzStorage.Test.Samples.Samples_AzCosmosDBRepository
 
             var storedEntities = _queryAllResponseAct.Value.ToList();
             AzCosmosUnitTestHelper.AssertEnumerableBContainsEnumerableAEntities(entities, storedEntities);
+        }
+
+        [Fact, TestPriority(56)]
+        public void QueryAllWithContinuationTokenTest()
+        {
+            // Arrange
+            var entities = AzCosmosUnitTestHelper.CreateAddAssertSomeEntities(true,
+                ConstProvider.Hundreds_RandomMinValue, ConstProvider.Hundreds_RandomMaxValue);
+            int take1 = 100;
+            int take2 = 100;
+
+            // Act
+            var _queryAllResponseAct1 = AzCosmosUnitTestHelper.QueryAll<CustomCosmosEntity>(take1);
+            var _queryAllResponseAct2 = AzCosmosUnitTestHelper.QueryAll<CustomCosmosEntity>(
+                take2, _queryAllResponseAct1.ContinuationToken);
+            var _queryAllResponseAct3 = AzCosmosUnitTestHelper.QueryAll<CustomCosmosEntity>(take1 + take2);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryAllResponseAct1);
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryAllResponseAct2);
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_queryAllResponseAct3);
+
+            Assert.NotEmpty(_queryAllResponseAct1.ContinuationToken);
+            Assert.NotEmpty(_queryAllResponseAct2.ContinuationToken);
+            Assert.NotEmpty(_queryAllResponseAct3.ContinuationToken);
+
+            var storedEntities1 = _queryAllResponseAct1.Value.ToList();
+            var storedEntities2 = _queryAllResponseAct2.Value.ToList();
+            var storedEntities3 = _queryAllResponseAct3.Value.ToList();
+
+            AzCosmosUnitTestHelper.AssertEnumerableBContainsEnumerableAEntities(storedEntities1, storedEntities3);
+            AzCosmosUnitTestHelper.AssertEnumerableBContainsEnumerableAEntities(storedEntities2, storedEntities3);
+
+            AzCosmosUnitTestHelper.AssertEnumerableBNotContainsAnyEnumerableAEntities(storedEntities1, storedEntities2);
         }
 
         #endregion
