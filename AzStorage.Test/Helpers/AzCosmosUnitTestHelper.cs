@@ -894,7 +894,7 @@ namespace AzStorage.Test.Helpers
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
             where T : BaseCosmosEntity
         {
-            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryAll<T>();
+            return GetOrCreateAzCosmosDBRepository(optionCreateIfNotExist).QueryAll<T>(take: int.MaxValue);
         }
         
         public static AzCosmosResponse<List<T>> QueryAll<T>(

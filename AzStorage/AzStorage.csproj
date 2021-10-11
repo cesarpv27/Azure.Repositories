@@ -23,6 +23,9 @@ TargetFrameworks: netstandard2.0; net461</Description>
     <PackageReleaseNotes>v3.7.0
 Query methods in AzCosmosDBRepository class has been modified to allow specifying continuation token, QueryRequestOptions and CancellationToken as parameters.
 
+Dependency updates:
+Miscellaneous.AzCoreTools.2.9.1-beta -&gt; Miscellaneous.AzCoreTools.2.10.4-beta
+
 v3.6.0
 New UpdateMessages and UpdateMessagesAsync methods has been implemented in class AzQueueRepository.
 New UpdateMessages and UpdateMessagesAsync methods has been implemented in class AzQueueRepository with ExpandedReceiptMetadata as parameter.
@@ -43,7 +46,7 @@ New SendMessagesAsync , DeleteMessage, DeleteMessageAsync, DeleteMessages and De
     <PackageReference Include="Azure.Data.Tables" Version="12.2.0" />
     <PackageReference Include="Azure.Storage.Queues" Version="12.8.0" />
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.21.0" />
-    <PackageReference Include="Miscellaneous.AzCoreTools" Version="2.10.3-beta" />
+    <PackageReference Include="Miscellaneous.AzCoreTools" Version="2.10.4-beta" />
     <PackageReference Include="Miscellaneous.CoreTools" Version="1.1.0" />
   </ItemGroup>
 
