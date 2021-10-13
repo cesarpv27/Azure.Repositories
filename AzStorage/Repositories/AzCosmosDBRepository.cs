@@ -33,7 +33,7 @@ namespace AzStorage.Repositories
             CreateResourcePolicy optionCreateTableResource = CreateResourcePolicy.OnlyFirstTime,
             AzCosmosRetryOptions retryOptions = null) : base(optionCreateTableResource, retryOptions)
         {
-            Initialize(accountEndpointUri, authKeyOrResourceToken, databaseId, containerId, partitionKeyPropName);
+            InitializeForcingMandatory(accountEndpointUri, authKeyOrResourceToken, databaseId, containerId, partitionKeyPropName);
         }
 
         #region Properties
@@ -181,7 +181,7 @@ namespace AzStorage.Repositories
 
         #region Protected & private methods
 
-        protected virtual void Initialize(string accountEndpointUri,
+        protected virtual void InitializeForcingMandatory(string accountEndpointUri,
             string authKeyOrResourceToken,
             string databaseId,
             string containerId,
@@ -394,7 +394,7 @@ namespace AzStorage.Repositories
 
         private DatabaseResponse CreateDatabaseIfNotExists(dynamic[] @params)
         {
-            return CreateDatabaseIfNotExists(/*(string)*/@params[0]);
+            return CreateDatabaseIfNotExists(@params[0]);
         }
 
         private DatabaseResponse CreateDatabaseIfNotExists(string databaseId)

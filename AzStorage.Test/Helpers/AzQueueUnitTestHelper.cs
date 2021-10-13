@@ -87,13 +87,7 @@ namespace AzStorage.Test.Helpers
             return new SampleQueueEntity();
         }
 
-        public static string GetDefaultQueueName
-        {
-            get
-            {
-                return "samplequeue";
-            }
-        }
+        public static string GetDefaultQueueName => "samplequeue";
 
         public static void SendAssertMessage(
             string messageText,
@@ -277,13 +271,7 @@ namespace AzStorage.Test.Helpers
 
         public static string GetRandomQueueNameFromDefault(int randomValue = -1)
         {
-            int id = randomValue;
-            if (randomValue < 0)
-            {
-                var rdm = new Random();
-                id = rdm.Next(1, int.MaxValue);
-            }
-            return GetDefaultQueueName + id;
+            return BuildRandomName(GetDefaultQueueName, randomValue);
         }
 
         public static List<ExpandedReceiptMetadata> GenerateExpandedReceiptMetadataList(

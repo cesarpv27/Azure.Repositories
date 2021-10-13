@@ -59,7 +59,7 @@ namespace AzStorage.Repositories
 
         protected virtual QueueServiceClient CreateQueueServiceClient()
         {
-            ThrowIfConnectionStringIsInvalid();
+            ThrowIfInvalidConnectionString();
 
             return new QueueServiceClient(ConnectionString, CreateClientOptions(AzQueueClientOptions));
         }
@@ -324,7 +324,7 @@ namespace AzStorage.Repositories
 
         protected virtual QueueClient CreateQueueClient(string queueName)
         {
-            ThrowIfConnectionStringIsInvalid();
+            ThrowIfInvalidConnectionString();
 
             return new QueueClient(ConnectionString, queueName, CreateClientOptions(AzQueueClientOptions));
         }

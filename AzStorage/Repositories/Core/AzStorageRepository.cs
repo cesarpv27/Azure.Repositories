@@ -14,6 +14,10 @@ namespace AzStorage.Repositories.Core
 
         #region Properties
 
+        /// <summary>
+        /// A connection string includes the authentication information required for your
+        /// application to access data in an Azure Storage account at runtime.
+        /// </summary>
         public virtual string ConnectionString { get; protected set; }
 
         protected virtual bool IsFirstTimeResourceCreation { get; set; } = true;
@@ -31,10 +35,18 @@ namespace AzStorage.Repositories.Core
 
         #region Throws and validations
 
-        protected virtual void ThrowIfConnectionStringIsInvalid()
+        protected virtual void ThrowIfInvalidConnectionString()
         {
-            if (!ValidateConnectionString(ConnectionString))
-                ExThrower.ST_ThrowNullReferenceException(nameof(ConnectionString));
+            ThrowIfInvalidConnectionString(ConnectionString, nameof(ConnectionString));
+        }
+
+        protected virtual void ThrowIfInvalidConnectionString(string connectionString, string message = null)
+        {
+            if (string.IsNullOrEmpty(message))
+                message = nameof(connectionString);
+
+            if (!ValidateConnectionString(connectionString))
+                ExThrower.ST_ThrowNullReferenceException(message);
         }
 
         protected virtual bool ValidateConnectionString(string connectionString)

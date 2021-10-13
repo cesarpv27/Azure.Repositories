@@ -93,5 +93,15 @@ namespace AzStorage.Test.Helpers
                 Utilities.ConstProvider.Hundreds_RandomMaxValue);
         }
 
+        public static string BuildRandomName(string baseName, int randomValue = -1)
+        {
+            int id = randomValue;
+            if (randomValue < 0)
+            {
+                var rdm = new Random();
+                id = rdm.Next(1, int.MaxValue);
+            }
+            return baseName + id;
+        }
     }
 }

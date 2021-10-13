@@ -29,7 +29,7 @@ namespace AzStorage.Repositories
             AzTableClientOptions tableClientOptions = null, 
             AzTableRetryOptions retryOptions = null) : base(createTableResource, retryOptions)
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(connectionString, nameof(connectionString));
+            ThrowIfInvalidConnectionString(connectionString);
 
             ConnectionString = connectionString;
             AzTableClientOptions = tableClientOptions;
@@ -63,7 +63,7 @@ namespace AzStorage.Repositories
 
         protected virtual TableServiceClient CreateTableServiceClient()
         {
-            ThrowIfConnectionStringIsInvalid();
+            ThrowIfInvalidConnectionString();
 
             return new TableServiceClient(ConnectionString, CreateClientOptions(AzTableClientOptions));
         }
@@ -155,7 +155,7 @@ namespace AzStorage.Repositories
 
         protected virtual TableClient CreateTableClient(string tableName)
         {
-            ThrowIfConnectionStringIsInvalid();
+            ThrowIfInvalidConnectionString();
 
             return new TableClient(ConnectionString, tableName, CreateClientOptions(AzTableClientOptions));
         }
