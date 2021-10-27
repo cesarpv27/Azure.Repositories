@@ -12,6 +12,8 @@ using System.Threading;
 using AzCoreTools.Helpers;
 using Azure;
 using System.Threading.Tasks;
+using AzCoreTools.Utilities;
+using AzCoreTools.Extensions;
 
 namespace AzStorage.Repositories
 {
@@ -65,6 +67,14 @@ namespace AzStorage.Repositories
             return !string.IsNullOrEmpty(blobContainerName) && !string.IsNullOrWhiteSpace(blobContainerName);
         }
 
+        protected virtual bool ValidateBlobContainerMetadata(BlobContainerMetadata blobContainerMetadata)
+        {
+            if (blobContainerMetadata == default)
+                return false;
+
+            return ValidateBlobContainerName(blobContainerMetadata.BlobContainerName);
+        }
+
         protected virtual bool ValidateBlobContainerClient(BlobContainerClient blobContainerClient)
         {
             return blobContainerClient != default;
@@ -94,6 +104,12 @@ namespace AzStorage.Repositories
         {
             if (!ValidateBlobContainerName(blobContainerName))
                 ExThrower.ST_ThrowNullReferenceException(nameof(blobContainerName));
+        }
+
+        protected virtual void ThrowIfInvalidBlobContainerMetadata(BlobContainerMetadata blobContainerMetadata)
+        {
+            if (!ValidateBlobContainerMetadata(blobContainerMetadata))
+                ExThrower.ST_ThrowArgumentException(nameof(blobContainerMetadata), nameof(blobContainerMetadata));
         }
 
         protected virtual void ThrowIfInvalidBlobContainerClient()
@@ -279,7 +295,30 @@ namespace AzStorage.Repositories
         #region Container
 
         /// <summary>
-        /// Creates a new blob container under the specified account. If the container
+        /// Creates a new blob container under the specified account. If a container
+        /// with the same name of the property BlobContainerName of <paramref name="blobContainerMetadata"/> already exists, 
+        /// the operation fails.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model of type <see cref="BlobContainerMetadata"/>.</typeparam>
+        /// <param name="blobContainerMetadata">Contains the data to creates a new blob container.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <returns>The <see cref="AzStorageResponse{Azure.Storage.Blobs.BlobContainerClient}"/> indicating the result of the operation.</returns>
+        public virtual AzStorageResponse<BlobContainerClient> CreateBlobContainer<TIn>(
+            TIn blobContainerMetadata,
+            CancellationToken cancellationToken = default)
+            where TIn : BlobContainerMetadata
+        {
+            ThrowIfInvalidBlobContainerMetadata(blobContainerMetadata);
+
+            return CreateBlobContainer(
+                blobContainerMetadata.BlobContainerName,
+                blobContainerMetadata.PublicAccessType,
+                blobContainerMetadata.Metadata,
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Creates a new blob container under the specified account. If a container
         /// with the same name already exists, the operation fails.
         /// </summary>
         /// <param name="blobContainerName">The name of the container to create.</param>
@@ -311,6 +350,120 @@ namespace AzStorage.Repositories
         }
 
         /// <summary>
+        /// Creates a new blob containers under the specified account. If a container
+        /// with the same name of the property BlobContainerName of any entity in <paramref name="blobContainersMetadata"/> 
+        /// already exists, the creation of the container with that name will fail.
+        /// </summary>
+        /// <param name="blobContainerNames">Contains the name of new blob containers.</param>
+        /// <param name="publicAccessType">Specifies whether data in the all new containers may be accessed publicly and
+        /// the level of access. Azure.Storage.Blobs.Models.PublicAccessType.BlobContainer
+        /// specifies full public read access for container and blob data. Clients can enumerate
+        /// blobs within the container via anonymous request, but cannot enumerate containers
+        /// within the storage account. Azure.Storage.Blobs.Models.PublicAccessType.Blob
+        /// specifies public read access for blobs. Blob data within this container can be
+        /// read via anonymous request, but container data is not available. Clients cannot
+        /// enumerate blobs within the container via anonymous request. Azure.Storage.Blobs.Models.PublicAccessType.None
+        /// specifies that the container data is private to the account owner.</param>
+        /// <param name="metadata">Custom metadata to set for all new containers.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse{Azure.Storage.Blobs.BlobContainerClient}"/> 
+        /// indicating the result of each create operation.</returns>
+        public virtual List<AzStorageResponse<BlobContainerClient>> CreateBlobContainers(
+            IEnumerable<string> blobContainerNames,
+            PublicAccessType publicAccessType = PublicAccessType.None,
+            IDictionary<string, string> metadata = null,
+            CancellationToken cancellationToken = default)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNull(nameof(blobContainerNames), nameof(blobContainerNames));
+
+            var results = new List<AzStorageResponse<BlobContainerClient>>();
+            AzStorageResponse<BlobContainerClient> _response;
+            foreach (var _blobContainerName in blobContainerNames)
+            {
+                try
+                {
+                    _response = CreateBlobContainer(_blobContainerName, publicAccessType, metadata, cancellationToken);
+                }
+                catch (Exception e)
+                {
+                    _response = AzStorageResponse<BlobContainerClient>
+                        .CreateWithException<Exception, AzStorageResponse<BlobContainerClient>>(e);
+                    if (ValidateBlobContainerName(_blobContainerName))
+                        _response.Message += $" Blob container name:{_blobContainerName}.";
+                }
+
+                results.Add(_response);
+            }
+
+            return results;
+        }
+
+        /// <summary>
+        /// Creates a new blob containers under the specified account. If a container
+        /// with the same name of the property BlobContainerName of any entity in <paramref name="blobContainersMetadata"/> 
+        /// already exists, the creation of the container with that name will fail.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model of type <see cref="BlobContainerMetadata"/>.</typeparam>
+        /// <param name="blobContainersMetadata">Contains the data to creates a new blob containers.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse{Azure.Storage.Blobs.BlobContainerClient}"/> 
+        /// indicating the result of each create operation.</returns>
+        public virtual List<AzStorageResponse<BlobContainerClient>> CreateBlobContainers<TIn>(
+            IEnumerable<TIn> blobContainersMetadata,
+            CancellationToken cancellationToken = default)
+            where TIn : BlobContainerMetadata
+        {
+            ExThrower.ST_ThrowIfArgumentIsNull(nameof(blobContainersMetadata), nameof(blobContainersMetadata));
+
+            var results = new List<AzStorageResponse<BlobContainerClient>>();
+            AzStorageResponse<BlobContainerClient> _response;
+            foreach (var _blobContainerMetadata in blobContainersMetadata)
+            {
+                try
+                {
+                    _response = CreateBlobContainer(_blobContainerMetadata, cancellationToken);
+                }
+                catch (Exception e)
+                {
+                    _response = AzStorageResponse<BlobContainerClient>
+                        .CreateWithException<Exception, AzStorageResponse<BlobContainerClient>>(e);
+                    if (_blobContainerMetadata != default)
+                        _response.Message += $" Blob container name:{_blobContainerMetadata.BlobContainerName}.";
+                }
+
+                results.Add(_response);
+            }
+
+            return results;
+        }
+
+        /// <summary>
+        /// Returns an async sequence of blob containers in the storage account.
+        /// Enumerating the blob containers may make multiple requests to the service while
+        /// fetching all the values. Containers are ordered lexicographically by name.
+        /// </summary>
+        /// <param name="traits">Specifies trait options for shaping the blob containers.</param>
+        /// <param name="states">Specifies states options for shaping the blob containers.</param>
+        /// <param name="prefix">Specifies a string that filters the results to return only containers whose name
+        /// begins with the specified prefix.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="take">Amount of items to take.</param>
+        /// <returns>A <see cref="AzStorageResponse{List{BlobContainerItem}}"/> containing the resulting collection of containers.</returns>
+        public virtual AzStorageResponse<List<BlobContainerItem>> GetBlobContainers(
+            BlobContainerTraits traits = BlobContainerTraits.None,
+            BlobContainerStates states = BlobContainerStates.None,
+            string prefix = null,
+            CancellationToken cancellationToken = default,
+            int take = ConstProvider.DefaultTake)
+        {
+            ThrowIfInvalidBlobServiceClient();
+
+            return FuncHelper.Execute<BlobContainerTraits, BlobContainerStates, string, CancellationToken, int, AzStorageResponse<List<BlobContainerItem>>, AzStorageResponse<List<BlobContainerItem>>, List<BlobContainerItem>>(
+                BlobServiceClient.GetBlobContainers,
+                traits, states, prefix, cancellationToken, take);
+        }
+
+        /// <summary>
         /// Marks the specified blob container for deletion. The container and
         /// any blobs contained within it are later deleted during garbage collection.
         /// </summary>
@@ -333,7 +486,33 @@ namespace AzStorage.Repositories
         #region Container async
 
         /// <summary>
-        /// Creates a new blob container under the specified account. If the container
+        /// Creates a new blob container under the specified account. If a container
+        /// with the same name of the property BlobContainerName of <paramref name="blobContainerMetadata"/> already exists, 
+        /// the operation fails.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model of type <see cref="BlobContainerMetadata"/>.</typeparam>
+        /// <param name="blobContainerMetadata">Contains the data to creates a new blob container.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <returns>The <see cref="AzStorageResponse{Azure.Storage.Blobs.BlobContainerClient}"/> indicating the result of the operation, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.
+        /// If the operation was successful the response contains an instance representing the created container.</returns>
+        public virtual async Task<AzStorageResponse<BlobContainerClient>> CreateBlobContainerAsync<TIn>(
+            TIn blobContainerMetadata,
+            CancellationToken cancellationToken = default)
+            where TIn : BlobContainerMetadata
+        {
+            ThrowIfInvalidBlobContainerMetadata(blobContainerMetadata);
+
+            return await CreateBlobContainerAsync(
+                blobContainerMetadata.BlobContainerName,
+                blobContainerMetadata.PublicAccessType,
+                blobContainerMetadata.Metadata,
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Creates a new blob container under the specified account. If a container
         /// with the same name already exists, the operation fails.
         /// </summary>
         /// <param name="blobContainerName">The name of the container to create.</param>
@@ -364,6 +543,126 @@ namespace AzStorage.Repositories
             return await FuncHelper.ExecuteAsync<string, PublicAccessType, IDictionary<string, string>, CancellationToken, Response<BlobContainerClient>, AzStorageResponse<BlobContainerClient>, BlobContainerClient>(
                 BlobServiceClient.CreateBlobContainerAsync,
                 blobContainerName, publicAccessType, metadata, cancellationToken);
+        }
+
+        /// <summary>
+        /// Creates a new blob containers under the specified account. If a container
+        /// with the same name of the property BlobContainerName of any entity in <paramref name="blobContainersMetadata"/> 
+        /// already exists, the creation of the container with that name will fail.
+        /// </summary>
+        /// <param name="blobContainerNames">Contains the name of new blob containers.</param>
+        /// <param name="publicAccessType">Specifies whether data in the all new containers may be accessed publicly and
+        /// the level of access. Azure.Storage.Blobs.Models.PublicAccessType.BlobContainer
+        /// specifies full public read access for container and blob data. Clients can enumerate
+        /// blobs within the container via anonymous request, but cannot enumerate containers
+        /// within the storage account. Azure.Storage.Blobs.Models.PublicAccessType.Blob
+        /// specifies public read access for blobs. Blob data within this container can be
+        /// read via anonymous request, but container data is not available. Clients cannot
+        /// enumerate blobs within the container via anonymous request. Azure.Storage.Blobs.Models.PublicAccessType.None
+        /// specifies that the container data is private to the account owner.</param>
+        /// <param name="metadata">Custom metadata to set for all new containers.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse{Azure.Storage.Blobs.BlobContainerClient}"/> 
+        /// indicating the result of each create operation, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        public virtual async Task<List<AzStorageResponse<BlobContainerClient>>> CreateBlobContainersAsync(
+            IEnumerable<string> blobContainerNames,
+            PublicAccessType publicAccessType = PublicAccessType.None,
+            IDictionary<string, string> metadata = null,
+            CancellationToken cancellationToken = default)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNull(nameof(blobContainerNames), nameof(blobContainerNames));
+
+            var results = new List<AzStorageResponse<BlobContainerClient>>();
+            AzStorageResponse<BlobContainerClient> _response;
+            foreach (var _blobContainerName in blobContainerNames)
+            {
+                try
+                {
+                    _response = await CreateBlobContainerAsync(_blobContainerName, publicAccessType, metadata, cancellationToken);
+                }
+                catch (Exception e)
+                {
+                    _response = AzStorageResponse<BlobContainerClient>
+                        .CreateWithException<Exception, AzStorageResponse<BlobContainerClient>>(e);
+                    if (ValidateBlobContainerName(_blobContainerName))
+                        _response.Message += $" Blob container name:{_blobContainerName}.";
+                }
+
+                results.Add(_response);
+            }
+
+            return results;
+        }
+
+        /// <summary>
+        /// Creates a new blob containers under the specified account. If a container
+        /// with the same name of the property BlobContainerName of any entity in <paramref name="blobContainersMetadata"/> 
+        /// already exists, the creation of the container with that name will fail.
+        /// </summary>
+        /// <typeparam name="TIn">A custom model of type <see cref="BlobContainerMetadata"/>.</typeparam>
+        /// <param name="blobContainersMetadata">Contains the data to creates a new blob containers.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse{Azure.Storage.Blobs.BlobContainerClient}"/> 
+        /// indicating the result of each create operation, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        public virtual async Task<List<AzStorageResponse<BlobContainerClient>>> CreateBlobContainersAsync<TIn>(
+            IEnumerable<TIn> blobContainersMetadata,
+            CancellationToken cancellationToken = default)
+            where TIn : BlobContainerMetadata
+        {
+            ExThrower.ST_ThrowIfArgumentIsNull(nameof(blobContainersMetadata), nameof(blobContainersMetadata));
+
+            var results = new List<AzStorageResponse<BlobContainerClient>>();
+            AzStorageResponse<BlobContainerClient> _response;
+            foreach (var _blobContainerMetadata in blobContainersMetadata)
+            {
+                try
+                {
+                    _response = await CreateBlobContainerAsync(_blobContainerMetadata, cancellationToken);
+                }
+                catch (Exception e)
+                {
+                    _response = AzStorageResponse<BlobContainerClient>
+                        .CreateWithException<Exception, AzStorageResponse<BlobContainerClient>>(e);
+                    if (_blobContainerMetadata != default)
+                        _response.Message += $" Blob container name:{_blobContainerMetadata.BlobContainerName}.";
+                }
+
+                results.Add(_response);
+            }
+
+            return results;
+        }
+
+        /// <summary>
+        /// Returns an async sequence of blob containers in the storage account.
+        /// Enumerating the blob containers may make multiple requests to the service while
+        /// fetching all the values. Containers are ordered lexicographically by name.
+        /// </summary>
+        /// <param name="traits">Specifies trait options for shaping the blob containers.</param>
+        /// <param name="states">Specifies states options for shaping the blob containers.</param>
+        /// <param name="prefix">Specifies a string that filters the results to return only containers whose name
+        /// begins with the specified prefix.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="take">Amount of items to take.</param>
+        /// <returns>A <see cref="AzStorageResponse{List{BlobContainerItem}}"/> containing the resulting collection of containers, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        public virtual async Task<AzStorageResponse<List<BlobContainerItem>>> GetBlobContainersAsync(
+            BlobContainerTraits traits = BlobContainerTraits.None,
+            BlobContainerStates states = BlobContainerStates.None,
+            string prefix = null,
+            CancellationToken cancellationToken = default,
+            int take = ConstProvider.DefaultTake)
+        {
+            ThrowIfInvalidBlobServiceClient();
+
+            return await FuncHelper.ExecuteAsync<BlobContainerTraits, BlobContainerStates, string, CancellationToken, int, AzStorageResponse<List<BlobContainerItem>>, AzStorageResponse<List<BlobContainerItem>>, List<BlobContainerItem>>(
+                BlobServiceClient.GetBlobContainersAsync,
+                traits, states, prefix, cancellationToken, take);
         }
 
         /// <summary>

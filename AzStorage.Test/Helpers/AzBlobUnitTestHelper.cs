@@ -1,4 +1,5 @@
 ﻿using AzCoreTools.Core;
+using AzCoreTools.Utilities;
 using AzStorage.Core.Blobs;
 using AzStorage.Repositories;
 using Azure.Storage.Blobs;
@@ -7,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace AzStorage.Test.Helpers
 {
@@ -50,6 +52,8 @@ namespace AzStorage.Test.Helpers
 
         #region AzBlobRepository methods
 
+        #region Blob container operations
+
         public static AzStorageResponse<BlobContainerClient> CreateBlobContainer(
             string blobContainerName,
             PublicAccessType publicAccessType = PublicAccessType.None,
@@ -71,6 +75,68 @@ namespace AzStorage.Test.Helpers
             return GetOrCreateAzBlobRepository(optionCreateIfNotExist)
                 .DeleteBlobContainer(blobContainerName, conditions, cancellationToken);
         }
+
+        public virtual AzStorageResponse<List<BlobContainerItem>> GetBlobContainers(
+           BlobContainerTraits traits = BlobContainerTraits.None,
+           BlobContainerStates states = BlobContainerStates.None,
+           string prefix = null,
+           CancellationToken cancellationToken = default,
+           int take = ConstProvider.DefaultTake,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return GetOrCreateAzBlobRepository(optionCreateIfNotExist)
+                .GetBlobContainers(traits, states, prefix, cancellationToken, take);
+        }
+
+        #endregion
+
+        #region Blob container async operations
+
+        public static async Task<AzStorageResponse<BlobContainerClient>> CreateBlobContainerAsync(
+            BlobContainerMetadata blobContainerMetadata,
+            CancellationToken cancellationToken = default,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+
+            return await GetOrCreateAzBlobRepository(optionCreateIfNotExist)
+                .CreateBlobContainerAsync(blobContainerMetadata, cancellationToken);
+        }
+
+        public static async Task<AzStorageResponse<BlobContainerClient>> CreateBlobContainerAsync(
+            string blobContainerName,
+            PublicAccessType publicAccessType = PublicAccessType.None,
+            IDictionary<string, string> metadata = null,
+            CancellationToken cancellationToken = default,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+
+            return await GetOrCreateAzBlobRepository(optionCreateIfNotExist)
+                .CreateBlobContainerAsync(blobContainerName, publicAccessType, metadata, cancellationToken);
+        }
+
+        public static async Task<AzStorageResponse> DeleteBlobContainerAsync(
+            string blobContainerName,
+            BlobRequestConditions conditions = null,
+            CancellationToken cancellationToken = default,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return await GetOrCreateAzBlobRepository(optionCreateIfNotExist)
+                .DeleteBlobContainerAsync(blobContainerName, conditions, cancellationToken);
+        }
+
+        public virtual async Task<AzStorageResponse<List<BlobContainerItem>>> GetBlobContainersAsync(
+           BlobContainerTraits traits = BlobContainerTraits.None,
+           BlobContainerStates states = BlobContainerStates.None,
+           string prefix = null,
+           CancellationToken cancellationToken = default,
+           int take = ConstProvider.DefaultTake,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return await GetOrCreateAzBlobRepository(optionCreateIfNotExist)
+                .GetBlobContainersAsync(traits, states, prefix, cancellationToken, take);
+        }
+
+        #endregion
 
         #endregion
     }

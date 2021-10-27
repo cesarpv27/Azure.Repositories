@@ -4,7 +4,7 @@
     <!-- This project will output netstandard2.0 and net461 assemblies -->
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <PackageId>Az.Storage.Repositories</PackageId>
-    <Version>3.7.0-beta</Version>
+    <Version>4.0.0-beta</Version>
     <Authors>César Palomino Vila</Authors>
     <Product>Azure.Repositories</Product>
     <Description>This project contains repositories aimed manage the Azure platform resources.
@@ -20,7 +20,11 @@ TargetFrameworks: netstandard2.0; net461</Description>
     <PackageProjectUrl>https://github.com/cesarpv27/Azure.Repositories</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/cesarpv27/Azure.Repositories</RepositoryUrl>
-    <PackageReleaseNotes>v3.7.0
+    <PackageReleaseNotes>v4.0.0
+An implementation of new AzBlobRepository class has been added, which contains operations on azure blobs.
+In AzQueueRepository class, the methods SendMessageEntities and SendMessageEntitiesAsync have been modified to execute the operation over all entities, even if one throws an exception in the validation of the parameters.
+
+v3.7.0
 Query methods in AzCosmosDBRepository class has been modified to allow specifying continuation token, QueryRequestOptions and CancellationToken as parameters.
 
 Dependency updates:

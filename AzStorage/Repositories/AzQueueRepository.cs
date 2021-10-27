@@ -1034,9 +1034,24 @@ namespace AzStorage.Repositories
             ExThrower.ST_ThrowIfArgumentIsNull(nameof(messageEntities), nameof(messageEntities));
 
             var results = new List<AzStorageResponse<SendReceipt>>();
+
+
+            AzStorageResponse<SendReceipt> _response;
             foreach (var entityMsg in messageEntities)
-                results.Add(SendMessageEntity(entityMsg, serializer, queueName, visibilityTimeout,
-                        timeToLive, cancellationToken, encodeCaseMessageEncoding));
+            {
+                try
+                {
+                    _response = SendMessageEntity(entityMsg, serializer, queueName, visibilityTimeout,
+                        timeToLive, cancellationToken, encodeCaseMessageEncoding);
+                }
+                catch (Exception e)
+                {
+                    _response = AzStorageResponse<SendReceipt>
+                        .CreateWithException<Exception, AzStorageResponse<SendReceipt>>(e);
+                }
+
+                results.Add(_response);
+            }
 
             return results;
         }
@@ -1166,9 +1181,22 @@ namespace AzStorage.Repositories
             ExThrower.ST_ThrowIfArgumentIsNull(nameof(messageEntities), nameof(messageEntities));
 
             var results = new List<AzStorageResponse<SendReceipt>>();
+            AzStorageResponse<SendReceipt> _response;
             foreach (var entityMsg in messageEntities)
-                results.Add(await SendMessageEntityAsync(entityMsg, serializer, queueName, visibilityTimeout,
-                        timeToLive, cancellationToken, encodeCaseMessageEncoding));
+            {
+                try
+                {
+                    _response = await SendMessageEntityAsync(entityMsg, serializer, queueName, visibilityTimeout,
+                        timeToLive, cancellationToken, encodeCaseMessageEncoding);
+                }
+                catch (Exception e)
+                {
+                    _response = AzStorageResponse<SendReceipt>
+                        .CreateWithException<Exception, AzStorageResponse<SendReceipt>>(e);
+                }
+
+                results.Add(_response);
+            }
 
             return results;
         }
