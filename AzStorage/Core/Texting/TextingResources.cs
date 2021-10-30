@@ -16,6 +16,7 @@ namespace AzStorage.Core.Texting
         public const string Invalid_KeyValuePair_key_null_empty_whitespaces = "Invalid element in collection, some KeyValuePair contains key equals null, empty or whitespace.";
         public const string Invalid_operation_message_defined_twice = "Invalid operation, the message has been defined twice.";
         public const string Invalid_operation_message_not_defined = "Invalid operation, the message has not been defined.";
+        public const string Operation_canceled_by_cancellationToken = "The operation was canceled by CancellationToken";
 
         public static string receiptMetadata_is_null(string receiptMetadataParamName = null)
         {

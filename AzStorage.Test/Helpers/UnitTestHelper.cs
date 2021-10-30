@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using AzCoreTools.Core.Interfaces;
 using Xunit;
@@ -35,6 +36,24 @@ namespace AzStorage.Test.Helpers
         {
             foreach (var _resp in responses)
                 AssertExpectedSuccessfulGenResponse(_resp);
+        }
+
+        public static void AssertExpectedCancelledResponses<T>(
+            IEnumerable<IAzDetailedResponse<T>> responses,
+            int expectedResponsesAmount = -1)
+        {
+            bool cancellationStarted = false;
+            foreach (var _response in responses)
+            {
+                if (cancellationStarted)
+                    Assert.False(_response.Succeeded);
+
+                if (!cancellationStarted && !_response.Succeeded)
+                    cancellationStarted = true;
+            }
+
+            if (expectedResponsesAmount > 0)
+                Assert.Equal(expectedResponsesAmount, responses.Count());
         }
 
         #endregion

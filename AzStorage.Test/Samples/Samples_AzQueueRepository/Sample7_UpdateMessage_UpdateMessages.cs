@@ -308,6 +308,31 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 
             AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }
+        
+        [Fact, TestPriority(764)]
+        public void UpdateMessagesWithCancellationTokenTest3()
+        {
+            // Arrange
+            int maxMessages = 100;
+            var queueName = AzQueueUnitTestHelper.GenerateSendAssertMessagesRandomQueueName(
+                maxMessages, out List<ReceiptMetadata> receiptsMetadata, false, false);
+
+            var expandedReceiptMetadataBinaryDataList = AzQueueUnitTestHelper
+                .GenerateExpandedReceiptMetadataList(receiptsMetadata, binaryData: true);
+
+            var cTokenSource = new CancellationTokenSource();
+            CancellationToken token = cTokenSource.Token;
+
+            // Act
+            cTokenSource.CancelAfter(8000);
+            var _updateMessagesResponseAct = AzQueueUnitTestHelper
+                .UpdateMessages(expandedReceiptMetadataBinaryDataList, queueName, cancellationToken: token);
+
+            // Assert
+            UnitTestHelper.AssertExpectedCancelledResponses(_updateMessagesResponseAct);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
+        }
 
         #endregion
 
@@ -408,6 +433,32 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 
             // Assert
             UnitTestHelper.AssertExpectedFailedGenResponse(_updateMessagesAsyncResponseAct.First(), ErrorTextProvider.Invalid_operation_message_not_defined);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
+        }
+
+        [Fact, TestPriority(788)]
+        public void UpdateMessagesAsyncWithCancellationTokenTest3()
+        {
+            // Arrange
+            int maxMessages = 100;
+            var queueName = AzQueueUnitTestHelper.GenerateSendAssertMessagesRandomQueueName(
+                maxMessages, out List<ReceiptMetadata> receiptsMetadata, false, false);
+
+            var expandedReceiptMetadataBinaryDataList = AzQueueUnitTestHelper
+                .GenerateExpandedReceiptMetadataList(receiptsMetadata, binaryData: true);
+
+            var cTokenSource = new CancellationTokenSource();
+            CancellationToken token = cTokenSource.Token;
+
+            // Act
+            cTokenSource.CancelAfter(8000);
+            var _updateMessagesAsyncResponseAct = AzQueueUnitTestHelper
+                .UpdateMessagesAsync(expandedReceiptMetadataBinaryDataList, queueName, cancellationToken: token)
+                .WaitAndUnwrapException();
+
+            // Assert
+            UnitTestHelper.AssertExpectedCancelledResponses(_updateMessagesAsyncResponseAct);
 
             AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }

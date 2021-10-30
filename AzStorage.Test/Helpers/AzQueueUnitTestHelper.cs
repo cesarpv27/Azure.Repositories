@@ -14,6 +14,7 @@ using AzStorage.Test.Utilities;
 using Azure.Storage.Queues.Models;
 using Newtonsoft.Json;
 using Azure.Storage.Queues;
+using System.Threading;
 
 namespace AzStorage.Test.Helpers
 {
@@ -380,10 +381,11 @@ namespace AzStorage.Test.Helpers
             IEnumerable<string> messages,
             string queueName,
             bool base64Encoding = false,
+            CancellationToken cancellationToken = default,
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
         {
             return GetOrCreateAzQueueRepository(base64Encoding, optionCreateIfNotExist)
-                .SendMessages(messages, queueName, encodeCaseMessageEncoding: base64Encoding);
+                .SendMessages(messages, queueName, cancellationToken: cancellationToken, encodeCaseMessageEncoding: base64Encoding);
         }
         
         public static async Task<List<AzStorageResponse<SendReceipt>>> SendMessageEntitiesAsync(
@@ -400,10 +402,11 @@ namespace AzStorage.Test.Helpers
             IEnumerable<string> messages,
             string queueName,
             bool base64Encoding = false,
+            CancellationToken cancellationToken = default,
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
         {
             return await GetOrCreateAzQueueRepository(base64Encoding, optionCreateIfNotExist)
-                .SendMessagesAsync(messages, queueName, encodeCaseMessageEncoding: base64Encoding);
+                .SendMessagesAsync(messages, queueName, cancellationToken: cancellationToken, encodeCaseMessageEncoding: base64Encoding);
         }
 
         #endregion
@@ -608,19 +611,21 @@ namespace AzStorage.Test.Helpers
         public static List<AzStorageResponse<UpdateReceipt>> UpdateMessages(
            IEnumerable<ExpandedReceiptMetadata> expReceiptsMetadata,
             string queueName,
+            CancellationToken cancellationToken = default,
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
         {
             return GetOrCreateAzQueueRepository(optionCreateIfNotExist)
-                .UpdateMessages(expReceiptsMetadata, queueName);
+                .UpdateMessages(expReceiptsMetadata, queueName, cancellationToken: cancellationToken);
         }
         
         public static async Task<List<AzStorageResponse<UpdateReceipt>>> UpdateMessagesAsync(
            IEnumerable<ExpandedReceiptMetadata> expReceiptsMetadata,
             string queueName,
+            CancellationToken cancellationToken = default,
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
         {
             return await GetOrCreateAzQueueRepository(optionCreateIfNotExist)
-                .UpdateMessagesAsync(expReceiptsMetadata, queueName);
+                .UpdateMessagesAsync(expReceiptsMetadata, queueName, cancellationToken: cancellationToken);
         }
 
         #endregion

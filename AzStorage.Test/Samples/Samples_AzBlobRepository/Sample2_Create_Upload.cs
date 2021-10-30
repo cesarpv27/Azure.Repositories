@@ -8,7 +8,7 @@ using Xunit;
 namespace AzStorage.Test.Samples.Samples_AzBlobRepository
 {
     [TestCaseOrderer("AzStorage.Test.Utilities.PriorityOrderer", "AzStorage.Test")]
-    public class Sample1_Create_Upload
+    public class Sample2_Create_Upload
     {
         [Fact, TestPriority(100)]
         public void CreateBlobContainerTest()

@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Xunit;
 
 namespace AzStorage.Test.Samples.Samples_AzQueueRepository
@@ -198,6 +199,29 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 
             AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }
+        
+        [Fact, TestPriority(150)]
+        public void SendMessagesWithCancellationTokenTest3()
+        {
+            // Arrange
+            int maxMessages = 1000;
+            string queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
+
+            var samplesQueueEntity = AzQueueUnitTestHelper.GenerateMessagesRandom(maxMessages, true)
+                .Select(ent => JsonConvert.SerializeObject(ent));
+
+            var cTokenSource = new CancellationTokenSource();
+            CancellationToken token = cTokenSource.Token;
+
+            // Act
+            cTokenSource.CancelAfter(12000);
+            var _sendMessagesResponseAct = AzQueueUnitTestHelper.SendMessages(samplesQueueEntity, queueName, cancellationToken: token);
+
+            // Assert
+            UnitTestHelper.AssertExpectedCancelledResponses(_sendMessagesResponseAct, maxMessages);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
+        }
 
         #endregion
 
@@ -240,6 +264,31 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulGenResponses(_sendMessagesResponseAct);
             Assert.Equal(maxMessages, _sendMessagesResponseAct.Count);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
+        }
+
+        [Fact, TestPriority(160)]
+        public void SendMessagesAsyncWithCancellationTokenTest3()
+        {
+            // Arrange
+            int maxMessages = 1000;
+            string queueName = AzQueueUnitTestHelper.GetRandomQueueNameFromDefault();
+
+            var samplesQueueEntity = AzQueueUnitTestHelper.GenerateMessagesRandom(maxMessages, true)
+                .Select(ent => JsonConvert.SerializeObject(ent));
+
+            var cTokenSource = new CancellationTokenSource();
+            CancellationToken token = cTokenSource.Token;
+
+            // Act
+            cTokenSource.CancelAfter(12000);
+            var _sendMessagesAsyncResponseAct = AzQueueUnitTestHelper
+                .SendMessagesAsync(samplesQueueEntity, queueName,
+                cancellationToken: token).WaitAndUnwrapException();
+
+            // Assert
+            UnitTestHelper.AssertExpectedCancelledResponses(_sendMessagesAsyncResponseAct, maxMessages);
 
             AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }
