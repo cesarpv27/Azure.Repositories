@@ -130,6 +130,27 @@ namespace AzStorage.Test.Helpers
                 .GetBlobContainers(traits, states, prefix, cancellationToken, take);
         }
 
+        public static AzStorageResponse<List<BlobContainerItem>> GetAllBlobContainers(
+            int take,
+            BlobContainerTraits traits = BlobContainerTraits.None,
+            BlobContainerStates states = BlobContainerStates.None,
+            CancellationToken cancellationToken = default,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return GetOrCreateAzBlobRepository(optionCreateIfNotExist)
+                .GetAllBlobContainers(take, traits, states, cancellationToken);
+        }
+
+        public static AzStorageResponse<List<BlobContainerItem>> GetAllBlobContainers(
+            BlobContainerTraits traits = BlobContainerTraits.None,
+            BlobContainerStates states = BlobContainerStates.None,
+            CancellationToken cancellationToken = default,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return GetOrCreateAzBlobRepository(optionCreateIfNotExist)
+                .GetAllBlobContainers(traits, states, cancellationToken);
+        }
+
         public static AzStorageResponse DeleteBlobContainer(
             string blobContainerName, 
             BlobRequestConditions conditions = null, 
@@ -200,20 +221,20 @@ namespace AzStorage.Test.Helpers
         }
         
         public static async Task<AzStorageResponse<List<BlobContainerItem>>> GetAllBlobContainersAsync(
-           BlobContainerTraits traits = BlobContainerTraits.None,
-           BlobContainerStates states = BlobContainerStates.None,
-           CancellationToken cancellationToken = default,
-           int take = ConstProvider.DefaultTake,
+            int take,
+            BlobContainerTraits traits = BlobContainerTraits.None,
+            BlobContainerStates states = BlobContainerStates.None,
+            CancellationToken cancellationToken = default,
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
         {
             return await GetOrCreateAzBlobRepository(optionCreateIfNotExist)
-                .GetAllBlobContainersAsync(traits, states, cancellationToken, take);
+                .GetAllBlobContainersAsync(take, traits, states, cancellationToken);
         }
         
         public static async Task<AzStorageResponse<List<BlobContainerItem>>> GetAllBlobContainersAsync(
-           BlobContainerTraits traits = BlobContainerTraits.None,
-           BlobContainerStates states = BlobContainerStates.None,
-           CancellationToken cancellationToken = default,
+            BlobContainerTraits traits = BlobContainerTraits.None,
+            BlobContainerStates states = BlobContainerStates.None,
+            CancellationToken cancellationToken = default,
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
         {
             return await GetOrCreateAzBlobRepository(optionCreateIfNotExist)

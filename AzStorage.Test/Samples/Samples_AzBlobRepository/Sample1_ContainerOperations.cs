@@ -127,6 +127,45 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
             UnitTestHelper.AssertExpectedSuccessfulResponses(_deleteBlobContainersResponseAct);
         }
 
+        [Fact, TestPriority(112)]
+        public void CreateBlobContainersGetAllBlobContainersWithTakeTest()
+        {
+            // Arrange
+            int namesAmount = 10;
+            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobNamesFromDefault(namesAmount);
+            int take = 9;
+
+            // Act
+            var _createBlobContainersAsyncResponseAct = AzBlobUnitTestHelper.CreateBlobContainers(blobContainerNames);
+            var _getBlobContainersAsyncResponseAct = AzBlobUnitTestHelper.GetAllBlobContainers(take);
+            var _deleteBlobContainersAsyncResponseAct = AzBlobUnitTestHelper.DeleteBlobContainers(blobContainerNames);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponses(_createBlobContainersAsyncResponseAct);
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_getBlobContainersAsyncResponseAct);
+            Assert.Equal(take, _getBlobContainersAsyncResponseAct.Value.Count);
+            UnitTestHelper.AssertExpectedSuccessfulResponses(_deleteBlobContainersAsyncResponseAct);
+        }
+
+        [Fact, TestPriority(114)]
+        public void CreateBlobContainersGetAllBlobContainersTest()
+        {
+            // Arrange
+            int namesAmount = 10;
+            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobNamesFromDefault(namesAmount);
+
+            // Act
+            var _createBlobContainersAsyncResponseAct = AzBlobUnitTestHelper.CreateBlobContainers(blobContainerNames);
+            var _getBlobContainersAsyncResponseAct = AzBlobUnitTestHelper.GetAllBlobContainers();
+            var _deleteBlobContainersAsyncResponseAct = AzBlobUnitTestHelper.DeleteBlobContainers(blobContainerNames);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponses(_createBlobContainersAsyncResponseAct);
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_getBlobContainersAsyncResponseAct);
+            Assert.True(_getBlobContainersAsyncResponseAct.Value.Count >= namesAmount);
+            UnitTestHelper.AssertExpectedSuccessfulResponses(_deleteBlobContainersAsyncResponseAct);
+        }
+
         #endregion
 
         #region Container operations async
@@ -224,51 +263,6 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
             AzBlobUnitTestHelper.AssertExpectedSuccessfulGenResponse(_getBlobContainersAsyncResponseAct, blobContainerNames);
             UnitTestHelper.AssertExpectedSuccessfulResponses(_deleteBlobContainersAsyncResponseAct);
         }
-        
-        [Fact, TestPriority(158)]
-        public void CreateBlobContainersAsyncGetAllBlobContainersAsyncWithTakeTest()
-        {
-            // Arrange
-            int namesAmount = 10;
-            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobNamesFromDefault(namesAmount);
-            int take = 9;
-
-            // Act
-            var _createBlobContainersAsyncResponseAct = AzBlobUnitTestHelper
-                .CreateBlobContainersAsync(blobContainerNames).WaitAndUnwrapException();
-            var _getBlobContainersAsyncResponseAct = AzBlobUnitTestHelper
-                .GetAllBlobContainersAsync(take: take).WaitAndUnwrapException();
-            var _deleteBlobContainersAsyncResponseAct = AzBlobUnitTestHelper
-                .DeleteBlobContainersAsync(blobContainerNames).WaitAndUnwrapException();
-
-            // Assert
-            UnitTestHelper.AssertExpectedSuccessfulGenResponses(_createBlobContainersAsyncResponseAct);
-            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_getBlobContainersAsyncResponseAct);
-            Assert.Equal(take, _getBlobContainersAsyncResponseAct.Value.Count);
-            UnitTestHelper.AssertExpectedSuccessfulResponses(_deleteBlobContainersAsyncResponseAct);
-        }
-
-        [Fact, TestPriority(158)]
-        public void CreateBlobContainersAsyncGetAllBlobContainersAsyncTest()
-        {
-            // Arrange
-            int namesAmount = 10;
-            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobNamesFromDefault(namesAmount);
-
-            // Act
-            var _createBlobContainersAsyncResponseAct = AzBlobUnitTestHelper
-                .CreateBlobContainersAsync(blobContainerNames).WaitAndUnwrapException();
-            var _getBlobContainersAsyncResponseAct = AzBlobUnitTestHelper
-                .GetAllBlobContainersAsync(BlobContainerTraits.None, BlobContainerStates.None,
-                    default, CreateResourcePolicy.OnlyFirstTime).WaitAndUnwrapException();
-            var _deleteBlobContainersAsyncResponseAct = AzBlobUnitTestHelper
-                .DeleteBlobContainersAsync(blobContainerNames).WaitAndUnwrapException();
-
-            // Assert
-            UnitTestHelper.AssertExpectedSuccessfulGenResponses(_createBlobContainersAsyncResponseAct);
-            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_getBlobContainersAsyncResponseAct);
-            UnitTestHelper.AssertExpectedSuccessfulResponses(_deleteBlobContainersAsyncResponseAct);
-        }
 
         [Fact, TestPriority(160)]
         public void CreateBlobContainersAsyncGetBlobContainersAsyncWithTakeTest()
@@ -290,6 +284,51 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
             UnitTestHelper.AssertExpectedSuccessfulGenResponses(_createBlobContainersAsyncResponseAct);
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_getBlobContainersAsyncResponseAct);
             Assert.Equal(take, _getBlobContainersAsyncResponseAct.Value.Count);
+            UnitTestHelper.AssertExpectedSuccessfulResponses(_deleteBlobContainersAsyncResponseAct);
+        }
+
+        [Fact, TestPriority(162)]
+        public void CreateBlobContainersAsyncGetAllBlobContainersAsyncWithTakeTest()
+        {
+            // Arrange
+            int namesAmount = 10;
+            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobNamesFromDefault(namesAmount);
+            int take = 9;
+
+            // Act
+            var _createBlobContainersAsyncResponseAct = AzBlobUnitTestHelper
+                .CreateBlobContainersAsync(blobContainerNames).WaitAndUnwrapException();
+            var _getBlobContainersAsyncResponseAct = AzBlobUnitTestHelper
+                .GetAllBlobContainersAsync(take).WaitAndUnwrapException();
+            var _deleteBlobContainersAsyncResponseAct = AzBlobUnitTestHelper
+                .DeleteBlobContainersAsync(blobContainerNames).WaitAndUnwrapException();
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponses(_createBlobContainersAsyncResponseAct);
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_getBlobContainersAsyncResponseAct);
+            Assert.Equal(take, _getBlobContainersAsyncResponseAct.Value.Count);
+            UnitTestHelper.AssertExpectedSuccessfulResponses(_deleteBlobContainersAsyncResponseAct);
+        }
+
+        [Fact, TestPriority(164)]
+        public void CreateBlobContainersAsyncGetAllBlobContainersAsyncTest()
+        {
+            // Arrange
+            int namesAmount = 10;
+            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobNamesFromDefault(namesAmount);
+
+            // Act
+            var _createBlobContainersAsyncResponseAct = AzBlobUnitTestHelper
+                .CreateBlobContainersAsync(blobContainerNames).WaitAndUnwrapException();
+            var _getBlobContainersAsyncResponseAct = AzBlobUnitTestHelper
+                .GetAllBlobContainersAsync().WaitAndUnwrapException();
+            var _deleteBlobContainersAsyncResponseAct = AzBlobUnitTestHelper
+                .DeleteBlobContainersAsync(blobContainerNames).WaitAndUnwrapException();
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponses(_createBlobContainersAsyncResponseAct);
+            UnitTestHelper.AssertExpectedSuccessfulGenResponse(_getBlobContainersAsyncResponseAct);
+            Assert.True(_getBlobContainersAsyncResponseAct.Value.Count >= namesAmount);
             UnitTestHelper.AssertExpectedSuccessfulResponses(_deleteBlobContainersAsyncResponseAct);
         }
 

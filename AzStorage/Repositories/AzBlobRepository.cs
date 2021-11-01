@@ -507,16 +507,16 @@ namespace AzStorage.Repositories
         /// that was created contained within a System.Threading.Tasks.Task object representing 
         /// the service response for the asynchronous operation.</returns>
         public virtual AzStorageResponse<List<BlobContainerItem>> GetAllBlobContainers(
+            int take,
             BlobContainerTraits traits = BlobContainerTraits.None,
             BlobContainerStates states = BlobContainerStates.None,
-            CancellationToken cancellationToken = default,
-            int take = ConstProvider.DefaultTake)
+            CancellationToken cancellationToken = default)
         {
             ThrowIfInvalidBlobServiceClient();
 
-            return FuncHelper.Execute<BlobContainerTraits, BlobContainerStates, CancellationToken, int, AzStorageResponse<List<BlobContainerItem>>, AzStorageResponse<List<BlobContainerItem>>, List<BlobContainerItem>>(
+            return FuncHelper.Execute<int, BlobContainerTraits, BlobContainerStates, CancellationToken, AzStorageResponse<List<BlobContainerItem>>, AzStorageResponse<List<BlobContainerItem>>, List<BlobContainerItem>>(
                 BlobServiceClient.GetAllBlobContainers,
-                traits, states, cancellationToken, take);
+                take, traits, states, cancellationToken);
         }
 
         /// <summary>
@@ -813,16 +813,16 @@ namespace AzStorage.Repositories
         /// that was created contained within a System.Threading.Tasks.Task object representing 
         /// the service response for the asynchronous operation.</returns>
         public virtual async Task<AzStorageResponse<List<BlobContainerItem>>> GetAllBlobContainersAsync(
+            int take,
             BlobContainerTraits traits = BlobContainerTraits.None,
             BlobContainerStates states = BlobContainerStates.None,
-            CancellationToken cancellationToken = default,
-            int take = ConstProvider.DefaultTake)
+            CancellationToken cancellationToken = default)
         {
             ThrowIfInvalidBlobServiceClient();
 
-            return await FuncHelper.ExecuteAsync<BlobContainerTraits, BlobContainerStates, CancellationToken, int, AzStorageResponse<List<BlobContainerItem>>, AzStorageResponse<List<BlobContainerItem>>, List<BlobContainerItem>>(
+            return await FuncHelper.ExecuteAsync<int, BlobContainerTraits, BlobContainerStates, CancellationToken, AzStorageResponse<List<BlobContainerItem>>, AzStorageResponse<List<BlobContainerItem>>, List<BlobContainerItem>>(
                 BlobServiceClient.GetAllBlobContainersAsync,
-                traits, states, cancellationToken, take);
+                take, traits, states, cancellationToken);
         }
         
         /// <summary>
