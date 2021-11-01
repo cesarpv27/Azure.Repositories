@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Azure.Storage.Blobs;
-using AzCoreTools.Core.Validators;
 using Azure.Storage.Blobs.Models;
 using System.Threading;
 using AzCoreTools.Helpers;
@@ -14,6 +13,7 @@ using Azure;
 using System.Threading.Tasks;
 using AzCoreTools.Utilities;
 using AzCoreTools.Extensions;
+using AzStorageConstProvider = AzStorage.Core.Utilities.ConstProvider;
 
 namespace AzStorage.Repositories
 {
@@ -168,6 +168,28 @@ namespace AzStorage.Repositories
 
             var _blobContainerClient = BlobServiceClient.GetBlobContainerClient(blobContainerName);
             return AzStorageResponse<BlobContainerClient>.Create(_blobContainerClient, _blobContainerClient != null);
+        }
+
+        private List<AzStorageResponse> GetAzStorageResponseList(int capacity = 0)
+        {
+            return new List<AzStorageResponse>(capacity);
+        }
+        
+        private List<AzStorageResponse<T>> GetAzStorageResponseList<T>(int capacity = 0)
+        {
+            return new List<AzStorageResponse<T>>(capacity);
+        }
+
+        private AzStorageResponse GetAzStorageResponseWithException<TEx>(TEx e)
+            where TEx : Exception
+        {
+            return AzStorageResponse.Create(e);
+        }
+        
+        private AzStorageResponse<T> GetAzStorageResponseWithException<T, TEx>(TEx e)
+            where TEx : Exception
+        {
+            return AzStorageResponse<T>.CreateWithException<TEx, AzStorageResponse<T>>(e);
         }
 
         #endregion
@@ -376,23 +398,27 @@ namespace AzStorage.Repositories
         {
             ExThrower.ST_ThrowIfArgumentIsNull(nameof(blobContainerNames), nameof(blobContainerNames));
 
-            var results = new List<AzStorageResponse<BlobContainerClient>>();
+            var results = GetAzStorageResponseList<BlobContainerClient>();
             AzStorageResponse<BlobContainerClient> _response;
             foreach (var _blobContainerName in blobContainerNames)
             {
-                try
+                if (cancellationToken.IsCancellationRequested)
+                    results.Add(GetAzStorageResponseWithOperationCanceledMessage<BlobContainerClient>());
+                else
                 {
-                    _response = CreateBlobContainer(_blobContainerName, publicAccessType, metadata, cancellationToken);
-                }
-                catch (Exception e)
-                {
-                    _response = AzStorageResponse<BlobContainerClient>
-                        .CreateWithException<Exception, AzStorageResponse<BlobContainerClient>>(e);
-                    if (ValidateBlobContainerName(_blobContainerName))
-                        _response.Message += $" Blob container name:{_blobContainerName}.";
-                }
+                    try
+                    {
+                        _response = CreateBlobContainer(_blobContainerName, publicAccessType, metadata, cancellationToken);
+                    }
+                    catch (Exception e)
+                    {
+                        _response = GetAzStorageResponseWithException<BlobContainerClient, Exception>(e);
+                        if (ValidateBlobContainerName(_blobContainerName))
+                            _response.Message += $" Blob container name:{_blobContainerName}.";
+                    }
 
-                results.Add(_response);
+                    results.Add(_response);
+                }
             }
 
             return results;
@@ -415,23 +441,27 @@ namespace AzStorage.Repositories
         {
             ExThrower.ST_ThrowIfArgumentIsNull(nameof(blobContainersMetadata), nameof(blobContainersMetadata));
 
-            var results = new List<AzStorageResponse<BlobContainerClient>>();
+            var results = GetAzStorageResponseList<BlobContainerClient>();
             AzStorageResponse<BlobContainerClient> _response;
             foreach (var _blobContainerMetadata in blobContainersMetadata)
             {
-                try
+                if (cancellationToken.IsCancellationRequested)
+                    results.Add(GetAzStorageResponseWithOperationCanceledMessage<BlobContainerClient>());
+                else
                 {
-                    _response = CreateBlobContainer(_blobContainerMetadata, cancellationToken);
-                }
-                catch (Exception e)
-                {
-                    _response = AzStorageResponse<BlobContainerClient>
-                        .CreateWithException<Exception, AzStorageResponse<BlobContainerClient>>(e);
-                    if (_blobContainerMetadata != default)
-                        _response.Message += $" Blob container name:{_blobContainerMetadata.BlobContainerName}.";
-                }
+                    try
+                    {
+                        _response = CreateBlobContainer(_blobContainerMetadata, cancellationToken);
+                    }
+                    catch (Exception e)
+                    {
+                        _response = GetAzStorageResponseWithException<BlobContainerClient, Exception>(e);
+                        if (ValidateBlobContainerMetadata(_blobContainerMetadata))
+                            _response.Message += $" Blob container name:{_blobContainerMetadata.BlobContainerName}.";
+                    }
 
-                results.Add(_response);
+                    results.Add(_response);
+                }
             }
 
             return results;
@@ -464,6 +494,53 @@ namespace AzStorage.Repositories
         }
 
         /// <summary>
+        /// Returns an async sequence of all or the amount to <paramref name="take"/> of blob containers 
+        /// in the storage account service.
+        /// Enumerating the blob containers may make multiple requests to the service while
+        /// fetching all the values. Containers are ordered lexicographically by name.
+        /// </summary>
+        /// <param name="traits">Specifies trait options for shaping the blob containers.</param>
+        /// <param name="states">Specifies states options for shaping the blob containers.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="take">Amount of items to take.</param>
+        /// <returns>A <see cref="AzStorageResponse{List{BlobContainerItem}}"/> containing the resulting collection of containers, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        public virtual AzStorageResponse<List<BlobContainerItem>> GetAllBlobContainers(
+            BlobContainerTraits traits = BlobContainerTraits.None,
+            BlobContainerStates states = BlobContainerStates.None,
+            CancellationToken cancellationToken = default,
+            int take = ConstProvider.DefaultTake)
+        {
+            ThrowIfInvalidBlobServiceClient();
+
+            return FuncHelper.Execute<BlobContainerTraits, BlobContainerStates, CancellationToken, int, AzStorageResponse<List<BlobContainerItem>>, AzStorageResponse<List<BlobContainerItem>>, List<BlobContainerItem>>(
+                BlobServiceClient.GetAllBlobContainers,
+                traits, states, cancellationToken, take);
+        }
+
+        /// <summary>
+        /// Returns an async sequence of all or the Int.MaxValue amount of blob containers in the storage account service.
+        /// Enumerating the blob containers may make multiple requests to the service while
+        /// fetching all the values. Containers are ordered lexicographically by name.
+        /// </summary>
+        /// <param name="traits">Specifies trait options for shaping the blob containers.</param>
+        /// <param name="states">Specifies states options for shaping the blob containers.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <returns>A <see cref="AzStorageResponse{List{BlobContainerItem}}"/> containing the resulting collection of containers.</returns>
+        public virtual AzStorageResponse<List<BlobContainerItem>> GetAllBlobContainers(
+            BlobContainerTraits traits = BlobContainerTraits.None,
+            BlobContainerStates states = BlobContainerStates.None,
+            CancellationToken cancellationToken = default)
+        {
+            ThrowIfInvalidBlobServiceClient();
+
+            return FuncHelper.Execute<BlobContainerTraits, BlobContainerStates, CancellationToken, AzStorageResponse<List<BlobContainerItem>>, AzStorageResponse<List<BlobContainerItem>>, List<BlobContainerItem>>(
+                BlobServiceClient.GetAllBlobContainers,
+                traits, states, cancellationToken);
+        }
+
+        /// <summary>
         /// Marks the specified blob container for deletion. The container and
         /// any blobs contained within it are later deleted during garbage collection.
         /// </summary>
@@ -471,7 +548,10 @@ namespace AzStorage.Repositories
         /// <param name="conditions">Conditions to be added on deletion of the container.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>The <see cref="AzStorageResponse"/> indicating the result of the operation.</returns>
-        public virtual AzStorageResponse DeleteBlobContainer(string blobContainerName, BlobRequestConditions conditions = null, CancellationToken cancellationToken = default)
+        public virtual AzStorageResponse DeleteBlobContainer(
+            string blobContainerName, 
+            BlobRequestConditions conditions = null, 
+            CancellationToken cancellationToken = default)
         {
             ThrowIfInvalidBlobContainerName(blobContainerName);
             ThrowIfInvalidBlobServiceClient();
@@ -479,6 +559,48 @@ namespace AzStorage.Repositories
             return FuncHelper.Execute<string, BlobRequestConditions, CancellationToken, Response, AzStorageResponse>(
                 BlobServiceClient.DeleteBlobContainer,
                 blobContainerName, conditions, cancellationToken);
+        }
+
+        /// <summary>
+        /// Marks the specified blob containers for deletion. The containers and
+        /// any blobs contained within it are later deleted during garbage collection.
+        /// </summary>
+        /// <param name="blobContainerNames">The name of the containers to delete.</param>
+        /// <param name="conditions">Conditions to be added on deletion of the all containers.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse"/> indicating the result of the operation.</returns>
+        public virtual List<AzStorageResponse> DeleteBlobContainers(
+            IEnumerable<string> blobContainerNames,
+            BlobRequestConditions conditions = null,
+            CancellationToken cancellationToken = default)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNull(nameof(blobContainerNames), nameof(blobContainerNames));
+
+            var results = GetAzStorageResponseList();
+            AzStorageResponse _response;
+            foreach (var _blobContainerName in blobContainerNames)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    results.Add(GetAzStorageResponseWithOperationCanceledMessage());
+                else
+                {
+                    try
+                    {
+                        _response = DeleteBlobContainer(_blobContainerName, conditions, cancellationToken);
+                    }
+                    catch (Exception e)
+                    {
+                        _response = GetAzStorageResponseWithException(e);
+
+                        if (ValidateBlobContainerName(_blobContainerName))
+                            _response.Message += $" Blob container name:{_blobContainerName}.";
+                    }
+
+                    results.Add(_response);
+                }
+            }
+
+            return results;
         }
 
         #endregion
@@ -574,23 +696,30 @@ namespace AzStorage.Repositories
         {
             ExThrower.ST_ThrowIfArgumentIsNull(nameof(blobContainerNames), nameof(blobContainerNames));
 
-            var results = new List<AzStorageResponse<BlobContainerClient>>();
+            var results = GetAzStorageResponseList<BlobContainerClient>();
             AzStorageResponse<BlobContainerClient> _response;
             foreach (var _blobContainerName in blobContainerNames)
             {
-                try
+                if (cancellationToken.IsCancellationRequested)
+                    results.Add(GetAzStorageResponseWithOperationCanceledMessage<BlobContainerClient>());
+                else
                 {
-                    _response = await CreateBlobContainerAsync(_blobContainerName, publicAccessType, metadata, cancellationToken);
-                }
-                catch (Exception e)
-                {
-                    _response = AzStorageResponse<BlobContainerClient>
-                        .CreateWithException<Exception, AzStorageResponse<BlobContainerClient>>(e);
-                    if (ValidateBlobContainerName(_blobContainerName))
-                        _response.Message += $" Blob container name:{_blobContainerName}.";
-                }
+                    try
+                    {
+                        _response = await CreateBlobContainerAsync(_blobContainerName, publicAccessType, metadata, cancellationToken);
+                    }
+                    catch (Exception e)
+                    {
+                        _response = GetAzStorageResponseWithException<BlobContainerClient, Exception>(e);
 
-                results.Add(_response);
+                        if (ValidateBlobContainerName(_blobContainerName))
+                            _response.Message += $" {AzStorageConstProvider.Blob_container_name}:{_blobContainerName}.";
+                        else
+                            _response.Message += $" {AzStorageConstProvider.Blob_container_name} is invalid.";
+                    }
+
+                    results.Add(_response);
+                }
             }
 
             return results;
@@ -615,23 +744,28 @@ namespace AzStorage.Repositories
         {
             ExThrower.ST_ThrowIfArgumentIsNull(nameof(blobContainersMetadata), nameof(blobContainersMetadata));
 
-            var results = new List<AzStorageResponse<BlobContainerClient>>();
+            var results = GetAzStorageResponseList<BlobContainerClient>();
             AzStorageResponse<BlobContainerClient> _response;
             foreach (var _blobContainerMetadata in blobContainersMetadata)
             {
-                try
+                if (cancellationToken.IsCancellationRequested)
+                    results.Add(GetAzStorageResponseWithOperationCanceledMessage<BlobContainerClient>());
+                else
                 {
-                    _response = await CreateBlobContainerAsync(_blobContainerMetadata, cancellationToken);
-                }
-                catch (Exception e)
-                {
-                    _response = AzStorageResponse<BlobContainerClient>
-                        .CreateWithException<Exception, AzStorageResponse<BlobContainerClient>>(e);
-                    if (_blobContainerMetadata != default)
-                        _response.Message += $" Blob container name:{_blobContainerMetadata.BlobContainerName}.";
-                }
+                    try
+                    {
+                        _response = await CreateBlobContainerAsync(_blobContainerMetadata, cancellationToken);
+                    }
+                    catch (Exception e)
+                    {
+                        _response = GetAzStorageResponseWithException<BlobContainerClient, Exception>(e);
 
-                results.Add(_response);
+                        if (ValidateBlobContainerMetadata(_blobContainerMetadata))
+                            _response.Message += $" Blob container name:{_blobContainerMetadata.BlobContainerName}.";
+                    }
+
+                    results.Add(_response);
+                }
             }
 
             return results;
@@ -666,6 +800,55 @@ namespace AzStorage.Repositories
         }
 
         /// <summary>
+        /// Returns an async sequence of all or the amount to <paramref name="take"/> of blob containers 
+        /// in the storage account service.
+        /// Enumerating the blob containers may make multiple requests to the service while
+        /// fetching all the values. Containers are ordered lexicographically by name.
+        /// </summary>
+        /// <param name="traits">Specifies trait options for shaping the blob containers.</param>
+        /// <param name="states">Specifies states options for shaping the blob containers.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="take">Amount of items to take.</param>
+        /// <returns>A <see cref="AzStorageResponse{List{BlobContainerItem}}"/> containing the resulting collection of containers, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        public virtual async Task<AzStorageResponse<List<BlobContainerItem>>> GetAllBlobContainersAsync(
+            BlobContainerTraits traits = BlobContainerTraits.None,
+            BlobContainerStates states = BlobContainerStates.None,
+            CancellationToken cancellationToken = default,
+            int take = ConstProvider.DefaultTake)
+        {
+            ThrowIfInvalidBlobServiceClient();
+
+            return await FuncHelper.ExecuteAsync<BlobContainerTraits, BlobContainerStates, CancellationToken, int, AzStorageResponse<List<BlobContainerItem>>, AzStorageResponse<List<BlobContainerItem>>, List<BlobContainerItem>>(
+                BlobServiceClient.GetAllBlobContainersAsync,
+                traits, states, cancellationToken, take);
+        }
+        
+        /// <summary>
+        /// Returns an async sequence of all or the Int.MaxValue amount of blob containers in the storage account service.
+        /// Enumerating the blob containers may make multiple requests to the service while
+        /// fetching all the values. Containers are ordered lexicographically by name.
+        /// </summary>
+        /// <param name="traits">Specifies trait options for shaping the blob containers.</param>
+        /// <param name="states">Specifies states options for shaping the blob containers.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <returns>A <see cref="AzStorageResponse{List{BlobContainerItem}}"/> containing the resulting collection of containers, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        public virtual async Task<AzStorageResponse<List<BlobContainerItem>>> GetAllBlobContainersAsync(
+            BlobContainerTraits traits = BlobContainerTraits.None,
+            BlobContainerStates states = BlobContainerStates.None,
+            CancellationToken cancellationToken = default)
+        {
+            ThrowIfInvalidBlobServiceClient();
+
+            return await FuncHelper.ExecuteAsync<BlobContainerTraits, BlobContainerStates, CancellationToken, AzStorageResponse<List<BlobContainerItem>>, AzStorageResponse<List<BlobContainerItem>>, List<BlobContainerItem>>(
+                BlobServiceClient.GetAllBlobContainersAsync,
+                traits, states, cancellationToken);
+        }
+
+        /// <summary>
         /// Marks the specified blob container for deletion. The container and
         /// any blobs contained within it are later deleted during garbage collection.
         /// </summary>
@@ -675,7 +858,10 @@ namespace AzStorage.Repositories
         /// <returns>The <see cref="AzStorageResponse"/> indicating the result of the operation, 
         /// that was created contained within a System.Threading.Tasks.Task object representing 
         /// the service response for the asynchronous operation.</returns>
-        public virtual async Task<AzStorageResponse> DeleteBlobContainerAsync(string blobContainerName, BlobRequestConditions conditions = null, CancellationToken cancellationToken = default)
+        public virtual async Task<AzStorageResponse> DeleteBlobContainerAsync(
+            string blobContainerName, 
+            BlobRequestConditions conditions = null, 
+            CancellationToken cancellationToken = default)
         {
             ThrowIfInvalidBlobContainerName(blobContainerName);
             ThrowIfInvalidBlobServiceClient();
@@ -683,6 +869,50 @@ namespace AzStorage.Repositories
             return await FuncHelper.ExecuteAsync<string, BlobRequestConditions, CancellationToken, Response, AzStorageResponse>(
                 BlobServiceClient.DeleteBlobContainerAsync,
                 blobContainerName, conditions, cancellationToken);
+        }
+
+        /// <summary>
+        /// Marks the specified blob containers for deletion. The containers and
+        /// any blobs contained within it are later deleted during garbage collection.
+        /// </summary>
+        /// <param name="blobContainerNames">The name of the containers to delete.</param>
+        /// <param name="conditions">Conditions to be added on deletion of the all containers.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <returns>A collection containing responses of type <see cref="AzStorageResponse"/> indicating the result of the operation, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        public virtual async Task<List<AzStorageResponse>> DeleteBlobContainersAsync(
+            IEnumerable<string> blobContainerNames,
+            BlobRequestConditions conditions = null, 
+            CancellationToken cancellationToken = default)
+        {
+            ExThrower.ST_ThrowIfArgumentIsNull(nameof(blobContainerNames), nameof(blobContainerNames));
+
+            var results = GetAzStorageResponseList();
+            AzStorageResponse _response;
+            foreach (var _blobContainerName in blobContainerNames)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    results.Add(GetAzStorageResponseWithOperationCanceledMessage());
+                else
+                {
+                    try
+                    {
+                        _response = await DeleteBlobContainerAsync(_blobContainerName, conditions, cancellationToken);
+                    }
+                    catch (Exception e)
+                    {
+                        _response = GetAzStorageResponseWithException(e);
+
+                        if (ValidateBlobContainerName(_blobContainerName))
+                            _response.Message += $" Blob container name:{_blobContainerName}.";
+                    }
+
+                    results.Add(_response);
+                }
+            }
+
+            return results;
         }
 
         #endregion

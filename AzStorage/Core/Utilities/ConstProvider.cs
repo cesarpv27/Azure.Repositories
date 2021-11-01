@@ -12,5 +12,6 @@ namespace AzStorage.Core.Utilities
 
         public const string DefaultQueryVarName = "c";
         public const string DefaultQueryPrefix = "select * from Container " + DefaultQueryVarName + " where ";
+        public const string Blob_container_name = "Blob container name";
     }
 }

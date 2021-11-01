@@ -326,10 +326,10 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             // Act
             cTokenSource.CancelAfter(8000);
             var _updateMessagesResponseAct = AzQueueUnitTestHelper
-                .UpdateMessages(expandedReceiptMetadataBinaryDataList, queueName, cancellationToken: token);
+                .UpdateMessages(expandedReceiptMetadataBinaryDataList, queueName, token);
 
             // Assert
-            UnitTestHelper.AssertExpectedCancelledResponses(_updateMessagesResponseAct);
+            UnitTestHelper.AssertExpectedCancelledGenResponses(_updateMessagesResponseAct);
 
             AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }
@@ -454,11 +454,11 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             // Act
             cTokenSource.CancelAfter(8000);
             var _updateMessagesAsyncResponseAct = AzQueueUnitTestHelper
-                .UpdateMessagesAsync(expandedReceiptMetadataBinaryDataList, queueName, cancellationToken: token)
+                .UpdateMessagesAsync(expandedReceiptMetadataBinaryDataList, queueName, token)
                 .WaitAndUnwrapException();
 
             // Assert
-            UnitTestHelper.AssertExpectedCancelledResponses(_updateMessagesAsyncResponseAct);
+            UnitTestHelper.AssertExpectedCancelledGenResponses(_updateMessagesAsyncResponseAct);
 
             AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }

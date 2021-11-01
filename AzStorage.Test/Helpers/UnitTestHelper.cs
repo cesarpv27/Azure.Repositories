@@ -25,21 +25,28 @@ namespace AzStorage.Test.Helpers
 
             Assert.NotNull(response.Value);
         }
-        
+
         public static void AssertExpectedSuccessfulResponses(IEnumerable<IAzDetailedResponse> responses)
         {
             foreach (var _resp in responses)
                 AssertExpectedSuccessfulResponse(_resp);
         }
-        
+
         public static void AssertExpectedSuccessfulGenResponses<T>(IEnumerable<IAzDetailedResponse<T>> responses)
         {
             foreach (var _resp in responses)
                 AssertExpectedSuccessfulGenResponse(_resp);
         }
 
-        public static void AssertExpectedCancelledResponses<T>(
+        public static void AssertExpectedCancelledGenResponses<T>(
             IEnumerable<IAzDetailedResponse<T>> responses,
+            int expectedResponsesAmount = -1)
+        {
+            AssertExpectedCancelledResponses(responses, expectedResponsesAmount);
+        }
+
+        public static void AssertExpectedCancelledResponses(
+            IEnumerable<IAzDetailedResponse> responses,
             int expectedResponsesAmount = -1)
         {
             bool cancellationStarted = false;

@@ -218,7 +218,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
             var _sendMessagesResponseAct = AzQueueUnitTestHelper.SendMessages(samplesQueueEntity, queueName, cancellationToken: token);
 
             // Assert
-            UnitTestHelper.AssertExpectedCancelledResponses(_sendMessagesResponseAct, maxMessages);
+            UnitTestHelper.AssertExpectedCancelledGenResponses(_sendMessagesResponseAct, maxMessages);
 
             AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }
@@ -288,7 +288,7 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
                 cancellationToken: token).WaitAndUnwrapException();
 
             // Assert
-            UnitTestHelper.AssertExpectedCancelledResponses(_sendMessagesAsyncResponseAct, maxMessages);
+            UnitTestHelper.AssertExpectedCancelledGenResponses(_sendMessagesAsyncResponseAct, maxMessages);
 
             AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }

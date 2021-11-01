@@ -677,19 +677,21 @@ namespace AzStorage.Test.Helpers
         public static List<AzStorageResponse> DeleteMessages(
             IEnumerable<ReceiptMetadata> receiptsMetadata,
             string queueName,
+            CancellationToken cancellationToken = default,
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
         {
             return GetOrCreateAzQueueRepository(optionCreateIfNotExist)
-                .DeleteMessages(receiptsMetadata, queueName);
+                .DeleteMessages(receiptsMetadata, queueName, cancellationToken: cancellationToken);
         }
 
         public static async Task<List<AzStorageResponse>> DeleteMessagesAsync(
             IEnumerable<ReceiptMetadata> receiptsMetadata,
             string queueName,
+            CancellationToken cancellationToken = default,
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
         {
             return await GetOrCreateAzQueueRepository(optionCreateIfNotExist)
-                .DeleteMessagesAsync(receiptsMetadata, queueName);
+                .DeleteMessagesAsync(receiptsMetadata, queueName, cancellationToken: cancellationToken);
         }
 
         #endregion

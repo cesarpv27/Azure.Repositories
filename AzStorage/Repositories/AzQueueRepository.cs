@@ -1089,7 +1089,7 @@ namespace AzStorage.Repositories
             var results = new List<AzStorageResponse<SendReceipt>>();
             foreach (var msg in messages)
                 if (cancellationToken.IsCancellationRequested)
-                    results.Add(AzStorageResponse<SendReceipt>.Create(ErrorTextProvider.Operation_canceled_by_cancellationToken));
+                    results.Add(GetAzStorageResponseWithOperationCanceledMessage<SendReceipt>());
                 else
                     results.Add(SendMessage(msg, queueName, visibilityTimeout,
                     timeToLive, cancellationToken, encodeCaseMessageEncoding));
@@ -1239,7 +1239,7 @@ namespace AzStorage.Repositories
             var results = new List<AzStorageResponse<SendReceipt>>();
             foreach (var msg in messages)
                 if (cancellationToken.IsCancellationRequested)
-                    results.Add(AzStorageResponse<SendReceipt>.Create(ErrorTextProvider.Operation_canceled_by_cancellationToken));
+                    results.Add(GetAzStorageResponseWithOperationCanceledMessage<SendReceipt>());
                 else
                     results.Add(await SendMessageAsync(msg, queueName, visibilityTimeout,
                         timeToLive, cancellationToken, encodeCaseMessageEncoding));
@@ -2567,7 +2567,7 @@ namespace AzStorage.Repositories
             var results = new List<AzStorageResponse<UpdateReceipt>>();
             foreach (var _receipt in expReceiptsMetadata)
                 if (cancellationToken.IsCancellationRequested)
-                    results.Add(AzStorageResponse<UpdateReceipt>.Create(ErrorTextProvider.Operation_canceled_by_cancellationToken));
+                    results.Add(GetAzStorageResponseWithOperationCanceledMessage<UpdateReceipt>());
                 else
                 {
                     if (!ValidateExpandedReceiptMetadata(_receipt, out AzStorageResponse<UpdateReceipt> tmpAzStorageResponse))
@@ -2606,7 +2606,7 @@ namespace AzStorage.Repositories
             var results = new List<AzStorageResponse<UpdateReceipt>>();
             foreach (var _receipt in expReceiptsMetadata)
                 if (cancellationToken.IsCancellationRequested)
-                    results.Add(AzStorageResponse<UpdateReceipt>.Create(ErrorTextProvider.Operation_canceled_by_cancellationToken));
+                    results.Add(GetAzStorageResponseWithOperationCanceledMessage<UpdateReceipt>());
                 else
                 {
                     if (!ValidateExpandedReceiptMetadata(_receipt, out AzStorageResponse<UpdateReceipt> tmpAzStorageResponse))
@@ -2742,10 +2742,15 @@ namespace AzStorage.Repositories
 
             var results = new List<AzStorageResponse>();
             foreach (var _receipt in receiptsMetadata)
-                if (!ValidateReceiptMetadata(_receipt, out AzStorageResponse tmpAzStorageResponse))
-                    results.Add(tmpAzStorageResponse);
+                if (cancellationToken.IsCancellationRequested)
+                    results.Add(GetAzStorageResponseWithOperationCanceledMessage());
                 else
-                    results.Add(DeleteMessage(_receipt, queueName, cancellationToken));
+                {
+                    if (!ValidateReceiptMetadata(_receipt, out AzStorageResponse tmpAzStorageResponse))
+                        results.Add(tmpAzStorageResponse);
+                    else
+                        results.Add(DeleteMessage(_receipt, queueName, cancellationToken));
+                }
 
             return results;
         }
@@ -2776,10 +2781,15 @@ namespace AzStorage.Repositories
 
             var results = new List<AzStorageResponse>();
             foreach (var _receipt in receiptsMetadata)
-                if (!ValidateReceiptMetadata(_receipt, out AzStorageResponse tmpAzStorageResponse))
-                    results.Add(tmpAzStorageResponse);
+                if (cancellationToken.IsCancellationRequested)
+                    results.Add(GetAzStorageResponseWithOperationCanceledMessage());
                 else
-                    results.Add(await DeleteMessageAsync(_receipt, queueName, cancellationToken));
+                {
+                    if (!ValidateReceiptMetadata(_receipt, out AzStorageResponse tmpAzStorageResponse))
+                        results.Add(tmpAzStorageResponse);
+                    else
+                        results.Add(await DeleteMessageAsync(_receipt, queueName, cancellationToken));
+                }
 
             return results;
         }

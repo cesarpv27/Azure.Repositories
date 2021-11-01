@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using AzStorage.Core.Queues;
 using AzStorage.Core.Texting;
 using AzStorage.Test.Helpers;
@@ -251,6 +252,27 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
                 () => AzQueueUnitTestHelper.DeleteMessages(receiptsMetadata, queueName));
         }
 
+        [Fact, TestPriority(382)]
+        public void DeleteMessagesWithCancellationTokenTest3()
+        {
+            // Arrange
+            int maxMessages = 100;
+            var queueName = AzQueueUnitTestHelper.GenerateSendAssertMessagesRandomQueueName(
+                maxMessages, out List<ReceiptMetadata> receiptsMetadata, false, false);
+
+            var cTokenSource = new CancellationTokenSource();
+            CancellationToken token = cTokenSource.Token;
+
+            // Act
+            cTokenSource.CancelAfter(5000);
+            var _deleteMessagesResponseAct = AzQueueUnitTestHelper.DeleteMessages(receiptsMetadata, queueName, token);
+
+            // Assert
+            UnitTestHelper.AssertExpectedCancelledResponses(_deleteMessagesResponseAct);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
+        }
+
         #endregion
 
         #region Delete messages async
@@ -269,6 +291,28 @@ namespace AzStorage.Test.Samples.Samples_AzQueueRepository
 
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulResponses(_deleteMessagesAsyncResponseAct);
+
+            AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
+        }
+
+        [Fact, TestPriority(389)]
+        public void DeleteMessagesAsyncWithCancellationTokenTest1()
+        {
+            // Arrange
+            int maxMessages = 100;
+            var queueName = AzQueueUnitTestHelper.GenerateSendAssertMessagesRandomQueueName(
+                maxMessages, out List<ReceiptMetadata> receiptsMetadata, false, false);
+
+            var cTokenSource = new CancellationTokenSource();
+            CancellationToken token = cTokenSource.Token;
+
+            // Act
+            cTokenSource.CancelAfter(5000);
+            var _deleteMessagesResponseAct = AzQueueUnitTestHelper.DeleteMessagesAsync(receiptsMetadata, queueName, token)
+                .WaitAndUnwrapException();
+
+            // Assert
+            UnitTestHelper.AssertExpectedCancelledResponses(_deleteMessagesResponseAct);
 
             AzQueueUnitTestHelper.DeleteQueueIfExists(queueName);
         }

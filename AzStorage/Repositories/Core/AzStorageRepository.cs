@@ -1,5 +1,6 @@
 ﻿using ExThrower = CoreTools.Throws.ExceptionThrower;
 using AzCoreTools.Core;
+using AzStorage.Core.Texting;
 
 namespace AzStorage.Repositories.Core
 {
@@ -29,6 +30,16 @@ namespace AzStorage.Repositories.Core
         protected virtual void SetTrueToIsFirstTime()
         {
             IsFirstTimeResourceCreation = true;
+        }
+
+        protected virtual AzStorageResponse<T> GetAzStorageResponseWithOperationCanceledMessage<T>()
+        {
+            return AzStorageResponse<T>.Create(ErrorTextProvider.Operation_canceled_by_cancellationToken);
+        }
+        
+        protected virtual AzStorageResponse GetAzStorageResponseWithOperationCanceledMessage()
+        {
+            return AzStorageResponse.Create(ErrorTextProvider.Operation_canceled_by_cancellationToken);
         }
 
         #endregion
