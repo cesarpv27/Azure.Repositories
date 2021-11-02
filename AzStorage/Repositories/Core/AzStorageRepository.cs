@@ -1,6 +1,7 @@
 ﻿using ExThrower = CoreTools.Throws.ExceptionThrower;
 using AzCoreTools.Core;
 using AzStorage.Core.Texting;
+using System.Threading;
 
 namespace AzStorage.Repositories.Core
 {
@@ -63,6 +64,16 @@ namespace AzStorage.Repositories.Core
         protected virtual bool ValidateConnectionString(string connectionString)
         {
             return !string.IsNullOrEmpty(connectionString) && !string.IsNullOrWhiteSpace(connectionString);
+        }
+
+        protected virtual bool ValidateCancellationToken(CancellationToken cancellationToken)
+        {
+            return cancellationToken != default;
+        }
+
+        protected virtual bool IsCancellationRequested(CancellationToken cancellationToken)
+        {
+            return ValidateCancellationToken(cancellationToken) && cancellationToken.IsCancellationRequested;
         }
 
         #endregion

@@ -17,6 +17,7 @@ namespace AzStorage.Core.Texting
         public const string Invalid_operation_message_defined_twice = "Invalid operation, the message has been defined twice.";
         public const string Invalid_operation_message_not_defined = "Invalid operation, the message has not been defined.";
         public const string Operation_canceled_by_cancellationToken = "The operation was canceled by CancellationToken";
+        public const string Not_possible_retrieve_containers_to_delete = "Was not possible to retrieve all containers to delete.";
 
         public static string receiptMetadata_is_null(string receiptMetadataParamName = null)
         {

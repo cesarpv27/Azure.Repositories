@@ -1088,7 +1088,7 @@ namespace AzStorage.Repositories
 
             var results = new List<AzStorageResponse<SendReceipt>>();
             foreach (var msg in messages)
-                if (cancellationToken.IsCancellationRequested)
+                if (IsCancellationRequested(cancellationToken))
                     results.Add(GetAzStorageResponseWithOperationCanceledMessage<SendReceipt>());
                 else
                     results.Add(SendMessage(msg, queueName, visibilityTimeout,
@@ -1238,7 +1238,7 @@ namespace AzStorage.Repositories
 
             var results = new List<AzStorageResponse<SendReceipt>>();
             foreach (var msg in messages)
-                if (cancellationToken.IsCancellationRequested)
+                if (IsCancellationRequested(cancellationToken))
                     results.Add(GetAzStorageResponseWithOperationCanceledMessage<SendReceipt>());
                 else
                     results.Add(await SendMessageAsync(msg, queueName, visibilityTimeout,
@@ -2566,7 +2566,7 @@ namespace AzStorage.Repositories
 
             var results = new List<AzStorageResponse<UpdateReceipt>>();
             foreach (var _receipt in expReceiptsMetadata)
-                if (cancellationToken.IsCancellationRequested)
+                if (IsCancellationRequested(cancellationToken))
                     results.Add(GetAzStorageResponseWithOperationCanceledMessage<UpdateReceipt>());
                 else
                 {
@@ -2605,7 +2605,7 @@ namespace AzStorage.Repositories
 
             var results = new List<AzStorageResponse<UpdateReceipt>>();
             foreach (var _receipt in expReceiptsMetadata)
-                if (cancellationToken.IsCancellationRequested)
+                if (IsCancellationRequested(cancellationToken))
                     results.Add(GetAzStorageResponseWithOperationCanceledMessage<UpdateReceipt>());
                 else
                 {
@@ -2742,7 +2742,7 @@ namespace AzStorage.Repositories
 
             var results = new List<AzStorageResponse>();
             foreach (var _receipt in receiptsMetadata)
-                if (cancellationToken.IsCancellationRequested)
+                if (IsCancellationRequested(cancellationToken))
                     results.Add(GetAzStorageResponseWithOperationCanceledMessage());
                 else
                 {
@@ -2781,7 +2781,7 @@ namespace AzStorage.Repositories
 
             var results = new List<AzStorageResponse>();
             foreach (var _receipt in receiptsMetadata)
-                if (cancellationToken.IsCancellationRequested)
+                if (IsCancellationRequested(cancellationToken))
                     results.Add(GetAzStorageResponseWithOperationCanceledMessage());
                 else
                 {
