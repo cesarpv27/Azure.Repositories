@@ -117,6 +117,15 @@ namespace AzStorage.Test.Helpers
         }
         
         public static List<AzStorageResponse<BlobContainerClient>> CreateBlobContainers(
+            IEnumerable<CreateBlobContainerMetadata> blobContainersMetadata,
+            CancellationToken cancellationToken = default,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return GetOrCreateAzBlobRepository(optionCreateIfNotExist)
+                .CreateBlobContainers(blobContainersMetadata, cancellationToken);
+        }
+        
+        public static List<AzStorageResponse<BlobContainerClient>> CreateBlobContainers(
             IEnumerable<string> blobContainerNames,
             PublicAccessType publicAccessType = PublicAccessType.None,
             IDictionary<string, string> metadata = null,
@@ -189,6 +198,15 @@ namespace AzStorage.Test.Helpers
                 .DeleteBlobContainers(blobContainerNames, conditions, cancellationToken);
         }
 
+        public static List<AzStorageResponse<DeleteBlobContainerMetadata>> DeleteBlobContainers(
+            IEnumerable<DeleteBlobContainerMetadata> blobContainerNames,
+            CancellationToken cancellationToken = default,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return GetOrCreateAzBlobRepository(optionCreateIfNotExist)
+                .DeleteBlobContainers(blobContainerNames, cancellationToken);
+        }
+
         public static List<AzStorageResponse<string>> DeleteAllBlobContainers(
             BlobContainerTraits traits = BlobContainerTraits.None,
             BlobContainerStates states = BlobContainerStates.None,
@@ -233,6 +251,15 @@ namespace AzStorage.Test.Helpers
         {
             return await GetOrCreateAzBlobRepository(optionCreateIfNotExist)
                 .CreateBlobContainersAsync(blobContainerNames, publicAccessType, metadata, cancellationToken);
+        }
+
+        public static async Task<List<AzStorageResponse<BlobContainerClient>>> CreateBlobContainersAsync(
+            IEnumerable<CreateBlobContainerMetadata> blobContainersMetadata,
+            CancellationToken cancellationToken = default,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return await GetOrCreateAzBlobRepository(optionCreateIfNotExist)
+                .CreateBlobContainersAsync(blobContainersMetadata, cancellationToken);
         }
 
         public static async Task<AzStorageResponse<List<BlobContainerItem>>> GetBlobContainersAsync(
@@ -295,6 +322,15 @@ namespace AzStorage.Test.Helpers
         {
             return await GetOrCreateAzBlobRepository(optionCreateIfNotExist)
                 .DeleteBlobContainersAsync(blobContainerNames, conditions, cancellationToken);
+        }
+        
+        public static async Task<List<AzStorageResponse<DeleteBlobContainerMetadata>>> DeleteBlobContainersAsync(
+            IEnumerable<DeleteBlobContainerMetadata> blobContainerNames,
+            CancellationToken cancellationToken = default,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return await GetOrCreateAzBlobRepository(optionCreateIfNotExist)
+                .DeleteBlobContainersAsync(blobContainerNames, cancellationToken);
         }
         
         public static async Task<List<AzStorageResponse<string>>> DeleteAllBlobContainersAsync(

@@ -127,6 +127,29 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
             UnitTestHelper.AssertExpectedSuccessfulResponses(_deleteBlobContainersResponseAct);
         }
         
+        [Fact, TestPriority(109)]
+        public void CreateBlobContainersGetBlobContainersDeleteBlobContainersTest2()
+        {
+            // Arrange
+            int namesAmount = 10;
+            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobNamesFromDefault(namesAmount);
+            var _createBlobContainersMetadata = blobContainerNames
+                .Select(_bcName => new CreateBlobContainerMetadata { BlobContainerName = _bcName });
+            var _deleteBlobContainersMetadata = blobContainerNames
+                .Select(_bcName => new DeleteBlobContainerMetadata { BlobContainerName = _bcName });
+
+            // Act
+            var _createBlobContainersResponseAct = AzBlobUnitTestHelper.CreateBlobContainers(_createBlobContainersMetadata);
+            var _getBlobContainersResponseAct = AzBlobUnitTestHelper.GetBlobContainers(
+                prefix: AzBlobUnitTestHelper.GetDefaultBlobName);
+            var _deleteBlobContainersResponseAct = AzBlobUnitTestHelper.DeleteBlobContainers(_deleteBlobContainersMetadata);
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponses(_createBlobContainersResponseAct);
+            AzBlobUnitTestHelper.AssertExpectedSuccessfulGenResponse(_getBlobContainersResponseAct, blobContainerNames);
+            UnitTestHelper.AssertExpectedSuccessfulResponses(_deleteBlobContainersResponseAct);
+        }
+        
         [Fact, TestPriority(110)]
         public void CreateBlobContainersGetBlobContainersWithTakeTest()
         {
@@ -337,6 +360,31 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
                 .GetBlobContainersAsync(prefix: AzBlobUnitTestHelper.GetDefaultBlobName).WaitAndUnwrapException();
             var _deleteBlobContainersAsyncResponseAct = AzBlobUnitTestHelper
                 .DeleteBlobContainersAsync(blobContainerNames).WaitAndUnwrapException();
+
+            // Assert
+            UnitTestHelper.AssertExpectedSuccessfulGenResponses(_createBlobContainersAsyncResponseAct);
+            AzBlobUnitTestHelper.AssertExpectedSuccessfulGenResponse(_getBlobContainersAsyncResponseAct, blobContainerNames);
+            UnitTestHelper.AssertExpectedSuccessfulResponses(_deleteBlobContainersAsyncResponseAct);
+        }
+
+        [Fact, TestPriority(159)]
+        public void CreateBlobContainersAsyncGetBlobContainersAsyncDeleteBlobContainersAsyncTest2()
+        {
+            // Arrange
+            int namesAmount = 10;
+            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobNamesFromDefault(namesAmount);
+            var _createBlobContainersMetadata = blobContainerNames
+                .Select(_bcName => new CreateBlobContainerMetadata { BlobContainerName = _bcName });
+            var _deleteBlobContainersMetadata = blobContainerNames
+                .Select(_bcName => new DeleteBlobContainerMetadata { BlobContainerName = _bcName });
+
+            // Act
+            var _createBlobContainersAsyncResponseAct = AzBlobUnitTestHelper.CreateBlobContainersAsync(_createBlobContainersMetadata)
+                .WaitAndUnwrapException();
+            var _getBlobContainersAsyncResponseAct = AzBlobUnitTestHelper.GetBlobContainersAsync(
+                prefix: AzBlobUnitTestHelper.GetDefaultBlobName).WaitAndUnwrapException();
+            var _deleteBlobContainersAsyncResponseAct = AzBlobUnitTestHelper.DeleteBlobContainersAsync(_deleteBlobContainersMetadata)
+                .WaitAndUnwrapException();
 
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulGenResponses(_createBlobContainersAsyncResponseAct);

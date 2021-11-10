@@ -1048,7 +1048,6 @@ namespace AzStorage.Repositories
         /// </summary>
         /// <typeparam name="T">A custom model type.</typeparam>
         /// <param name="blobContainersMetadata">Contains the data to deletes a blob containers.</param>
-        /// <param name="conditions">Conditions to be added on deletion of the all containers.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
         /// <returns>A collection containing responses of type <see cref="AzStorageResponse{T}"/> indicating the result of 
         /// the operation and each response contains the <typeparamref name="T"/> entity relative to its operation, 
