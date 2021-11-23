@@ -30,8 +30,8 @@ namespace AzStorage.Repositories
             string databaseId,
             string containerId,
             string partitionKeyPropName,
-            CreateResourcePolicy optionCreateTableResource = CreateResourcePolicy.OnlyFirstTime,
-            AzCosmosRetryOptions retryOptions = null) : base(optionCreateTableResource, retryOptions)
+            CreateResourcePolicy createResourcePolicy = CreateResourcePolicy.OnlyFirstTime,
+            AzCosmosRetryOptions retryOptions = null) : base(createResourcePolicy, retryOptions)
         {
             InitializeForcingMandatory(accountEndpointUri, authKeyOrResourceToken, databaseId, containerId, partitionKeyPropName);
         }

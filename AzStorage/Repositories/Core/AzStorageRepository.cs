@@ -9,8 +9,8 @@ namespace AzStorage.Repositories.Core
     {
         protected AzStorageRepository() : base() { }
 
-        public AzStorageRepository(CreateResourcePolicy createTableResource, Rtry retryOptions)
-            : base(createTableResource, retryOptions)
+        public AzStorageRepository(CreateResourcePolicy createResourcePolicy, Rtry retryOptions)
+            : base(createResourcePolicy, retryOptions)
         {
         }
 

@@ -1,0 +1,81 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace AzStorage.Core.Errors.Blob
+{
+    public class BlobErrorCode
+    {
+        public const string AppendPositionConditionNotMet = nameof(AppendPositionConditionNotMet);
+        public const string BlobAlreadyExists = nameof(BlobAlreadyExists);
+        public const string BlobImmutableDueToLegalHold = nameof(BlobImmutableDueToLegalHold);
+        public const string BlobImmutableDueToPolicy = nameof(BlobImmutableDueToPolicy);
+        public const string BlobNotFound = nameof(BlobNotFound);
+        public const string BlobOverwritten = nameof(BlobOverwritten);
+        public const string BlobTierInadequateForContentLength = nameof(BlobTierInadequateForContentLength);
+        public const string BlockCountExceedsLimit = nameof(BlockCountExceedsLimit);
+        public const string BlockListTooLong = nameof(BlockListTooLong);
+        public const string CannotChangeToLowerTier = nameof(CannotChangeToLowerTier);
+        public const string CannotVerifyCopySource = nameof(CannotVerifyCopySource);
+        public const string ContainerAlreadyExists = nameof(ContainerAlreadyExists);
+        public const string ContainerBeingDeleted = nameof(ContainerBeingDeleted);
+        public const string ContainerDisabled = nameof(ContainerDisabled);
+        public const string ContainerHasLegalHold = nameof(ContainerHasLegalHold);
+        public const string ContainerImmutabilityPolicyLocked = nameof(ContainerImmutabilityPolicyLocked);
+        public const string ContainerNotFound = nameof(ContainerNotFound);
+        public const string ContentLengthLargerThanTierLimit = nameof(ContentLengthLargerThanTierLimit);
+        public const string CopyAcrossAccountsNotSupported = nameof(CopyAcrossAccountsNotSupported);
+        public const string CopyIdMismatch = nameof(CopyIdMismatch);
+        public const string DirectorySasNotSupportedVersion = nameof(DirectorySasNotSupportedVersion);
+        public const string FeatureVersionMismatch = nameof(FeatureVersionMismatch);
+        public const string IncrementalCopyBlobMismatch = nameof(IncrementalCopyBlobMismatch);
+        public const string IncrementalCopyOfEarlierVersionSnapshotNotAllowed = nameof(IncrementalCopyOfEarlierVersionSnapshotNotAllowed);
+        public const string IncrementalCopySourceMustBeSnapshot = nameof(IncrementalCopySourceMustBeSnapshot);
+        public const string InfiniteLeaseDurationRequired = nameof(InfiniteLeaseDurationRequired);
+        public const string InvalidBlobOrBlock = nameof(InvalidBlobOrBlock);
+        public const string InvalidBlobTier = nameof(InvalidBlobTier);
+        public const string InvalidBlobType = nameof(InvalidBlobType);
+        public const string InvalidBlockId = nameof(InvalidBlockId);
+        public const string InvalidBlockList = nameof(InvalidBlockList);
+        public const string InvalidOperation = nameof(InvalidOperation);
+        public const string InvalidPageRange = nameof(InvalidPageRange);
+        public const string InvalidSourceBlobType = nameof(InvalidSourceBlobType);
+        public const string InvalidSourceBlobUrl = nameof(InvalidSourceBlobUrl);
+        public const string InvalidVersionForPageBlobOperation = nameof(InvalidVersionForPageBlobOperation);
+        public const string LeaseAlreadyPresent = nameof(LeaseAlreadyPresent);
+        public const string LeaseAlreadyBroken = nameof(LeaseAlreadyBroken);
+        public const string LeaseIdMismatchWithBlobOperation = nameof(LeaseIdMismatchWithBlobOperation);
+        public const string LeaseIdMismatchWithContainerOperation = nameof(LeaseIdMismatchWithContainerOperation);
+        public const string LeaseIdMismatchWithLeaseOperation = nameof(LeaseIdMismatchWithLeaseOperation);
+        public const string LeaseIdMissing = nameof(LeaseIdMissing);
+        public const string LeaseIsBreakingAndCannotBeAcquired = nameof(LeaseIsBreakingAndCannotBeAcquired);
+        public const string LeaseIsBreakingAndCannotBeChanged = nameof(LeaseIsBreakingAndCannotBeChanged);
+        public const string LeaseIsBrokenAndCannotBeRenewed = nameof(LeaseIsBrokenAndCannotBeRenewed);
+        public const string LeaseLost = nameof(LeaseLost);
+        public const string LeaseNotPresentWithBlobOperation = nameof(LeaseNotPresentWithBlobOperation);
+        public const string LeaseNotPresentWithContainerOperation = nameof(LeaseNotPresentWithContainerOperation);
+        public const string LeaseNotPresentWithLeaseOperation = nameof(LeaseNotPresentWithLeaseOperation);
+        public const string MaxBlobSizeConditionNotMet = nameof(MaxBlobSizeConditionNotMet);
+        public const string NoPendingCopyOperation = nameof(NoPendingCopyOperation);
+        public const string OperationNotAllowedOnIncrementalCopyBlob = nameof(OperationNotAllowedOnIncrementalCopyBlob);
+        public const string PendingCopyOperation = nameof(PendingCopyOperation);
+        public const string PreviousSnapshotCannotBeNewer = nameof(PreviousSnapshotCannotBeNewer);
+        public const string PreviousSnapshotNotFound = nameof(PreviousSnapshotNotFound);
+        public const string PreviousSnapshotOperationNotSupported = nameof(PreviousSnapshotOperationNotSupported);
+        public const string QueryParameterSddInvalid = nameof(QueryParameterSddInvalid);
+        public const string QueryParameterSasMandatory = nameof(QueryParameterSasMandatory);
+        public const string SequenceNumberConditionNotMet = nameof(SequenceNumberConditionNotMet);
+        public const string SequenceNumberIncrementTooLarge = nameof(SequenceNumberIncrementTooLarge);
+        public const string SnapshotCountExceeded = nameof(SnapshotCountExceeded);
+        public const string SnapshotOperationRateExceeded = nameof(SnapshotOperationRateExceeded);
+        public const string SnapshotsPresent = nameof(SnapshotsPresent);
+        public const string SourceConditionNotMet = nameof(SourceConditionNotMet);
+        public const string SystemInUse = nameof(SystemInUse);
+        public const string TargetConditionNotMet = nameof(TargetConditionNotMet);
+        public const string UnauthorizedBlobOverwrite = nameof(UnauthorizedBlobOverwrite);
+        public const string UnsupportedHeader = nameof(UnsupportedHeader);
+        public const string BlobBeingRehydrated = nameof(BlobBeingRehydrated);
+        public const string BlobArchived = nameof(BlobArchived);
+        public const string BlobNotArchived = nameof(BlobNotArchived);
+    }
+}

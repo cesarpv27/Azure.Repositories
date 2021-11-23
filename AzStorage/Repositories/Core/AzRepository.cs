@@ -3,15 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using ExThrower = CoreTools.Throws.ExceptionThrower;
 
 namespace AzStorage.Repositories.Core
 {
     public abstract class AzRepository<Rtry> : IRepository where Rtry : AzStorageRetryOptions
     {
-        public AzRepository(CreateResourcePolicy createTableResource = CreateResourcePolicy.OnlyFirstTime,
+        public AzRepository(CreateResourcePolicy createResourcePolicy = CreateResourcePolicy.OnlyFirstTime,
             Rtry retryOptions = null)
         {
-            CreateResourcePolicy = createTableResource;
+            CreateResourcePolicy = createResourcePolicy;
             RetryOptions = retryOptions;
         }
 
@@ -40,30 +41,6 @@ namespace AzStorage.Repositories.Core
             return clientOpt;
         }
 
-        //protected virtual void SetFalseToIsFirstTime()
-        //{
-        //    IsFirstTime = false;
-        //}
-
-        //protected virtual async Task<KeyValuePair<bool, TOut>> TryCreateResourceAsync<TIn1, TIn2, TOut>(
-        //    TIn1 param1, 
-        //    TIn2 param2,
-        //    Func<TIn1, TIn2, Task<TOut>> funcCreateResourceAsync) where TOut : class
-        //{
-        //    if (CreateResourcePolicy == CreateResourcePolicy.Always
-        //        || (CreateResourcePolicy == CreateResourcePolicy.OnlyFirstTime && IsFirstTime))
-        //    {
-        //        var result = await funcCreateResourceAsync(param1, param2);
-        //        SetFalseToIsFirstTime();
-
-        //        return new KeyValuePair<bool, TOut>(true, result);
-        //    }
-
-        //    SetFalseToIsFirstTime();
-
-        //    return new KeyValuePair<bool, TOut>(false, null);
-        //}
-
         protected virtual bool TryCreateResource<TOut>(
             dynamic funcCreateResource,
             dynamic[] funcParams,
@@ -73,6 +50,8 @@ namespace AzStorage.Repositories.Core
             if (CreateResourcePolicy == CreateResourcePolicy.Always
                 || (CreateResourcePolicy == CreateResourcePolicy.OnlyFirstTime && isFirstTime))
             {
+                ExThrower.ST_ThrowIfArgumentIsNull(funcCreateResource);
+
                 result = funcCreateResource(funcParams);
                 isFirstTime = false;
 
@@ -85,26 +64,36 @@ namespace AzStorage.Repositories.Core
             return false;
         }
 
-        protected virtual bool TryCreateResource<TIn1, TIn2, TOut>(
-            TIn1 param1,
-            TIn2 param2,
+        protected virtual bool TryCreateOrGetResource<TOut>(
+            dynamic funcCreateResource,
+            dynamic[] createResourceParams,
+            dynamic funcGetResource,
+            dynamic[] getResourceParams,
+            Func<Exception, bool> funcExpectedException,
             ref bool isFirstTime,
-            out TOut result,
-            Func<TIn1, TIn2, TOut> funcCreateResource) where TOut : class
+            out TOut result) where TOut : class
         {
-            if (CreateResourcePolicy == CreateResourcePolicy.Always
-                || (CreateResourcePolicy == CreateResourcePolicy.OnlyFirstTime && isFirstTime))
+            try
             {
-                result = funcCreateResource(param1, param2);
-                isFirstTime = false;
+                return TryCreateResource(funcCreateResource, createResourceParams,
+                    ref isFirstTime, out result);
+            }
+            catch (Exception e)
+            {
+                if (funcExpectedException != default && !funcExpectedException(e))
+                    throw;
+                //if (!BlobErrorManager.ExceptionContainsContainerAlreadyExistsAzError(e))
+                //    throw;
 
+                //result = true;
+                //_blobContainerClientResponse = GetBlobServiceClient().GetBlobContainerClient(blobContainerName);
+
+                ExThrower.ST_ThrowIfArgumentIsNull(funcGetResource);
+
+                result = funcGetResource(getResourceParams);
+                isFirstTime = false;
                 return true;
             }
-
-            result = null;
-            isFirstTime = false;
-
-            return false;
         }
 
         #endregion

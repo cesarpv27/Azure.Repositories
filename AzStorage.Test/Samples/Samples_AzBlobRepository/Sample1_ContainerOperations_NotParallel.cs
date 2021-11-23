@@ -23,7 +23,7 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
         {
             // Arrange
             int namesAmount = 10;
-            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobNamesFromDefault(namesAmount);
+            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobContainerNamesFromDefault(namesAmount);
             var _createBlobContainersResponseAct = AzBlobUnitTestHelper
                 .CreateBlobContainers(blobContainerNames);
             UnitTestHelper.AssertExpectedSuccessfulGenResponses(_createBlobContainersResponseAct);
@@ -48,7 +48,7 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
         {
             // Arrange
             int namesAmount = 10;
-            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobNamesFromDefault(namesAmount);
+            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobContainerNamesFromDefault(namesAmount);
             var _createBlobContainersAsyncResponseAct = AzBlobUnitTestHelper
                 .CreateBlobContainersAsync(blobContainerNames).WaitAndUnwrapException();
             UnitTestHelper.AssertExpectedSuccessfulGenResponses(_createBlobContainersAsyncResponseAct);

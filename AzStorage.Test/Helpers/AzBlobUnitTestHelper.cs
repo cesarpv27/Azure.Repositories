@@ -8,6 +8,7 @@ using Azure.Storage.Blobs.Models;
 using CoreTools.Extensions;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -21,15 +22,28 @@ namespace AzStorage.Test.Helpers
         #region Miscellaneous methods
 
         private static AzBlobRepository _AzBlobRepository;
-        public static AzBlobRepository GetOrCreateAzBlobRepository(CreateResourcePolicy optionCreateIfNotExist)
+        public static AzBlobRepository GetOrCreateAzBlobRepository(CreateResourcePolicy createResourcePolicy)
         {
             if (_AzBlobRepository == null)
-                _AzBlobRepository = CreateAzBlobRepository(optionCreateIfNotExist);
+                _AzBlobRepository = CreateAzBlobRepository(createResourcePolicy: createResourcePolicy);
+
+            return _AzBlobRepository;
+        }
+        public static AzBlobRepository GetOrCreateAzBlobRepository(
+            string blobContainerName = default,
+            string blobName = default, 
+            CreateResourcePolicy createResourcePolicy = CreateResourcePolicy.OnlyFirstTime)
+        {
+            if (_AzBlobRepository == null)
+                _AzBlobRepository = CreateAzBlobRepository(blobContainerName, blobName, createResourcePolicy);
 
             return _AzBlobRepository;
         }
 
-        private static AzBlobRepository CreateAzBlobRepository(CreateResourcePolicy optionCreateIfNotExist)
+        public static AzBlobRepository CreateAzBlobRepository(
+            string blobContainerName = default,
+            string blobName = default,
+            CreateResourcePolicy createResourcePolicy = CreateResourcePolicy.OnlyFirstTime)
         {
             var _azBlobRetryOptions = new AzBlobRetryOptions
             {
@@ -40,18 +54,42 @@ namespace AzStorage.Test.Helpers
                 MaxRetries = 5,
             };
 
-            return new AzBlobRepository(StorageConnectionString, 
-                createTableResource: optionCreateIfNotExist, 
-                retryOptions: _azBlobRetryOptions);
+            return new AzBlobRepository(StorageConnectionString, blobContainerName, blobName,
+                createResourcePolicy, retryOptions: _azBlobRetryOptions);
         }
 
-        public static string GetDefaultBlobName => "sampleblob";
+        #region Sample blob container
+
+        public static string GetDefaultBlobContainerName => "sampleblobcontainer";
+
+        public static string GetRandomBlobContainerNameFromDefault(int randomValue = -1)
+        {
+            return BuildRandomName(GetDefaultBlobContainerName, randomValue);
+        }
+
+        public static List<string> GetRandomBlobContainerNamesFromDefault(int namesAmount)
+        {
+            if (namesAmount < 0)
+                throw new ArgumentOutOfRangeException(nameof(namesAmount));
+
+            var resultingNames = new List<string>(namesAmount);
+            for (int i = 0; i < namesAmount; i++)
+                resultingNames.Add(GetRandomBlobContainerNameFromDefault(-1));
+
+            return resultingNames;
+        }
+
+        #endregion
+
+        #region Sample blob
+
+        public static string DefaultBlobName => "sampleblob";
 
         public static string GetRandomBlobNameFromDefault(int randomValue = -1)
         {
-            return BuildRandomName(GetDefaultBlobName, randomValue);
+            return $"{BuildRandomName(DefaultBlobName, randomValue)}.txt";
         }
-        
+
         public static List<string> GetRandomBlobNamesFromDefault(int namesAmount)
         {
             if (namesAmount < 0)
@@ -63,6 +101,21 @@ namespace AzStorage.Test.Helpers
 
             return resultingNames;
         }
+
+        #endregion
+
+        #region Sample text
+
+        public static string SampleText => @"Lorem ipsum dolor sit amet, consectetur adipiscing elit, 
+sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, 
+quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
+Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+
+        public static byte[] SampleTextBytes => Encoding.UTF8.GetBytes(SampleText);
+        public static Stream SampleTextStream => new MemoryStream(SampleTextBytes);
+
+        #endregion
 
         public static void AssertExpectedSuccessfulGenResponse(
             IAzDetailedResponse<List<BlobContainerItem>> response, 
@@ -342,6 +395,50 @@ namespace AzStorage.Test.Helpers
         {
             return await GetOrCreateAzBlobRepository(optionCreateIfNotExist)
                 .DeleteAllBlobContainersAsync(traits, states, conditions, cancellationToken);
+        }
+
+        #endregion
+
+        #region Blob operations
+
+        public static AzStorageResponse<BlobContentInfo> UploadToBlob(
+            Stream content,
+            bool overwrite = false,
+            CancellationToken cancellationToken = default,
+            string blobContainerName = default,
+            string blobName = default,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return GetOrCreateAzBlobRepository(optionCreateIfNotExist)
+                .UploadToBlob(content, overwrite, cancellationToken, blobContainerName, blobName);
+        }
+
+        public static AzStorageResponse DeleteBlob(
+            DeleteSnapshotsOption snapshotsOption = DeleteSnapshotsOption.None,
+            BlobRequestConditions conditions = null,
+            CancellationToken cancellationToken = default,
+            string blobContainerName = default,
+            string blobName = default,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return GetOrCreateAzBlobRepository(optionCreateIfNotExist)
+                .DeleteBlob(snapshotsOption, conditions, cancellationToken, blobContainerName, blobName);
+        }
+
+        #endregion
+
+        #region Blob operations async
+
+        public static async Task<AzStorageResponse<BlobContentInfo>> UploadToBlobAsync(
+            Stream content,
+            bool overwrite = false,
+            CancellationToken cancellationToken = default,
+            string blobContainerName = default,
+            string blobName = default,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return await GetOrCreateAzBlobRepository(optionCreateIfNotExist)
+                .UploadToBlobAsync(content, overwrite, cancellationToken, blobContainerName, blobName);
         }
 
         #endregion

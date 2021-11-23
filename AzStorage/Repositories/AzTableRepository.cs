@@ -25,9 +25,9 @@ namespace AzStorage.Repositories
         protected AzTableRepository() { }
 
         public AzTableRepository(string connectionString,
-            CreateResourcePolicy createTableResource = CreateResourcePolicy.OnlyFirstTime,
+            CreateResourcePolicy createResourcePolicy = CreateResourcePolicy.OnlyFirstTime,
             AzTableClientOptions tableClientOptions = null, 
-            AzTableRetryOptions retryOptions = null) : base(createTableResource, retryOptions)
+            AzTableRetryOptions retryOptions = null) : base(createResourcePolicy, retryOptions)
         {
             ThrowIfInvalidConnectionString(connectionString);
 

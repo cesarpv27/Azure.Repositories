@@ -16,6 +16,8 @@ using AzCoreTools.Extensions;
 using AzStorageConstProvider = AzStorage.Core.Utilities.ConstProvider;
 using AzStorage.Core.Texting;
 using System.Linq;
+using System.IO;
+using AzStorage.Core.Errors.Blob;
 
 namespace AzStorage.Repositories
 {
@@ -26,8 +28,8 @@ namespace AzStorage.Repositories
         public AzBlobRepository(string connectionString,
             string blobContainerName = default,
             string blobName = default,
-            CreateResourcePolicy createTableResource = CreateResourcePolicy.OnlyFirstTime,
-            AzBlobRetryOptions retryOptions = null) : base(createTableResource, retryOptions)
+            CreateResourcePolicy createResourcePolicy = CreateResourcePolicy.OnlyFirstTime,
+            AzBlobRetryOptions retryOptions = null) : base(createResourcePolicy, retryOptions)
         {
             ThrowIfInvalidConnectionString(connectionString);
 
@@ -38,7 +40,23 @@ namespace AzStorage.Repositories
             InitializeForcingNotMandatory();
         }
 
-        #region Properties
+        #region Private properties
+
+        private BlobErrorManager _BlobErrorManager;
+        private BlobErrorManager BlobErrorManager
+        {
+            get
+            {
+                if (_BlobErrorManager == null)
+                    _BlobErrorManager = new BlobErrorManager();
+
+                return _BlobErrorManager;
+            }
+        }
+
+        #endregion
+
+        #region Protected properties
 
         protected virtual string BlobServiceClientAbsoluteUri { get; set; }
 
@@ -98,7 +116,7 @@ namespace AzStorage.Repositories
 
         protected virtual void ThrowIfInvalidBlobServiceClient()
         {
-            if (!ValidateBlobServiceClient(BlobServiceClient))
+            if (!ValidateBlobServiceClient(GetBlobServiceClient()))
                 ExThrower.ST_ThrowNullReferenceException(nameof(BlobServiceClient));
         }
 
@@ -138,8 +156,7 @@ namespace AzStorage.Repositories
 
         protected virtual void InitializeForcingNotMandatory()
         {
-            CreateOrLoadBlobServiceClient();
-            Initialize(BlobContainerName, BlobName, false, false);
+            InitializeForcingNotMandatory(BlobContainerName, BlobName);
         }
 
         protected virtual void InitializeForcingNotMandatory(
@@ -163,13 +180,25 @@ namespace AzStorage.Repositories
                 CreateOrLoadBlobClient(blobName);
         }
 
-        protected virtual AzStorageResponse<BlobContainerClient> GetBlobContainerClient(string blobContainerName)
+        private bool TryInitialize(
+            string blobContainerName,
+            string blobName,
+            bool mandatoryBlobContainerName,
+            bool mandatoryBlobName,
+            out AzStorageResponse azStorageResponse)
         {
-            ThrowIfInvalidBlobContainerName(blobContainerName);
-            ThrowIfInvalidBlobServiceClient();
+            try
+            {
+                Initialize(blobContainerName, blobName, mandatoryBlobContainerName, mandatoryBlobName);
+            }
+            catch (Exception e)
+            {
+                azStorageResponse = AzStorageResponse.Create(e);
+                return false;
+            }
 
-            var _blobContainerClient = BlobServiceClient.GetBlobContainerClient(blobContainerName);
-            return AzStorageResponse<BlobContainerClient>.Create(_blobContainerClient, _blobContainerClient != null);
+            azStorageResponse = null;
+            return true;
         }
 
         private List<AzStorageResponse> GetAzStorageResponseList(int capacity = 0)
@@ -215,13 +244,18 @@ namespace AzStorage.Repositories
         /// application to access data in an Azure Storage account at runtime.</param>
         protected virtual void CreateOrLoadBlobServiceClient(string connectionString)
         {
-            if (!ValidateBlobServiceClient(BlobServiceClient)
+            if (!ValidateBlobServiceClient(GetBlobServiceClient())
                 || string.IsNullOrEmpty(BlobServiceClientAbsoluteUri)
-                || !BlobServiceClientAbsoluteUri.Equals(BlobServiceClient.Uri?.AbsoluteUri))
+                || !BlobServiceClientAbsoluteUri.Equals(GetBlobServiceClient().Uri?.AbsoluteUri))
             {
                 BlobServiceClient = new BlobServiceClient(connectionString);
-                BlobServiceClientAbsoluteUri = BlobServiceClient.Uri?.AbsoluteUri;
+                BlobServiceClientAbsoluteUri = GetBlobServiceClient().Uri?.AbsoluteUri;
             }
+        }
+
+        protected virtual BlobServiceClient GetBlobServiceClient()
+        {
+            return BlobServiceClient;
         }
 
         #endregion
@@ -237,10 +271,13 @@ namespace AzStorage.Repositories
             ThrowIfInvalidBlobContainerName(blobContainerName);
             ThrowIfInvalidBlobServiceClient();
 
-            CreateOrLoadBlobContainerClient(blobContainerName, CreateBlobContainerClient);
+            CreateOrLoadBlobContainerClient(blobContainerName, CreateBlobContainerClient, GetBlobContainerClient);
         }
 
-        private void CreateOrLoadBlobContainerClient(string blobContainerName, Func<dynamic[], BlobContainerClient> func)
+        private void CreateOrLoadBlobContainerClient(
+            string blobContainerName, 
+            Func<dynamic[], BlobContainerClient> funcCreateResource,
+            Func<dynamic[], BlobContainerClient> funcGetResource)
         {
             if (!ValidateBlobContainerClient(BlobContainerClient) || string.IsNullOrEmpty(BlobContainerName)
                 || !BlobContainerName.Equals(blobContainerName))
@@ -248,14 +285,19 @@ namespace AzStorage.Repositories
 
             bool _isFirstTime = IsFirstTimeBlobContainerClientCreation;
 
-            BlobContainerClient _blobContainerClientResponse;
-            var result = TryCreateResource(func, new dynamic[] { blobContainerName },
-                ref _isFirstTime, out _blobContainerClientResponse);
-
+            bool result = false;
+            result = TryCreateOrGetResource(funcCreateResource, new dynamic[] { blobContainerName },
+                funcGetResource, new dynamic[] { blobContainerName },
+                BlobErrorManager.ExceptionContainsContainerAlreadyExistsAzError,
+                ref _isFirstTime, out BlobContainerClient _blobContainerClientResponse);
+            
             IsFirstTimeBlobContainerClientCreation = _isFirstTime;
 
             if (result && ValidateBlobContainerClient(_blobContainerClientResponse))
+            {
                 BlobContainerClient = _blobContainerClientResponse;
+                BlobContainerName = blobContainerName;
+            }
         }
 
         private BlobContainerClient CreateBlobContainerClient(dynamic[] @params)
@@ -265,7 +307,17 @@ namespace AzStorage.Repositories
 
         private BlobContainerClient CreateBlobContainerClient(string blobContainerName)
         {
-            return BlobServiceClient.CreateBlobContainer(blobContainerName);
+            return GetBlobServiceClient().CreateBlobContainer(blobContainerName);
+        }
+        
+        private BlobContainerClient GetBlobContainerClient(dynamic[] @params)
+        {
+            return GetBlobContainerClient(@params[0]);
+        }
+
+        private BlobContainerClient GetBlobContainerClient(string blobContainerName)
+        {
+            return GetBlobServiceClient().GetBlobContainerClient(blobContainerName);
         }
 
         #endregion
@@ -300,7 +352,10 @@ namespace AzStorage.Repositories
             IsFirstTimeBlobClientCreation = _isFirstTime;
 
             if (result && ValidateBlobClient(_blobClientResponse))
+            {
                 BlobClient = _blobClientResponse;
+                BlobName = blobName;
+            }
         }
 
         private BlobClient CreateBlobClient(dynamic[] @params)
@@ -312,6 +367,11 @@ namespace AzStorage.Repositories
         {
             //if (BlobContainerClient.exist)
             return BlobContainerClient.GetBlobClient(blobName);
+        }
+
+        private BlobClient GetBlobClient()
+        {
+            return BlobClient;
         }
 
         #endregion
@@ -369,7 +429,7 @@ namespace AzStorage.Repositories
             ThrowIfInvalidBlobServiceClient();
 
             return FuncHelper.Execute<string, PublicAccessType, IDictionary<string, string>, CancellationToken, Response<BlobContainerClient>, AzStorageResponse<BlobContainerClient>, BlobContainerClient>(
-                BlobServiceClient.CreateBlobContainer,
+                GetBlobServiceClient().CreateBlobContainer,
                 blobContainerName, publicAccessType, metadata, cancellationToken);
         }
 
@@ -491,7 +551,7 @@ namespace AzStorage.Repositories
             ThrowIfInvalidBlobServiceClient();
 
             return FuncHelper.Execute<BlobContainerTraits, BlobContainerStates, string, CancellationToken, int, AzStorageResponse<List<BlobContainerItem>>, AzStorageResponse<List<BlobContainerItem>>, List<BlobContainerItem>>(
-                BlobServiceClient.GetBlobContainers,
+                GetBlobServiceClient().GetBlobContainers,
                 traits, states, prefix, cancellationToken, take);
         }
 
@@ -517,7 +577,7 @@ namespace AzStorage.Repositories
             ThrowIfInvalidBlobServiceClient();
 
             return FuncHelper.Execute<int, BlobContainerTraits, BlobContainerStates, CancellationToken, AzStorageResponse<List<BlobContainerItem>>, AzStorageResponse<List<BlobContainerItem>>, List<BlobContainerItem>>(
-                BlobServiceClient.GetAllBlobContainers,
+                GetBlobServiceClient().GetAllBlobContainers,
                 take, traits, states, cancellationToken);
         }
 
@@ -538,7 +598,7 @@ namespace AzStorage.Repositories
             ThrowIfInvalidBlobServiceClient();
 
             return FuncHelper.Execute<BlobContainerTraits, BlobContainerStates, CancellationToken, AzStorageResponse<List<BlobContainerItem>>, AzStorageResponse<List<BlobContainerItem>>, List<BlobContainerItem>>(
-                BlobServiceClient.GetAllBlobContainers,
+                GetBlobServiceClient().GetAllBlobContainers,
                 traits, states, cancellationToken);
         }
 
@@ -580,7 +640,7 @@ namespace AzStorage.Repositories
             ThrowIfInvalidBlobServiceClient();
 
             return FuncHelper.Execute<string, BlobRequestConditions, CancellationToken, Response, AzStorageResponse>(
-                BlobServiceClient.DeleteBlobContainer,
+                GetBlobServiceClient().DeleteBlobContainer,
                 blobContainerName, conditions, cancellationToken);
         }
 
@@ -766,7 +826,7 @@ namespace AzStorage.Repositories
             ThrowIfInvalidBlobServiceClient();
 
             return await FuncHelper.ExecuteAsync<string, PublicAccessType, IDictionary<string, string>, CancellationToken, Response<BlobContainerClient>, AzStorageResponse<BlobContainerClient>, BlobContainerClient>(
-                BlobServiceClient.CreateBlobContainerAsync,
+                GetBlobServiceClient().CreateBlobContainerAsync,
                 blobContainerName, publicAccessType, metadata, cancellationToken);
         }
 
@@ -898,7 +958,7 @@ namespace AzStorage.Repositories
             ThrowIfInvalidBlobServiceClient();
 
             return await FuncHelper.ExecuteAsync<BlobContainerTraits, BlobContainerStates, string, CancellationToken, int, AzStorageResponse<List<BlobContainerItem>>, AzStorageResponse<List<BlobContainerItem>>, List<BlobContainerItem>>(
-                BlobServiceClient.GetBlobContainersAsync,
+                GetBlobServiceClient().GetBlobContainersAsync,
                 traits, states, prefix, cancellationToken, take);
         }
 
@@ -924,7 +984,7 @@ namespace AzStorage.Repositories
             ThrowIfInvalidBlobServiceClient();
 
             return await FuncHelper.ExecuteAsync<int, BlobContainerTraits, BlobContainerStates, CancellationToken, AzStorageResponse<List<BlobContainerItem>>, AzStorageResponse<List<BlobContainerItem>>, List<BlobContainerItem>>(
-                BlobServiceClient.GetAllBlobContainersAsync,
+                GetBlobServiceClient().GetAllBlobContainersAsync,
                 take, traits, states, cancellationToken);
         }
 
@@ -947,7 +1007,7 @@ namespace AzStorage.Repositories
             ThrowIfInvalidBlobServiceClient();
 
             return await FuncHelper.ExecuteAsync<BlobContainerTraits, BlobContainerStates, CancellationToken, AzStorageResponse<List<BlobContainerItem>>, AzStorageResponse<List<BlobContainerItem>>, List<BlobContainerItem>>(
-                BlobServiceClient.GetAllBlobContainersAsync,
+                GetBlobServiceClient().GetAllBlobContainersAsync,
                 traits, states, cancellationToken);
         }
 
@@ -970,7 +1030,7 @@ namespace AzStorage.Repositories
             ThrowIfInvalidBlobServiceClient();
 
             return await FuncHelper.ExecuteAsync<string, BlobRequestConditions, CancellationToken, Response, AzStorageResponse>(
-                BlobServiceClient.DeleteBlobContainerAsync,
+                GetBlobServiceClient().DeleteBlobContainerAsync,
                 blobContainerName, conditions, cancellationToken);
         }
 
@@ -1123,6 +1183,388 @@ namespace AzStorage.Repositories
                 _getAllBlobContainersResponse.Value.Select(_BCItem => _BCItem.Name),
                 conditions, 
                 cancellationToken);
+        }
+
+        #endregion
+
+        #region Upload new blob
+
+        /// <summary>
+        /// Creates a new block blob and upload the content.
+        /// </summary>
+        /// <param name="content">A System.IO.Stream containing the content to upload.</param>
+        /// <param name="overwrite">Whether the upload should overwrite any existing blobs. The default value is false.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="blobContainerName">The name of the container.</param>
+        /// <param name="blobName">The name of the blob.</param>
+        /// <returns>The <see cref="AzStorageResponse{Azure.Storage.Blobs.Models.BlobContentInfo}"/> indicating the result of the operation.</returns>
+        /// <exception cref="Azure.RequestFailedException">A <see cref="Azure.RequestFailedException"/> 
+        /// will be thrown if a failure occurs.</exception>
+        public virtual AzStorageResponse<BlobContentInfo> UploadToBlob(
+            Stream content, 
+            bool overwrite = false, 
+            CancellationToken cancellationToken = default,
+            string blobContainerName = default,
+            string blobName = default)
+        {
+            if (!TryInitialize(blobContainerName, blobName, false, false, out AzStorageResponse azStorageResponse))
+                return azStorageResponse.InduceResponse<BlobContentInfo>();
+
+            return FuncHelper.Execute<Stream, bool, CancellationToken, Response<BlobContentInfo>, AzStorageResponse<BlobContentInfo>, BlobContentInfo>(
+                GetBlobClient().Upload, content, overwrite, cancellationToken);
+        }
+
+        /// <summary>
+        /// Creates a new block blob and upload the content.
+        /// </summary>
+        /// <param name="content">A System.BinaryData containing the content to upload.</param>
+        /// <param name="overwrite">Whether the upload should overwrite any existing blobs. The default value is false.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="blobContainerName">The name of the container.</param>
+        /// <param name="blobName">The name of the blob.</param>
+        /// <returns>The <see cref="AzStorageResponse{Azure.Storage.Blobs.Models.BlobContentInfo}"/> indicating the result of the operation.</returns>
+        /// <exception cref="Azure.RequestFailedException">A <see cref="Azure.RequestFailedException"/> 
+        /// will be thrown if a failure occurs.</exception>
+        public virtual AzStorageResponse<BlobContentInfo> UploadToBlob(
+            BinaryData content,
+            bool overwrite = false,
+            CancellationToken cancellationToken = default,
+            string blobContainerName = default,
+            string blobName = default)
+        {
+            if (!TryInitialize(blobContainerName, blobName, false, false, out AzStorageResponse azStorageResponse))
+                return azStorageResponse.InduceResponse<BlobContentInfo>();
+
+            return FuncHelper.Execute<BinaryData, bool, CancellationToken, Response<BlobContentInfo>, AzStorageResponse<BlobContentInfo>, BlobContentInfo>(
+                GetBlobClient().Upload, content, overwrite, cancellationToken);
+        }
+
+        /// <summary>
+        /// Creates a new block blob and upload the content in the file.
+        /// </summary>
+        /// <param name="path">A file path containing the content to upload.</param>
+        /// <param name="overwrite">Whether the upload should overwrite any existing blobs. The default value is false.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="blobContainerName">The name of the container.</param>
+        /// <param name="blobName">The name of the blob.</param>
+        /// <returns>The <see cref="AzStorageResponse{Azure.Storage.Blobs.Models.BlobContentInfo}"/> indicating the result of the operation.</returns>
+        /// <exception cref="Azure.RequestFailedException">A <see cref="Azure.RequestFailedException"/> 
+        /// will be thrown if a failure occurs.</exception>
+        public virtual AzStorageResponse<BlobContentInfo> UploadToBlob(
+            string path,
+            bool overwrite = false,
+            CancellationToken cancellationToken = default,
+            string blobContainerName = default,
+            string blobName = default)
+        {
+            if (!TryInitialize(blobContainerName, blobName, false, false, out AzStorageResponse azStorageResponse))
+                return azStorageResponse.InduceResponse<BlobContentInfo>();
+
+            return FuncHelper.Execute<string, bool, CancellationToken, Response<BlobContentInfo>, AzStorageResponse<BlobContentInfo>, BlobContentInfo>(
+                GetBlobClient().Upload, path, overwrite, cancellationToken);
+        }
+
+        /// <summary>
+        /// Creates a new block blob and upload the content.
+        /// </summary>
+        /// <param name="content">A System.IO.Stream containing the content to upload.</param>
+        /// <param name="options">Optional parameters.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="blobContainerName">The name of the container.</param>
+        /// <param name="blobName">The name of the blob.</param>
+        /// <returns>The <see cref="AzStorageResponse{Azure.Storage.Blobs.Models.BlobContentInfo}"/> indicating the result of the operation.</returns>
+        /// <exception cref="Azure.RequestFailedException">A <see cref="Azure.RequestFailedException"/> 
+        /// will be thrown if a failure occurs.</exception>
+        public virtual AzStorageResponse<BlobContentInfo> UploadToBlob(
+            Stream content,
+            BlobUploadOptions options = null,
+            CancellationToken cancellationToken = default,
+            string blobContainerName = default,
+            string blobName = default)
+        {
+            if (!TryInitialize(blobContainerName, blobName, false, false, out AzStorageResponse azStorageResponse))
+                return azStorageResponse.InduceResponse<BlobContentInfo>();
+
+            return FuncHelper.Execute<Stream, BlobUploadOptions, CancellationToken, Response<BlobContentInfo>, AzStorageResponse<BlobContentInfo>, BlobContentInfo>(
+                GetBlobClient().Upload, content, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Creates a new block blob and upload the content.
+        /// </summary>
+        /// <param name="content">A System.BinaryData containing the content to upload.</param>
+        /// <param name="options">Optional parameters.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="blobContainerName">The name of the container.</param>
+        /// <param name="blobName">The name of the blob.</param>
+        /// <returns>The <see cref="AzStorageResponse{Azure.Storage.Blobs.Models.BlobContentInfo}"/> indicating the result of the operation.</returns>
+        /// <exception cref="Azure.RequestFailedException">A <see cref="Azure.RequestFailedException"/> 
+        /// will be thrown if a failure occurs.</exception>
+        public virtual AzStorageResponse<BlobContentInfo> UploadToBlob(
+            BinaryData content,
+            BlobUploadOptions options = null,
+            CancellationToken cancellationToken = default,
+            string blobContainerName = default,
+            string blobName = default)
+        {
+            if (!TryInitialize(blobContainerName, blobName, false, false, out AzStorageResponse azStorageResponse))
+                return azStorageResponse.InduceResponse<BlobContentInfo>();
+
+            return FuncHelper.Execute<BinaryData, BlobUploadOptions, CancellationToken, Response<BlobContentInfo>, AzStorageResponse<BlobContentInfo>, BlobContentInfo>(
+                GetBlobClient().Upload, content, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Creates a new block blob and upload the content in the file.
+        /// </summary>
+        /// <param name="path">A file path containing the content to upload.</param>
+        /// <param name="options">Optional parameters.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="blobContainerName">The name of the container.</param>
+        /// <param name="blobName">The name of the blob.</param>
+        /// <returns>The <see cref="AzStorageResponse{Azure.Storage.Blobs.Models.BlobContentInfo}"/> indicating the result of the operation.</returns>
+        /// <exception cref="Azure.RequestFailedException">A <see cref="Azure.RequestFailedException"/> 
+        /// will be thrown if a failure occurs.</exception>
+        public virtual AzStorageResponse<BlobContentInfo> UploadToBlob(
+            string path,
+            BlobUploadOptions options = null,
+            CancellationToken cancellationToken = default,
+            string blobContainerName = default,
+            string blobName = default)
+        {
+            if (!TryInitialize(blobContainerName, blobName, false, false, out AzStorageResponse azStorageResponse))
+                return azStorageResponse.InduceResponse<BlobContentInfo>();
+
+            return FuncHelper.Execute<string, BlobUploadOptions, CancellationToken, Response<BlobContentInfo>, AzStorageResponse<BlobContentInfo>, BlobContentInfo>(
+                GetBlobClient().Upload, path, options, cancellationToken);
+        }
+
+        #endregion
+
+        #region Upload new blob async
+
+        /// <summary>
+        /// Creates a new block blob and upload the content.
+        /// </summary>
+        /// <param name="content">A System.IO.Stream containing the content to upload.</param>
+        /// <param name="overwrite">Whether the upload should overwrite any existing blobs. The default value is false.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="blobContainerName">The name of the container.</param>
+        /// <param name="blobName">The name of the blob.</param>
+        /// <returns>The <see cref="AzStorageResponse{Azure.Storage.Blobs.Models.BlobContentInfo}"/> indicating the result of the operation, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        /// <exception cref="Azure.RequestFailedException">A <see cref="Azure.RequestFailedException"/> 
+        /// will be thrown if a failure occurs.</exception>
+        public virtual async Task<AzStorageResponse<BlobContentInfo>> UploadToBlobAsync(
+            Stream content,
+            bool overwrite = false,
+            CancellationToken cancellationToken = default,
+            string blobContainerName = default,
+            string blobName = default)
+        {
+            if (!TryInitialize(blobContainerName, blobName, false, false, out AzStorageResponse azStorageResponse))
+                return azStorageResponse.InduceResponse<BlobContentInfo>();
+
+            return await FuncHelper.ExecuteAsync<Stream, bool, CancellationToken, Response<BlobContentInfo>, AzStorageResponse<BlobContentInfo>, BlobContentInfo>(
+                GetBlobClient().UploadAsync, content, overwrite, cancellationToken);
+        }
+
+        /// <summary>
+        /// Creates a new block blob and upload the content.
+        /// </summary>
+        /// <param name="content">A System.BinaryData containing the content to upload.</param>
+        /// <param name="overwrite">Whether the upload should overwrite any existing blobs. The default value is false.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="blobContainerName">The name of the container.</param>
+        /// <param name="blobName">The name of the blob.</param>
+        /// <returns>The <see cref="AzStorageResponse{Azure.Storage.Blobs.Models.BlobContentInfo}"/> indicating the result of the operation, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        /// <exception cref="Azure.RequestFailedException">A <see cref="Azure.RequestFailedException"/> 
+        /// will be thrown if a failure occurs.</exception>
+        public virtual async Task<AzStorageResponse<BlobContentInfo>> UploadToBlobAsync(
+            BinaryData content,
+            bool overwrite = false,
+            CancellationToken cancellationToken = default,
+            string blobContainerName = default,
+            string blobName = default)
+        {
+            if (!TryInitialize(blobContainerName, blobName, false, false, out AzStorageResponse azStorageResponse))
+                return azStorageResponse.InduceResponse<BlobContentInfo>();
+
+            return await FuncHelper.ExecuteAsync<BinaryData, bool, CancellationToken, Response<BlobContentInfo>, AzStorageResponse<BlobContentInfo>, BlobContentInfo>(
+                GetBlobClient().UploadAsync, content, overwrite, cancellationToken);
+        }
+
+        /// <summary>
+        /// Creates a new block blob and upload the content in the file.
+        /// </summary>
+        /// <param name="path">A file path containing the content to upload.</param>
+        /// <param name="overwrite">Whether the upload should overwrite any existing blobs. The default value is false.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="blobContainerName">The name of the container.</param>
+        /// <param name="blobName">The name of the blob.</param>
+        /// <returns>The <see cref="AzStorageResponse{Azure.Storage.Blobs.Models.BlobContentInfo}"/> indicating the result of the operation, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        /// <exception cref="Azure.RequestFailedException">A <see cref="Azure.RequestFailedException"/> 
+        /// will be thrown if a failure occurs.</exception>
+        public virtual async Task<AzStorageResponse<BlobContentInfo>> UploadToBlobAsync(
+            string path,
+            bool overwrite = false,
+            CancellationToken cancellationToken = default,
+            string blobContainerName = default,
+            string blobName = default)
+        {
+            if (!TryInitialize(blobContainerName, blobName, false, false, out AzStorageResponse azStorageResponse))
+                return azStorageResponse.InduceResponse<BlobContentInfo>();
+
+            return await FuncHelper.ExecuteAsync<string, bool, CancellationToken, Response<BlobContentInfo>, AzStorageResponse<BlobContentInfo>, BlobContentInfo>(
+                GetBlobClient().UploadAsync, path, overwrite, cancellationToken);
+        }
+
+        /// <summary>
+        /// Creates a new block blob and upload the content.
+        /// </summary>
+        /// <param name="content">A System.IO.Stream containing the content to upload.</param>
+        /// <param name="options">Optional parameters.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="blobContainerName">The name of the container.</param>
+        /// <param name="blobName">The name of the blob.</param>
+        /// <returns>The <see cref="AzStorageResponse{Azure.Storage.Blobs.Models.BlobContentInfo}"/> indicating the result of the operation, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        /// <exception cref="Azure.RequestFailedException">A <see cref="Azure.RequestFailedException"/> 
+        /// will be thrown if a failure occurs.</exception>
+        public virtual async Task<AzStorageResponse<BlobContentInfo>> UploadToBlobAsync(
+            Stream content,
+            BlobUploadOptions options = null,
+            CancellationToken cancellationToken = default,
+            string blobContainerName = default,
+            string blobName = default)
+        {
+            if (!TryInitialize(blobContainerName, blobName, false, false, out AzStorageResponse azStorageResponse))
+                return azStorageResponse.InduceResponse<BlobContentInfo>();
+
+            return await FuncHelper.ExecuteAsync<Stream, BlobUploadOptions, CancellationToken, Response<BlobContentInfo>, AzStorageResponse<BlobContentInfo>, BlobContentInfo>(
+                GetBlobClient().UploadAsync, content, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Creates a new block blob and upload the content.
+        /// </summary>
+        /// <param name="content">A System.BinaryData containing the content to upload.</param>
+        /// <param name="options">Optional parameters.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="blobContainerName">The name of the container.</param>
+        /// <param name="blobName">The name of the blob.</param>
+        /// <returns>The <see cref="AzStorageResponse{Azure.Storage.Blobs.Models.BlobContentInfo}"/> indicating the result of the operation, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        /// <exception cref="Azure.RequestFailedException">A <see cref="Azure.RequestFailedException"/> 
+        /// will be thrown if a failure occurs.</exception>
+        public virtual async Task<AzStorageResponse<BlobContentInfo>> UploadToBlobAsync(
+            BinaryData content,
+            BlobUploadOptions options = null,
+            CancellationToken cancellationToken = default,
+            string blobContainerName = default,
+            string blobName = default)
+        {
+            if (!TryInitialize(blobContainerName, blobName, false, false, out AzStorageResponse azStorageResponse))
+                return azStorageResponse.InduceResponse<BlobContentInfo>();
+
+            return await FuncHelper.ExecuteAsync<BinaryData, BlobUploadOptions, CancellationToken, Response<BlobContentInfo>, AzStorageResponse<BlobContentInfo>, BlobContentInfo>(
+                GetBlobClient().UploadAsync, content, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Creates a new block blob and upload the content in the file.
+        /// </summary>
+        /// <param name="path">A file path containing the content to upload.</param>
+        /// <param name="options">Optional parameters.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="blobContainerName">The name of the container.</param>
+        /// <param name="blobName">The name of the blob.</param>
+        /// <returns>The <see cref="AzStorageResponse{Azure.Storage.Blobs.Models.BlobContentInfo}"/> indicating the result of the operation, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        /// <exception cref="Azure.RequestFailedException">A <see cref="Azure.RequestFailedException"/> 
+        /// will be thrown if a failure occurs.</exception>
+        public virtual async Task<AzStorageResponse<BlobContentInfo>> UploadToBlobAsync(
+            string path,
+            BlobUploadOptions options = null,
+            CancellationToken cancellationToken = default,
+            string blobContainerName = default,
+            string blobName = default)
+        {
+            if (!TryInitialize(blobContainerName, blobName, false, false, out AzStorageResponse azStorageResponse))
+                return azStorageResponse.InduceResponse<BlobContentInfo>();
+
+            return await FuncHelper.ExecuteAsync<string, BlobUploadOptions, CancellationToken, Response<BlobContentInfo>, AzStorageResponse<BlobContentInfo>, BlobContentInfo>(
+                GetBlobClient().UploadAsync, path, options, cancellationToken);
+        }
+
+        #endregion
+
+        #region Delete blob
+
+        /// <summary>
+        /// Marks the specified blob or snapshot for deletion. The blob is later deleted during garbage collection. 
+        /// Note that in order to delete a blob, you must delete all of its snapshots. 
+        /// You can delete both at the same time using Azure.Storage.Blobs.Models.DeleteSnapshotsOption.IncludeSnapshots.
+        /// </summary>
+        /// <param name="snapshotsOption">Specifies options for deleting blob snapshots.</param>
+        /// <param name="conditions">Optional Azure.Storage.Blobs.Models.BlobRequestConditions to add conditions on 
+        /// deleting this blob.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="blobContainerName">The name of the container.</param>
+        /// <param name="blobName">The name of the blob.</param>
+        /// <returns>The <see cref="AzStorageResponse"/> indicating the result of the operation.</returns>
+        public virtual AzStorageResponse DeleteBlob(
+            DeleteSnapshotsOption snapshotsOption = DeleteSnapshotsOption.None,
+            BlobRequestConditions conditions = null,
+            CancellationToken cancellationToken = default,
+            string blobContainerName = default,
+            string blobName = default)
+        {
+            if (!TryInitialize(blobContainerName, blobName, false, false, out AzStorageResponse azStorageResponse))
+                return azStorageResponse;
+
+            return FuncHelper.Execute<DeleteSnapshotsOption, BlobRequestConditions, CancellationToken, Response, AzStorageResponse>(
+                GetBlobClient().Delete, snapshotsOption, conditions, cancellationToken);
+        }
+
+        #endregion
+
+        #region Delete blob async
+
+        /// <summary>
+        /// Marks the specified blob or snapshot for deletion. The blob is later deleted during garbage collection. 
+        /// Note that in order to delete a blob, you must delete all of its snapshots. 
+        /// You can delete both at the same time using Azure.Storage.Blobs.Models.DeleteSnapshotsOption.IncludeSnapshots.
+        /// </summary>
+        /// <param name="snapshotsOption">Specifies options for deleting blob snapshots.</param>
+        /// <param name="conditions">Optional Azure.Storage.Blobs.Models.BlobRequestConditions to add conditions on 
+        /// deleting this blob.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> controlling the request lifetime.</param>
+        /// <param name="blobContainerName">The name of the container.</param>
+        /// <param name="blobName">The name of the blob.</param>
+        /// <returns>The <see cref="AzStorageResponse"/> indicating the result of the operation, 
+        /// that was created contained within a System.Threading.Tasks.Task object representing 
+        /// the service response for the asynchronous operation.</returns>
+        public virtual async Task<AzStorageResponse> DeleteBlobAsync(
+            DeleteSnapshotsOption snapshotsOption = DeleteSnapshotsOption.None,
+            BlobRequestConditions conditions = null,
+            CancellationToken cancellationToken = default,
+            string blobContainerName = default,
+            string blobName = default)
+        {
+            if (!TryInitialize(blobContainerName, blobName, false, false, out AzStorageResponse azStorageResponse))
+                return azStorageResponse;
+
+            return await FuncHelper.ExecuteAsync<DeleteSnapshotsOption, BlobRequestConditions, CancellationToken, Response, AzStorageResponse>(
+                GetBlobClient().DeleteAsync, snapshotsOption, conditions, cancellationToken);
         }
 
         #endregion

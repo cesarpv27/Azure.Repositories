@@ -1,0 +1,83 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace AzStorage.Core.Errors.Blob
+{
+    public class BlobErrorMessage
+    {
+        public const string AppendPositionConditionNotMet = "The append position condition specified was not met.";
+        public const string BlobAlreadyExists = "The specified blob already exists.";
+        public const string BlobImmutableDueToLegalHold = "This operation is not permitted as the blob is immutable due to one or more legal holds.";
+        public const string BlobImmutableDueToPolicy = "This operation is not permitted as the blob is immutable due to a policy.";
+        public const string BlobNotFound = "The specified blob does not exist.";
+        public const string BlobOverwritten = "The blob has been recreated since the previous snapshot was taken.";
+        public const string BlobTierInadequateForContentLength = "The specified blob tier size limit cannot be less than content length.";
+        public const string BlockCountExceedsLimit_CommittedBlock = "The committed block count cannot exceed the maximum limit of 50,000 blocks.";
+        public const string BlockCountExceedsLimit_UncommittedBlock = "The uncommitted block count cannot exceed the maximum limit of 100,000 blocks.";
+        public const string BlockListTooLong = "The block list may not contain more than 50,000 blocks.";
+        public const string CannotChangeToLowerTier = "A higher blob tier has already been explicitly set.";
+        public const string CannotVerifyCopySource = "Could not verify the copy source within the specified time. Examine the HTTP status code and message for more information about the failure.";
+        public const string ContainerAlreadyExists = "The specified container already exists.";
+        public const string ContainerBeingDeleted = "The specified container is being deleted.";
+        public const string ContainerDisabled = "The specified container has been disabled by the administrator.";
+        public const string ContainerHasLegalHold = "The requested operation is not allowed as the container has one or more legal holds.";
+        public const string ContainerImmutabilityPolicyLocked = "The requested operation is not allowed as the container has a locked immutability policy.";
+        public const string ContainerNotFound = "The specified container does not exist.";
+        public const string ContentLengthLargerThanTierLimit = "The blob's content length cannot exceed its tier limit.";
+        public const string CopyAcrossAccountsNotSupported = "The copy source account and destination account must be the same.";
+        public const string CopyIdMismatch = "The specified copy ID did not match the copy ID for the pending copy operation.";
+        public const string DirectorySasNotSupportedVersion = "Directory SAS is not supported in this version.";
+        public const string FeatureVersionMismatch_AppendBlobRequiresLeastVersion = "The operation for AppendBlob requires at least version 2015-02-21.";
+        public const string FeatureVersionMismatch_UnrecognizedByThisVersion = "The type of blob in the container is unrecognized by this version.";
+        public const string IncrementalCopyBlobMismatch = "The specified source blob is different than the copy source of the existing incremental copy blob.";
+        public const string IncrementalCopyOfEarlierVersionSnapshotNotAllowed = "The specified snapshot is earlier than the last snapshot copied into the incremental copy blob.";
+        public const string IncrementalCopySourceMustBeSnapshot = "The source for incremental copy request must be a snapshot.";
+        public const string InfiniteLeaseDurationRequired = "The lease ID matched, but the specified lease must be an infinite-duration lease.";
+        public const string InvalidBlobOrBlock = "The specified blob or block content is invalid.";
+        public const string InvalidBlobTier = "The specified blob tier is invalid.";
+        public const string InvalidBlobType = "The blob type is invalid for this operation.";
+        public const string InvalidBlockId = "The specified block ID is invalid. The block ID must be Base64-encoded.";
+        public const string InvalidBlockList = "The specified block list is invalid.";
+        public const string InvalidOperation = "Invalid operation against a blob snapshot.";
+        public const string InvalidPageRange = "The page range specified is invalid.";
+        public const string InvalidSourceBlobType = "The copy source blob type is invalid for this operation.";
+        public const string InvalidSourceBlobUrl = "The source URL for incremental copy request must be valid Azure Storage blob URL.";
+        public const string InvalidVersionForPageBlobOperation = "All operations on page blobs require at least version 2009-09-19.";
+        public const string LeaseAlreadyPresent = "There is already a lease present.";
+        public const string LeaseAlreadyBroken = "The lease has already been broken and cannot be broken again.";
+        public const string LeaseIdMismatchWithBlobOperation = "The lease ID specified did not match the lease ID for the blob.";
+        public const string LeaseIdMismatchWithContainerOperation = "The lease ID specified did not match the lease ID for the container.";
+        public const string LeaseIdMismatchWithLeaseOperation = "The lease ID specified did not match the lease ID for the blob/container.";
+        public const string LeaseIdMissing = "There is currently a lease on the blob/container and no lease ID was specified in the request.";
+        public const string LeaseIsBreakingAndCannotBeAcquired = "The lease ID matched, but the lease is currently in breaking state and cannot be acquired until it is broken.";
+        public const string LeaseIsBreakingAndCannotBeChanged = "The lease ID matched, but the lease is currently in breaking state and cannot be changed.";
+        public const string LeaseIsBrokenAndCannotBeRenewed = "The lease ID matched, but the lease has been broken explicitly and cannot be renewed.";
+        public const string LeaseLost = "A lease ID was specified, but the lease for the blob/container has expired.";
+        public const string LeaseNotPresentWithBlobOperation = "There is currently no lease on the blob.";
+        public const string LeaseNotPresentWithContainerOperation = "There is currently no lease on the container.";
+        public const string LeaseNotPresentWithLeaseOperation = "There is currently no lease on the blob/container.";
+        public const string MaxBlobSizeConditionNotMet = "The max blob size condition specified was not met.";
+        public const string NoPendingCopyOperation = "There is currently no pending copy operation.";
+        public const string OperationNotAllowedOnIncrementalCopyBlob = "The specified operation is not allowed on an incremental copy blob.";
+        public const string PendingCopyOperation = "There is currently a pending copy operation.";
+        public const string PreviousSnapshotCannotBeNewer = "The prevsnapshot query parameter value cannot be newer than snapshot query parameter value.";
+        public const string PreviousSnapshotNotFound = "The previous snapshot is not found.";
+        public const string PreviousSnapshotOperationNotSupported = "Differential Get Page Ranges is not supported on the previous snapshot.";
+        public const string QueryParameterSddInvalid = "Invalid sdd parameter.";
+        public const string QueryParameterSasMandatory = "The sdd parameter is mandatory in case of directory SAS. Cannot be empty.";
+        public const string SequenceNumberConditionNotMet = "The sequence number condition specified was not met.";
+        public const string SequenceNumberIncrementTooLarge = "The sequence number increment cannot be performed because it would result in overflow of the sequence number.";
+        public const string SnapshotCountExceeded = "The snapshot count against this blob has been exceeded.";
+        public const string SnapshotOperationRateExceeded = "The rate of snapshot operations against this blob has been exceeded.";
+        public const string SnapshotsPresent = "This operation is not permitted while the blob has snapshots.";
+        public const string SourceConditionNotMet = "The source condition specified using HTTP conditional header(s) is not met.";
+        public const string SystemInUse = "This blob is in use by the system.";
+        public const string TargetConditionNotMet = "The target condition specified using HTTP conditional header(s) is not met.";
+        public const string UnauthorizedBlobOverwrite = "This request is not authorized to perform blob overwrites.";
+        public const string UnsupportedHeader = "One of the headers specified in the request is not supported.";
+        public const string BlobBeingRehydrated = "This operation is not permitted because the blob is being rehydrated.";
+        public const string BlobArchived = "This operation is not permitted on an archived blob.";
+        public const string BlobNotArchived = "This blob is currently not in the archived state.";
+    }
+}

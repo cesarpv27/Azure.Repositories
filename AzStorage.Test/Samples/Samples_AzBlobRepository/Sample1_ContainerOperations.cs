@@ -22,7 +22,7 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
         public void CreateBlobContainerDeleteBlobContainerTest()
         {
             // Arrange
-            string blobContainerName = AzBlobUnitTestHelper.GetRandomBlobNameFromDefault();
+            string blobContainerName = AzBlobUnitTestHelper.GetRandomBlobContainerNameFromDefault();
 
             // Act
             var _createBlobContainerResponseAct = AzBlobUnitTestHelper.CreateBlobContainer(blobContainerName);
@@ -37,7 +37,7 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
         public void CreateBlobContainerDeleteBlobContainerTest2()
         {
             // Arrange
-            string blobContainerName = AzBlobUnitTestHelper.GetRandomBlobNameFromDefault();
+            string blobContainerName = AzBlobUnitTestHelper.GetRandomBlobContainerNameFromDefault();
             var _createBlobContainerMetadata = new CreateBlobContainerMetadata
             {
                 BlobContainerName = blobContainerName
@@ -73,7 +73,7 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
         public void CreateBlobContainersDeleteBlobContainerTest2()
         {
             // Arrange
-            var blobContainerNames = new List<string> { AzBlobUnitTestHelper.GetRandomBlobNameFromDefault() };
+            var blobContainerNames = new List<string> { AzBlobUnitTestHelper.GetRandomBlobContainerNameFromDefault() };
             blobContainerNames.Add(string.Empty);
             blobContainerNames.Add(default);
 
@@ -93,7 +93,7 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
         {
             // Arrange
             int namesAmount = 100;
-            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobNamesFromDefault(namesAmount);
+            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobContainerNamesFromDefault(namesAmount);
 
             var cTokenSource = new CancellationTokenSource();
             CancellationToken token = cTokenSource.Token;
@@ -113,12 +113,12 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
         {
             // Arrange
             int namesAmount = 10;
-            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobNamesFromDefault(namesAmount);
+            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobContainerNamesFromDefault(namesAmount);
 
             // Act
             var _createBlobContainersResponseAct = AzBlobUnitTestHelper.CreateBlobContainers(blobContainerNames);
             var _getBlobContainersResponseAct = AzBlobUnitTestHelper.GetBlobContainers(
-                prefix: AzBlobUnitTestHelper.GetDefaultBlobName);
+                prefix: AzBlobUnitTestHelper.GetDefaultBlobContainerName);
             var _deleteBlobContainersResponseAct = AzBlobUnitTestHelper.DeleteBlobContainers(blobContainerNames);
 
             // Assert
@@ -132,7 +132,7 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
         {
             // Arrange
             int namesAmount = 10;
-            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobNamesFromDefault(namesAmount);
+            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobContainerNamesFromDefault(namesAmount);
             var _createBlobContainersMetadata = blobContainerNames
                 .Select(_bcName => new CreateBlobContainerMetadata { BlobContainerName = _bcName });
             var _deleteBlobContainersMetadata = blobContainerNames
@@ -141,7 +141,7 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
             // Act
             var _createBlobContainersResponseAct = AzBlobUnitTestHelper.CreateBlobContainers(_createBlobContainersMetadata);
             var _getBlobContainersResponseAct = AzBlobUnitTestHelper.GetBlobContainers(
-                prefix: AzBlobUnitTestHelper.GetDefaultBlobName);
+                prefix: AzBlobUnitTestHelper.GetDefaultBlobContainerName);
             var _deleteBlobContainersResponseAct = AzBlobUnitTestHelper.DeleteBlobContainers(_deleteBlobContainersMetadata);
 
             // Assert
@@ -155,13 +155,13 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
         {
             // Arrange
             int namesAmount = 10;
-            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobNamesFromDefault(namesAmount);
+            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobContainerNamesFromDefault(namesAmount);
             int take = 3;
 
             // Act
             var _createBlobContainersResponseAct = AzBlobUnitTestHelper.CreateBlobContainers(blobContainerNames);
             var _getBlobContainersResponseAct = AzBlobUnitTestHelper.GetBlobContainers(
-                prefix: AzBlobUnitTestHelper.GetDefaultBlobName, take: take);
+                prefix: AzBlobUnitTestHelper.GetDefaultBlobContainerName, take: take);
             var _deleteBlobContainersResponseAct = AzBlobUnitTestHelper.DeleteBlobContainers(blobContainerNames);
 
             // Assert
@@ -176,7 +176,7 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
         {
             // Arrange
             int namesAmount = 10;
-            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobNamesFromDefault(namesAmount);
+            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobContainerNamesFromDefault(namesAmount);
             int take = 9;
 
             // Act
@@ -196,7 +196,7 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
         {
             // Arrange
             int namesAmount = 10;
-            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobNamesFromDefault(namesAmount);
+            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobContainerNamesFromDefault(namesAmount);
 
             // Act
             var _createBlobContainersResponseAct = AzBlobUnitTestHelper.CreateBlobContainers(blobContainerNames);
@@ -218,7 +218,7 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
         public void CreateBlobContainerAsyncDeleteBlobContainerAsyncTest()
         {
             // Arrange
-            string blobContainerName = AzBlobUnitTestHelper.GetRandomBlobNameFromDefault();
+            string blobContainerName = AzBlobUnitTestHelper.GetRandomBlobContainerNameFromDefault();
 
             // Act
             var _createBlobContainerAsyncResponseAct = AzBlobUnitTestHelper
@@ -235,7 +235,7 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
         public void CreateBlobContainerAsyncDeleteBlobContainerAsyncTest2()
         {
             // Arrange
-            string blobContainerName = AzBlobUnitTestHelper.GetRandomBlobNameFromDefault();
+            string blobContainerName = AzBlobUnitTestHelper.GetRandomBlobContainerNameFromDefault();
             var _createBlobContainerMetadata = new CreateBlobContainerMetadata
             {
                 BlobContainerName = blobContainerName
@@ -275,7 +275,7 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
         public void CreateBlobContainersAsyncDeleteBlobContainerAsyncTest2()
         {
             // Arrange
-            var blobContainerNames = new List<string> { AzBlobUnitTestHelper.GetRandomBlobNameFromDefault() };
+            var blobContainerNames = new List<string> { AzBlobUnitTestHelper.GetRandomBlobContainerNameFromDefault() };
             blobContainerNames.Add(string.Empty);
             blobContainerNames.Add(default);
 
@@ -297,7 +297,7 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
         {
             // Arrange
             int namesAmount = 100;
-            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobNamesFromDefault(namesAmount);
+            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobContainerNamesFromDefault(namesAmount);
 
             var cTokenSource = new CancellationTokenSource();
             CancellationToken token = cTokenSource.Token;
@@ -317,7 +317,7 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
         {
             // Arrange
             int namesAmount = 100;
-            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobNamesFromDefault(namesAmount);
+            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobContainerNamesFromDefault(namesAmount);
             var _createBlobContainersAsyncResponseAct = AzBlobUnitTestHelper
                 .CreateBlobContainersAsync(blobContainerNames).WaitAndUnwrapException();
             UnitTestHelper.AssertExpectedSuccessfulGenResponses(_createBlobContainersAsyncResponseAct);
@@ -351,13 +351,13 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
         {
             // Arrange
             int namesAmount = 10;
-            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobNamesFromDefault(namesAmount);
+            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobContainerNamesFromDefault(namesAmount);
 
             // Act
             var _createBlobContainersAsyncResponseAct = AzBlobUnitTestHelper
                 .CreateBlobContainersAsync(blobContainerNames).WaitAndUnwrapException();
             var _getBlobContainersAsyncResponseAct = AzBlobUnitTestHelper
-                .GetBlobContainersAsync(prefix: AzBlobUnitTestHelper.GetDefaultBlobName).WaitAndUnwrapException();
+                .GetBlobContainersAsync(prefix: AzBlobUnitTestHelper.GetDefaultBlobContainerName).WaitAndUnwrapException();
             var _deleteBlobContainersAsyncResponseAct = AzBlobUnitTestHelper
                 .DeleteBlobContainersAsync(blobContainerNames).WaitAndUnwrapException();
 
@@ -372,7 +372,7 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
         {
             // Arrange
             int namesAmount = 10;
-            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobNamesFromDefault(namesAmount);
+            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobContainerNamesFromDefault(namesAmount);
             var _createBlobContainersMetadata = blobContainerNames
                 .Select(_bcName => new CreateBlobContainerMetadata { BlobContainerName = _bcName });
             var _deleteBlobContainersMetadata = blobContainerNames
@@ -382,7 +382,7 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
             var _createBlobContainersAsyncResponseAct = AzBlobUnitTestHelper.CreateBlobContainersAsync(_createBlobContainersMetadata)
                 .WaitAndUnwrapException();
             var _getBlobContainersAsyncResponseAct = AzBlobUnitTestHelper.GetBlobContainersAsync(
-                prefix: AzBlobUnitTestHelper.GetDefaultBlobName).WaitAndUnwrapException();
+                prefix: AzBlobUnitTestHelper.GetDefaultBlobContainerName).WaitAndUnwrapException();
             var _deleteBlobContainersAsyncResponseAct = AzBlobUnitTestHelper.DeleteBlobContainersAsync(_deleteBlobContainersMetadata)
                 .WaitAndUnwrapException();
 
@@ -397,14 +397,14 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
         {
             // Arrange
             int namesAmount = 10;
-            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobNamesFromDefault(namesAmount);
+            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobContainerNamesFromDefault(namesAmount);
             int take = 3;
 
             // Act
             var _createBlobContainersAsyncResponseAct = AzBlobUnitTestHelper
                 .CreateBlobContainersAsync(blobContainerNames).WaitAndUnwrapException();
             var _getBlobContainersAsyncResponseAct = AzBlobUnitTestHelper
-                .GetBlobContainersAsync(prefix: AzBlobUnitTestHelper.GetDefaultBlobName, take: take).WaitAndUnwrapException();
+                .GetBlobContainersAsync(prefix: AzBlobUnitTestHelper.GetDefaultBlobContainerName, take: take).WaitAndUnwrapException();
             var _deleteBlobContainersAsyncResponseAct = AzBlobUnitTestHelper
                 .DeleteBlobContainersAsync(blobContainerNames).WaitAndUnwrapException();
 
@@ -420,7 +420,7 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
         {
             // Arrange
             int namesAmount = 10;
-            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobNamesFromDefault(namesAmount);
+            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobContainerNamesFromDefault(namesAmount);
             int take = 9;
 
             // Act
@@ -443,7 +443,7 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
         {
             // Arrange
             int namesAmount = 10;
-            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobNamesFromDefault(namesAmount);
+            var blobContainerNames = AzBlobUnitTestHelper.GetRandomBlobContainerNamesFromDefault(namesAmount);
 
             // Act
             var _createBlobContainersAsyncResponseAct = AzBlobUnitTestHelper
