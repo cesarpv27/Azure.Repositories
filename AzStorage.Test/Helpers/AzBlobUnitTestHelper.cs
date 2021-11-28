@@ -401,7 +401,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 
         #region Blob operations
 
-        public static AzStorageResponse<BlobContentInfo> UploadToBlob(
+        public static AzStorageResponse<BlobContentInfo> UploadBlob(
             Stream content,
             bool overwrite = false,
             CancellationToken cancellationToken = default,
@@ -410,9 +410,31 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
         {
             return GetOrCreateAzBlobRepository(optionCreateIfNotExist)
-                .UploadToBlob(content, overwrite, cancellationToken, blobContainerName, blobName);
+                .UploadBlob(content, overwrite, cancellationToken, blobContainerName, blobName);
+        }
+        
+        public static AzStorageResponse<BinaryData> DownloadBlobBinaryData(
+            BlobRequestConditions conditions = null,
+            CancellationToken cancellationToken = default,
+            string blobContainerName = default,
+            string blobName = default,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return GetOrCreateAzBlobRepository(optionCreateIfNotExist)
+                .DownloadBlobBinaryData(conditions, cancellationToken, blobContainerName, blobName);
         }
 
+        public static AzStorageResponse<BlobDownloadResult> DownloadBlob(
+            BlobRequestConditions conditions = null,
+            CancellationToken cancellationToken = default,
+            string blobContainerName = default,
+            string blobName = default,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return GetOrCreateAzBlobRepository(optionCreateIfNotExist)
+                .DownloadBlob(conditions, cancellationToken, blobContainerName, blobName);
+        }
+        
         public static AzStorageResponse DeleteBlob(
             DeleteSnapshotsOption snapshotsOption = DeleteSnapshotsOption.None,
             BlobRequestConditions conditions = null,
@@ -425,11 +447,31 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
                 .DeleteBlob(snapshotsOption, conditions, cancellationToken, blobContainerName, blobName);
         }
 
+        public static List<AzStorageResponse> DeleteBlobDeleteBlobContainer(
+            DeleteSnapshotsOption snapshotsOption = DeleteSnapshotsOption.None,
+            BlobRequestConditions conditions = null,
+            CancellationToken cancellationToken = default,
+            string blobContainerName = default,
+            string blobName = default,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            var result = new List<AzStorageResponse>(2)
+            {
+                GetOrCreateAzBlobRepository(optionCreateIfNotExist)
+                .DeleteBlob(snapshotsOption, conditions, cancellationToken, blobContainerName, blobName),
+
+                GetOrCreateAzBlobRepository(optionCreateIfNotExist)
+                .DeleteBlobContainer(blobContainerName, conditions, cancellationToken)
+            };
+
+            return result;
+        }
+
         #endregion
 
         #region Blob operations async
 
-        public static async Task<AzStorageResponse<BlobContentInfo>> UploadToBlobAsync(
+        public static async Task<AzStorageResponse<BlobContentInfo>> UploadBlobAsync(
             Stream content,
             bool overwrite = false,
             CancellationToken cancellationToken = default,
@@ -438,7 +480,49 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
             CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
         {
             return await GetOrCreateAzBlobRepository(optionCreateIfNotExist)
-                .UploadToBlobAsync(content, overwrite, cancellationToken, blobContainerName, blobName);
+                .UploadBlobAsync(content, overwrite, cancellationToken, blobContainerName, blobName);
+        }
+
+        public static async Task<AzStorageResponse<BinaryData>> DownloadBlobBinaryDataAsync(
+            BlobRequestConditions conditions = null,
+            CancellationToken cancellationToken = default,
+            string blobContainerName = default,
+            string blobName = default,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return await GetOrCreateAzBlobRepository(optionCreateIfNotExist)
+                .DownloadBlobBinaryDataAsync(conditions, cancellationToken, blobContainerName, blobName);
+        }
+
+        public static async Task<AzStorageResponse<BlobDownloadResult>> DownloadBlobAsync(
+            BlobRequestConditions conditions = null,
+            CancellationToken cancellationToken = default,
+            string blobContainerName = default,
+            string blobName = default,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            return await GetOrCreateAzBlobRepository(optionCreateIfNotExist)
+                .DownloadBlobAsync(conditions, cancellationToken, blobContainerName, blobName);
+        }
+
+        public static async Task<List<AzStorageResponse>> DeleteBlobDeleteBlobContainerAsync(
+            DeleteSnapshotsOption snapshotsOption = DeleteSnapshotsOption.None,
+            BlobRequestConditions conditions = null,
+            CancellationToken cancellationToken = default,
+            string blobContainerName = default,
+            string blobName = default,
+            CreateResourcePolicy optionCreateIfNotExist = CreateResourcePolicy.OnlyFirstTime)
+        {
+            var result = new List<AzStorageResponse>(2)
+            {
+                await GetOrCreateAzBlobRepository(optionCreateIfNotExist)
+                .DeleteBlobAsync(snapshotsOption, conditions, cancellationToken, blobContainerName, blobName),
+
+                await GetOrCreateAzBlobRepository(optionCreateIfNotExist)
+                .DeleteBlobContainerAsync(blobContainerName, conditions, cancellationToken)
+            };
+
+            return result;
         }
 
         #endregion

@@ -12,7 +12,7 @@ namespace AzStorage.Test.Samples.Samples_AzTableRepository
         [Fact, TestPriority(100)]
         public void CreateAzTableRepositoryTest1()
         {
-            Assert.Throws<ArgumentNullException>(() => new Repositories.AzTableRepository(connectionString: string.Empty));
+            Assert.Throws<NullReferenceException>(() => new Repositories.AzTableRepository(connectionString: string.Empty));
         }
 
         [Fact, TestPriority(100)]

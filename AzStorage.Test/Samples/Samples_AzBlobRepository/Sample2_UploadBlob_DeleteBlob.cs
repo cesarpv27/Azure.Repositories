@@ -10,10 +10,10 @@ using Azure.Storage.Blobs.Models;
 namespace AzStorage.Test.Samples.Samples_AzBlobRepository
 {
     [TestCaseOrderer("AzStorage.Test.Utilities.PriorityOrderer", "AzStorage.Test")]
-    public class Sample2_UploadToBlob_DeleteBlob
+    public class Sample2_UploadBlob_DeleteBlob
     {
-        [Fact, TestPriority(100)]
-        public void UploadToBlob_DeleteBlobTest()
+        [Fact, TestPriority(210)]
+        public void UploadBlob_DeleteBlobTest()
         {
             // Arrange
             var blobStream = AzBlobUnitTestHelper.SampleTextStream;
@@ -25,14 +25,14 @@ namespace AzStorage.Test.Samples.Samples_AzBlobRepository
             var snapshotsOption = DeleteSnapshotsOption.None;
 
             // Act
-            var _uploadToBlobResponseAct = AzBlobUnitTestHelper.UploadToBlob(blobStream, overwrite, cancellationToken,
+            var _uploadToBlobResponseAct = AzBlobUnitTestHelper.UploadBlob(blobStream, overwrite, cancellationToken,
                 blobContainerName, blobName);
-            var _deleteBlobResponseAct = AzBlobUnitTestHelper.DeleteBlob(snapshotsOption, default, cancellationToken,
-                default, blobName);
+            var _deleteBlobDeleteBlobContainerResponseAct = AzBlobUnitTestHelper.DeleteBlobDeleteBlobContainer(snapshotsOption,
+                default, cancellationToken, blobContainerName, blobName);
 
             // Assert
             UnitTestHelper.AssertExpectedSuccessfulGenResponse(_uploadToBlobResponseAct);
-            UnitTestHelper.AssertExpectedSuccessfulResponse(_deleteBlobResponseAct);
+            UnitTestHelper.AssertExpectedSuccessfulResponses(_deleteBlobDeleteBlobContainerResponseAct);
         }
 
     }
