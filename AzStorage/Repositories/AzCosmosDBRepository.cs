@@ -65,17 +65,18 @@ namespace AzStorage.Repositories
 
         protected virtual void ThrowIfInvalidAccountEndpointUri(string accountEndpointUri)
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(accountEndpointUri, nameof(accountEndpointUri));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(accountEndpointUri, nameof(accountEndpointUri), nameof(accountEndpointUri));
         }
 
         protected virtual void ThrowIfInvalidAuthKeyOrResourceToken(string authKeyOrResourceToken)
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(authKeyOrResourceToken, nameof(authKeyOrResourceToken));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(authKeyOrResourceToken, 
+                nameof(authKeyOrResourceToken), nameof(authKeyOrResourceToken));
         }
 
         protected virtual void ThrowIfInvalidDatabaseId(string databaseId)
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(databaseId, nameof(databaseId));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(databaseId, nameof(databaseId), nameof(databaseId));
         }
 
         protected virtual void ThrowIfContainerIdOrPartitionKeyPathNullOrEmpty(string containerId, string partitionKeyPath)
@@ -86,12 +87,12 @@ namespace AzStorage.Repositories
 
         protected virtual void ThrowIfInvalidContainerId(string containerId)
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(containerId, nameof(containerId));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(containerId, nameof(containerId), nameof(containerId));
         }
 
         protected virtual void ThrowIfInvalidPartitionKeyPath(string partitionKeyPath)
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(partitionKeyPath, nameof(partitionKeyPath), nameof(partitionKeyPath));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(partitionKeyPath, nameof(partitionKeyPath), nameof(partitionKeyPath));
             if (!partitionKeyPath.StartsWith(ConstProvider.CosmosPartitionKeyPathStartPattern))
                 ExThrower.ST_ThrowArgumentException(nameof(partitionKeyPath), $"{nameof(partitionKeyPath)} does not have the expected format");
         }
@@ -122,7 +123,7 @@ namespace AzStorage.Repositories
 
         protected virtual void ThrowIfInvalidPartitionKeyValue(string partitionKey)
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(partitionKey, nameof(partitionKey));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(partitionKey, nameof(partitionKey), nameof(partitionKey));
         }
         
         protected virtual void ThrowIfInvalidPartitionKeyValue<T>(T entity, Func<T, string> funcGetPartitionKey)
@@ -132,7 +133,7 @@ namespace AzStorage.Repositories
 
         protected virtual void ThrowIfInvalidId(string id)
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(id, nameof(id));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(id, nameof(id), nameof(id));
         }
 
         protected virtual void ThrowIfInvalidId<T>(T entity, Func<T, string> funcGetId)

@@ -24,8 +24,8 @@ namespace AzStorage.Core.Queues
 
         protected virtual void Initialize(string messageId, string popReceipt)
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(messageId, nameof(messageId), nameof(messageId));
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(popReceipt, nameof(popReceipt), nameof(popReceipt));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(messageId, nameof(messageId), nameof(messageId));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(popReceipt, nameof(popReceipt), nameof(popReceipt));
 
             MessageId = messageId;
             PopReceipt = popReceipt;

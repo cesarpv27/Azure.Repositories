@@ -29,7 +29,7 @@ namespace AzStorage.Repositories
             AzQueueClientOptions queueClientOptions = null,
             AzQueueRetryOptions retryOptions = null) : base(createTableResource, retryOptions)
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(connectionString, nameof(connectionString));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(connectionString, nameof(connectionString), nameof(connectionString));
 
             ConnectionString = connectionString;
             AzQueueClientOptions = queueClientOptions;
@@ -350,12 +350,12 @@ namespace AzStorage.Repositories
 
         protected virtual void ThrowIfInvalidQueueName(string queueName, string paramName = null, string message = null)
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(queueName, paramName, message);
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(queueName, paramName, message);
         }
 
         protected virtual void ThrowIfInvalidMessageText(string messageText)
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(messageText, nameof(messageText));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(messageText, nameof(messageText), nameof(messageText));
         }
         
         protected virtual void ThrowIfInvalidMessage(BinaryData message)
@@ -375,8 +375,8 @@ namespace AzStorage.Repositories
         
         protected virtual void ThrowIfInvalidMessageIdPopReceipt(string messageId, string popReceipt)
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(messageId, nameof(messageId), nameof(messageId));
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(popReceipt, nameof(popReceipt), nameof(popReceipt));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(messageId, nameof(messageId), nameof(messageId));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(popReceipt, nameof(popReceipt), nameof(popReceipt));
         }
 
         protected virtual void ThrowIfInvalidMaxMessagesValue(int? maxMessages)
@@ -393,8 +393,8 @@ namespace AzStorage.Repositories
 
             ExThrower.ST_ThrowIfArgumentIsNull(receiptMetadata, paramName);
 
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(receiptMetadata.MessageId, nameof(receiptMetadata.MessageId), nameof(receiptMetadata.MessageId));
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(receiptMetadata.PopReceipt, nameof(receiptMetadata.PopReceipt), nameof(receiptMetadata.PopReceipt));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(receiptMetadata.MessageId, nameof(receiptMetadata.MessageId), nameof(receiptMetadata.MessageId));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(receiptMetadata.PopReceipt, nameof(receiptMetadata.PopReceipt), nameof(receiptMetadata.PopReceipt));
         }
         
         protected virtual void ThrowIfInvalidExpandedReceiptMetadata(ExpandedReceiptMetadata expReceiptMetadata)

@@ -166,7 +166,7 @@ namespace AzStorage.Repositories
 
         protected virtual void ThrowIfInvalidTableName(string tableName)
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(tableName, nameof(tableName));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(tableName, nameof(tableName), nameof(tableName));
         }
 
         #endregion
@@ -1283,7 +1283,7 @@ namespace AzStorage.Repositories
             ETag ifMatch = default,
             CancellationToken cancellationToken = default) where TOut : AzStorageResponse, new()
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(tableName, nameof(tableName));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(tableName, nameof(tableName), nameof(tableName));
 
             return FuncHelper.Execute<string, string, ETag, CancellationToken, Response, TOut>(
                 GetTableClient(tableName).DeleteEntity,
@@ -1334,7 +1334,7 @@ namespace AzStorage.Repositories
             CancellationToken cancellationToken = default,
             int amount = ConstProvider.DefaultTake)
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(tableName, nameof(tableName));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(tableName, nameof(tableName), nameof(tableName));
 
             var entitiesToDel = QueryByPartitionKey<TableEntity>(partitionKey, cancellationToken, amount, tableName);
 
@@ -1385,7 +1385,7 @@ namespace AzStorage.Repositories
             CancellationToken cancellationToken = default,
             int amount = ConstProvider.DefaultTake)
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(tableName, nameof(tableName));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(tableName, nameof(tableName), nameof(tableName));
 
             var entitiesToDel = QueryByPartitionKeyStartPattern<TableEntity>(partitionKeyStartPattern, cancellationToken, amount, tableName);
 
@@ -1440,7 +1440,7 @@ namespace AzStorage.Repositories
             CancellationToken cancellationToken = default,
             int amount = ConstProvider.DefaultTake)
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(tableName, nameof(tableName));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(tableName, nameof(tableName), nameof(tableName));
 
             var entitiesToDel = QueryByPartitionKeyRowKeyStartPattern<TableEntity>(partitionKey, rowKeyStartPattern, cancellationToken, amount, tableName);
 
@@ -1509,7 +1509,7 @@ namespace AzStorage.Repositories
             string tableName,
             CancellationToken cancellationToken = default)
         {
-            ExThrower.ST_ThrowIfArgumentIsNullOrEmptyOrWhitespace(tableName, nameof(tableName));
+            ExThrower.ST_ThrowIfArgumentIsNullOrWhitespace(tableName, nameof(tableName), nameof(tableName));
 
             var entitiesToDel = QueryAll<TableEntity>(cancellationToken: cancellationToken, tableName: tableName);
 
